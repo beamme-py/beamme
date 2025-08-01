@@ -27,8 +27,7 @@ import numpy as _np
 
 from beamme.core.conf import bme as _bme
 from beamme.core.element_beam import Beam as _Beam
-from beamme.core.element_beam import Beam2 as _Beam2
-from beamme.core.element_beam import Beam3 as _Beam3
+from beamme.core.element_beam import generate_beam_class as _generate_beam_class
 from beamme.four_c.four_c_types import BeamType as _BeamType
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
@@ -52,10 +51,7 @@ def dump_four_c_beam_to_list(self) -> dict:
     self._check_material()
 
     # Gather the element data for the input file.
-    element_data = self.data.copy()
-    element_data["type"] = _INPUT_FILE_MAPPINGS["beam_types"][
-        type(self).four_c_beam_type
-    ]
+    element_data = type(self).four_c_element_data | self.data
     element_data["MAT"] = self.material
     if type(self).four_c_triads:
         element_data["TRIADS"] = [
@@ -63,6 +59,7 @@ def dump_four_c_beam_to_list(self) -> dict:
             for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][len(self.nodes)]
             for item in self.nodes[i].rotation.get_rotation_vector()
         ]
+    # TODO: Check if we can move this to the four_c_element_data.
     if type(self).four_c_is_hermite_centerline:
         element_data["HERMITE_CENTERLINE"] = True
     return {
@@ -80,102 +77,90 @@ def dump_four_c_beam_to_list(self) -> dict:
     }
 
 
-class Beam3rHerm2Line3(_Beam3):
-    """Represents a Simo-Reissner beam element with third order Hermitian
-    interpolation of the centerline and second order Lagrangian interpolation
-    of the rotations."""
+def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[_Beam]:
+    """Return a Simo-Reissner beam for 4C."""
 
-    four_c_beam_type: _BeamType = _BeamType.reissner
-    four_c_is_hermite_centerline = True
-    four_c_triads = True
+    four_c_element_data = {
+        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.reissner]
+    }
 
-    valid_material = [_MaterialReissner, _MaterialReissnerElastoplastic]
+    if is_hermite_centerline:
+        coupling_fix_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 1, 1, 1, 0, 0, 0]}
+        coupling_joint_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 0, 0, 0, 0, 0, 0]}
+    else:
+        coupling_fix_dict = {"NUMDOF": 6, "ONOFF": [1, 1, 1, 1, 1, 1]}
+        coupling_joint_dict = {"NUMDOF": 6, "ONOFF": [1, 1, 1, 0, 0, 0]}
 
-    coupling_fix_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 1, 1, 1, 0, 0, 0]}
-    coupling_joint_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 0, 0, 0, 0, 0, 0]}
-
-    def dump_to_list(self):
-        """Return a list with the (single) item representing this element."""
-        return dump_four_c_beam_to_list(self)
-
-
-class Beam3rLine2Line2(_Beam2):
-    """Represents a Reissner beam with linear shape functions in the rotations
-    as well as the displacements."""
-
-    four_c_beam_type = _BeamType.reissner
-    four_c_is_hermite_centerline = False
-    four_c_triads = True
-
-    valid_material = [_MaterialReissner]
-
-    coupling_fix_dict = {"NUMDOF": 6, "ONOFF": [1, 1, 1, 1, 1, 1]}
-    coupling_joint_dict = {"NUMDOF": 6, "ONOFF": [1, 1, 1, 0, 0, 0]}
-
-    def dump_to_list(self):
-        """Return a list with the (single) item representing this element."""
-        return dump_four_c_beam_to_list(self)
+    return type(
+        "BeamFourCSimoReissner",
+        (_generate_beam_class(n_nodes),),
+        {
+            "four_c_beam_type": _BeamType.reissner,
+            "four_c_is_hermite_centerline": is_hermite_centerline,
+            "four_c_triads": True,
+            "four_c_element_data": four_c_element_data,
+            "valid_materials": [_MaterialReissner, _MaterialReissnerElastoplastic],
+            "coupling_fix_dict": coupling_fix_dict,
+            "coupling_joint_dict": coupling_joint_dict,
+            "dump_to_list": dump_four_c_beam_to_list,
+        },
+    )
 
 
-class Beam3kClass(_Beam3):
-    """Represents a Kirchhoff beam element."""
+Beam3rHerm2Line3 = get_four_c_reissner_beam(n_nodes=3, is_hermite_centerline=True)
+Beam3rLine2Line2 = get_four_c_reissner_beam(n_nodes=2, is_hermite_centerline=False)
 
-    four_c_beam_type = _BeamType.kirchhoff
-    four_c_is_hermite_centerline = False  # In 4C, the centerline is Hermitian but we don't require this information in the input file.
-    four_c_triads = True
 
-    valid_material = [_MaterialKirchhoff]
+def get_four_c_kirchhoff_beam(weak=True, rotvec=True, is_fad=True) -> type[_Beam]:
+    """Return a Kirchhoff-Love beam for 4C."""
+
+    # Set the parameters for this beam.
+    four_c_element_data = {
+        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.kirchhoff],
+        "WK": weak,
+        "ROTVEC": 1 if rotvec else 0,
+    }
+    # TODO: Move this default to the four_c_element_data.
+    if is_fad:
+        four_c_element_data["USE_FAD"] = True
+
+    # Show warning when not using rotvec.
+    if not rotvec:
+        _warnings.warn(
+            "Use rotvec=False with caution, especially when applying the boundary conditions "
+            "and couplings."
+        )
 
     coupling_fix_dict = {"NUMDOF": 7, "ONOFF": [1, 1, 1, 1, 1, 1, 0]}
     coupling_joint_dict = {"NUMDOF": 7, "ONOFF": [1, 1, 1, 0, 0, 0, 0]}
 
-    def __init__(self, *, weak=True, rotvec=True, is_fad=True, **kwargs):
-        _Beam.__init__(self, **kwargs)
-
-        # Set the parameters for this beam.
-        self.data["WK"] = weak
-        self.data["ROTVEC"] = 1 if rotvec else 0
-        if is_fad:
-            self.data["USE_FAD"] = True
-
-        # Show warning when not using rotvec.
-        if not rotvec:
-            _warnings.warn(
-                "Use rotvec=False with caution, especially when applying the boundary conditions "
-                "and couplings."
-            )
-
-    def dump_to_list(self):
-        """Return a list with the (single) item representing this element."""
-        return dump_four_c_beam_to_list(self)
+    return type(
+        "BeamFourCKirchhoffLove",
+        (_generate_beam_class(3),),
+        {
+            "four_c_beam_type": _BeamType.kirchhoff,
+            "four_c_is_hermite_centerline": False,  # In 4C, the centerline is Hermitian but we don't require this information in the input file.
+            "four_c_triads": True,
+            "four_c_element_data": four_c_element_data,
+            "valid_materials": [_MaterialKirchhoff],
+            "coupling_fix_dict": coupling_fix_dict,
+            "coupling_joint_dict": coupling_joint_dict,
+            "dump_to_list": dump_four_c_beam_to_list,
+        },
+    )
 
 
-def Beam3k(**kwargs_class):
-    """This factory returns a function that creates a new Beam3kClass object
-    with certain attributes defined.
-
-    The returned function behaves like a call to the object.
-    """
-
-    def create_class(**kwargs):
-        """The function that will be returned.
-
-        This function should behave like the call to the __init__
-        function of the class.
-        """
-        return Beam3kClass(**kwargs_class, **kwargs)
-
-    return create_class
-
-
-class Beam3eb(_Beam2):
+class Beam3eb(_generate_beam_class(2)):
     """Represents a Euler Bernoulli beam element."""
 
     four_c_beam_type = _BeamType.euler_bernoulli
     four_c_is_hermite_centerline = False
     four_c_triads = False
+    four_c_element_data = {
+        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.euler_bernoulli]
+    }
 
-    valid_material = [_MaterialEulerBernoulli]
+    valid_materials = [_MaterialEulerBernoulli]
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this element."""

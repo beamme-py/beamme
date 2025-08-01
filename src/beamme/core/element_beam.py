@@ -44,7 +44,7 @@ class Beam(_Element):
     nodes_create: _Any = []
 
     # A list of valid material types for this element.
-    valid_material: _Any = []
+    valid_materials: _Any = []
 
     # Coupling strings.
     coupling_fix_string: _Optional[str] = None
@@ -182,7 +182,7 @@ class Beam(_Element):
     def _check_material(self):
         """Check if the linked material is valid for this type of beam
         element."""
-        for material_type in type(self).valid_material:
+        for material_type in type(self).valid_materials:
             if isinstance(self.material, material_type):
                 break
         else:

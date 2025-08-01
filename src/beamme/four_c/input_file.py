@@ -99,7 +99,10 @@ def _dump_coupling(coupling):
             )
         element_type = element_types.pop()
         if element_type.four_c_beam_type is _BeamType.kirchhoff:
-            rotvec = {element.data["ROTVEC"] for element in connected_elements}
+            rotvec = {
+                type(element).four_c_element_data["ROTVEC"]
+                for element in connected_elements
+            }
             if len(rotvec) > 1 or not rotvec.pop():
                 raise TypeError(
                     "Couplings for Kirchhoff beams and rotvec==False not yet implemented."
