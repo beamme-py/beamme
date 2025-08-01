@@ -22,9 +22,17 @@
 """This file provides the mappings between BeamMe objects and 4C input
 files."""
 
-from beamme.core.conf import bme as _bme
+from typing import Any as _Any
 
-INPUT_FILE_MAPPINGS = {
+from beamme.core.conf import bme as _bme
+from beamme.four_c.four_c_types import BeamType as _BeamType
+
+INPUT_FILE_MAPPINGS: dict[str, _Any] = {
+    "beam_types": {
+        _BeamType.reissner: "BEAM3R",
+        _BeamType.kirchhoff: "BEAM3K",
+        _BeamType.euler_bernoulli: "BEAM3EB",
+    },
     "boundary_conditions": {
         (_bme.bc.dirichlet, _bme.geo.point): "DESIGN POINT DIRICH CONDITIONS",
         (_bme.bc.dirichlet, _bme.geo.line): "DESIGN LINE DIRICH CONDITIONS",
@@ -86,4 +94,6 @@ INPUT_FILE_MAPPINGS = {
         _bme.geo.surface: "DSURF-NODE TOPOLOGY",
         _bme.geo.volume: "DVOL-NODE TOPOLOGY",
     },
+    "n_nodes_to_cell_type": {2: "LINE2", 3: "LINE3"},
+    "n_nodes_to_node_ordering": {2: [0, 1], 3: [0, 2, 1]},
 }

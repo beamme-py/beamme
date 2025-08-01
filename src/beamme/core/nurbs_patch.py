@@ -36,7 +36,7 @@ class NURBSPatch(_Element):
     """A base class for a NURBS patch."""
 
     # A list of valid material types for this element
-    valid_material = [_MaterialSolidBase]
+    valid_materials = [_MaterialSolidBase]
 
     def __init__(
         self,
@@ -158,7 +158,7 @@ class NURBSPatch(_Element):
     def _check_material(self) -> None:
         """Check if the linked material is valid for this type of NURBS solid
         element."""
-        for material_type in type(self).valid_material:
+        for material_type in type(self).valid_materials:
             if isinstance(self.material, material_type):
                 return
         raise TypeError(
