@@ -139,29 +139,35 @@ class BeamPotential:
         """
 
         settings = {
-            "POT_LAW_PREFACTOR": " ".join(map(str, self.pot_law_prefactor)),
-            "POT_LAW_EXPONENT": " ".join(map(str, self.pot_law_exponent)),
-            "TYPE": potential_type,
-            "CUTOFF_RADIUS": cutoff_radius,
-            "STRATEGY": evaluation_strategy,
-            "N_INTEGRATION_SEGMENTS": integration_segments,
-            "N_GAUSS_POINTS": gauss_points,
-            "POTENTIAL_REDUCTION_LENGTH": potential_reduction_length,
-            "AUTOMATIC_DIFFERENTIATION": automatic_differentiation,
+            "type": potential_type,
+            "strategy": evaluation_strategy,
+            "potential_law_prefactors": self.pot_law_prefactor,
+            "potential_law_exponents": self.pot_law_exponent,
+            "automatic_differentiation": automatic_differentiation,
+            "cutoff_radius": cutoff_radius,
+            "n_integration_segments": integration_segments,
+            "n_gauss_points": gauss_points,
+            "potential_reduction_length": potential_reduction_length,
         }
 
         if regularization_type is not None:
             settings = settings | {
-                "REGULARIZATION_TYPE": regularization_type,
-                "REGULARIZATION_SEPARATION": regularization_separation,
+                "regularization": {
+                    "type": regularization_type,
+                    "separation": regularization_separation,
+                }
             }
 
         if choice_master_slave is not None:
-            settings = settings | {"CHOICE_MASTER_SLAVE": choice_master_slave}
+            settings = settings | {"choice_master_slave": choice_master_slave}
 
-        self.input_file.add(
-            {"BEAM POTENTIAL": settings},
-        )
+        # check if the section already exists, so one can either create the settings or runtime output settings first
+        if "beam_potential" in self.input_file.sections:
+            existing_entries = self.input_file.pop("beam_potential")
+            existing_entries.update(settings)
+            self.input_file["beam_potential"] = existing_entries
+        else:
+            self.input_file.add({"beam_potential": settings})
 
     def add_runtime_output(
         self,
@@ -195,19 +201,27 @@ class BeamPotential:
             If the forces/moments should be written per element pair.
         """
 
-        self.input_file.add(
-            {
-                "BEAM POTENTIAL/RUNTIME VTK OUTPUT": {
-                    "VTK_OUTPUT_BEAM_POTENTIAL": output_beam_potential,
-                    "INTERVAL_STEPS": interval_steps,
-                    "EVERY_ITERATION": every_iteration,
-                    "FORCES": forces,
-                    "MOMENTS": moments,
-                    "WRITE_UIDS": uids,
-                    "WRITE_FORCE_MOMENT_PER_ELEMENTPAIR": per_ele_pair,
-                }
+        runtime_output_settings = {
+            "runtime_output": {
+                "interval_steps": interval_steps,
+                "force": forces,
+                "moment": moments,
+                "every_iteration": every_iteration,
+                "write_force_moment_per_elementpair": per_ele_pair,
+                "write_uids": uids,
             }
-        )
+        }
+
+        if not output_beam_potential:
+            runtime_output_settings["runtime_output"]["interval_steps"] = None
+
+        # check if the section already exists, so one can either create the settings or runtime output settings first
+        if "beam_potential" in self.input_file.sections:
+            existing_entries = self.input_file.pop("beam_potential")
+            existing_entries.update(runtime_output_settings)
+            self.input_file["beam_potential"] = existing_entries
+        else:
+            self.input_file.add({"beam_potential": runtime_output_settings})
 
     def add_potential_charge_condition(self, *, geometry_set=None):
         """Add potential charge condition to geometry.
@@ -223,7 +237,7 @@ class BeamPotential:
                 self.pot_law_line_charge_density, self.pot_law_line_charge_density_funcs
             )
         ):
-            if func != "none":
+            if func:
                 self.mesh.add(func)
 
             bc = _BoundaryCondition(
