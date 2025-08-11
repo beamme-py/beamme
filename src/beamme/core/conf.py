@@ -24,6 +24,15 @@
 from enum import Enum as _Enum
 from enum import auto as _auto
 
+# Lines to be added to each created input file
+INPUT_FILE_HEADER = [
+    "-" * 40,
+    "This input file was created with BeamMe.",
+    "Copyright (c) 2018-2025 BeamMe Authors",
+    "https://beamme-py.github.io/beamme/",
+    "-" * 40,
+]
+
 
 class Geometry(_Enum):
     """Enum for geometry types."""
@@ -110,15 +119,6 @@ class BeamMe(object):
 
         # Check for overlapping elements when creating an input file.
         self.check_overlapping_elements = True
-
-        # Lines to be added to each created input file
-        self.input_file_header = [
-            "-" * 40,
-            "This input file was created with BeamMe.",
-            "Copyright (c) 2018-2025 BeamMe Authors",
-            "https://beamme-py.github.io/beamme/",
-            "-" * 40,
-        ]
 
 
 bme = BeamMe()
