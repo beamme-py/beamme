@@ -87,27 +87,6 @@ class GeometricSearchAlgorithm(_Enum):
     boundary_volume_hierarchy_arborx = _auto()
 
 
-class VTKGeometry(_Enum):
-    """Enum for VTK geometry types (for now cells and points)."""
-
-    point = _auto()
-    cell = _auto()
-
-
-class VTKTensor(_Enum):
-    """Enum for VTK tensor types."""
-
-    scalar = _auto()
-    vector = _auto()
-
-
-class VTKType(_Enum):
-    """Enum for VTK value types."""
-
-    int = _auto()
-    float = _auto()
-
-
 class BeamMe(object):
     """A global object that stores options for the whole BeamMe application."""
 
@@ -129,14 +108,6 @@ class BeamMe(object):
         # Geometric search options.
         self.geometric_search_algorithm = GeometricSearchAlgorithm
 
-        # VTK types.
-        # Geometry types, cell or point.
-        self.vtk_geo = VTKGeometry
-        # Tensor types, scalar or vector.
-        self.vtk_tensor = VTKTensor
-        # Data types, integer or float.
-        self.vtk_type = VTKType
-
     def set_default_values(self):
         """Set the configuration to the default values."""
 
@@ -148,13 +119,6 @@ class BeamMe(object):
         # Allow the rotation of beams when connected and the triads do not
         # match.
         self.allow_beam_rotation = True
-
-        # Number of digits for node set output (this will be set in the
-        # Mesh.get_unique_geometry_sets() method.
-        self.vtk_node_set_format = "{:05}"
-        # Nan values for vtk data, since we currently can't set nan explicitly.
-        self.vtk_nan_int = -1
-        self.vtk_nan_float = 0.0
 
         # Check for overlapping elements when creating an input file.
         self.check_overlapping_elements = True
