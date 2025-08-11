@@ -78,15 +78,6 @@ class DoubleNodes(_Enum):
     keep = _auto()
 
 
-class GeometricSearchAlgorithm(_Enum):
-    """Enum for VTK value types."""
-
-    automatic = _auto()
-    brute_force_cython = _auto()
-    binning_cython = _auto()
-    boundary_volume_hierarchy_arborx = _auto()
-
-
 class BeamMe(object):
     """A global object that stores options for the whole BeamMe application."""
 
@@ -104,9 +95,6 @@ class BeamMe(object):
 
         # Handling of multiple nodes in Neumann bcs.
         self.double_nodes = DoubleNodes
-
-        # Geometric search options.
-        self.geometric_search_algorithm = GeometricSearchAlgorithm
 
     def set_default_values(self):
         """Set the configuration to the default values."""
