@@ -27,6 +27,7 @@ from enum import auto as _auto
 
 import numpy as _np
 
+from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.conf import bme as _bme
 from beamme.core.geometry_set import GeometrySet as _GeometrySet
 from beamme.core.mesh import Mesh as _Mesh
@@ -139,7 +140,7 @@ class AbaqusInputFile(object):
 
         # Add the lines to the input file
         input_file_lines = []
-        input_file_lines.extend(["** " + line for line in _bme.input_file_header])
+        input_file_lines.extend(["** " + line for line in _INPUT_FILE_HEADER])
         input_file_lines.extend(self.get_nodes_lines())
         input_file_lines.extend(self.get_element_lines())
         input_file_lines.extend(self.get_material_lines())

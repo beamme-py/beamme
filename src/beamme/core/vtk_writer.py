@@ -24,11 +24,42 @@
 import numbers as _numbers
 import os as _os
 import warnings as _warnings
+from enum import Enum as _Enum
+from enum import auto as _auto
 
 import numpy as _np
 import vtk as _vtk
 
 from beamme.core.conf import bme as _bme
+
+# Number of digits for node set output (this will be set in the
+# Mesh.get_unique_geometry_sets() method.
+VTK_NODE_SET_FORMAT = "{:05}"
+
+# Nan values for vtk data, since we currently can't set nan explicitly.
+VTK_NAN_INT = -1
+VTK_NAN_FLOAT = 0.0
+
+
+class VTKGeometry(_Enum):
+    """Enum for VTK geometry types (for now cells and points)."""
+
+    point = _auto()
+    cell = _auto()
+
+
+class VTKType(_Enum):
+    """Enum for VTK value types."""
+
+    int = _auto()
+    float = _auto()
+
+
+class VTKTensor(_Enum):
+    """Enum for VTK tensor types."""
+
+    scalar = _auto()
+    vector = _auto()
 
 
 def add_point_data_node_sets(point_data, nodes, *, extra_points=0):
@@ -57,10 +88,10 @@ def add_point_data_node_sets(point_data, nodes, *, extra_points=0):
             if geometry_set in node.node_sets_link:
                 data_vector[i] = 1
             else:
-                data_vector[i] = _bme.vtk_nan_int
+                data_vector[i] = VTK_NAN_INT
         for i in range(extra_points):
             data_vector[n_nodes + i] = (
-                1 if geometry_set.geometry_type is _bme.geo.line else _bme.vtk_nan_int
+                1 if geometry_set.geometry_type is _bme.geo.line else VTK_NAN_INT
             )
 
         # Get the name of the geometry type.
@@ -77,7 +108,7 @@ def add_point_data_node_sets(point_data, nodes, *, extra_points=0):
 
         # Add the data vector.
         set_name = f"{geometry_name}_set_{_bme.vtk_node_set_format.format(geometry_set.i_global + 1)}"
-        point_data[set_name] = (data_vector, _bme.vtk_type.int)
+        point_data[set_name] = (data_vector, VTKType.int)
 
 
 def _get_data_value_and_type(data):
@@ -88,16 +119,16 @@ def _get_data_value_and_type(data):
     if isinstance(data, tuple):
         return data[0], data[1]
     else:
-        return data, _bme.vtk_type.float
+        return data, VTKType.float
 
 
 def _get_vtk_array_type(data):
     """Return the corresponding beamme type."""
     data_type = data.GetDataTypeAsString()
     if data_type == "int":
-        return _bme.vtk_type.int
+        return VTKType.int
     elif data_type == "double":
-        return _bme.vtk_type.float
+        return VTKType.float
     raise ValueError(f'Got unexpected type "{data_type}"!')
 
 
@@ -115,8 +146,8 @@ class VTKWriter:
 
         # Container for output data.
         self.data = {}
-        for key1 in _bme.vtk_geo:
-            for key2 in _bme.vtk_tensor:
+        for key1 in VTKGeometry:
+            for key2 in VTKTensor:
                 self.data[key1, key2] = {}
 
     def add_points(self, points, *, point_data=None):
@@ -150,7 +181,7 @@ class VTKWriter:
                     )
 
         # Add point data
-        self._add_data(point_data, _bme.vtk_geo.point, n_new_items=n_points)
+        self._add_data(point_data, VTKGeometry.point, n_new_items=n_points)
 
         # Add point coordinates
         n_grid_points = self.points.GetNumberOfPoints()
@@ -178,7 +209,7 @@ class VTKWriter:
         """
 
         # Add the data entries.
-        self._add_data(cell_data, _bme.vtk_geo.cell)
+        self._add_data(cell_data, VTKGeometry.cell)
 
         # Create the cell.
         geometry_item = cell_type()
@@ -210,7 +241,7 @@ class VTKWriter:
         # Check if data container already exists. If not, add it and also add
         # previous entries.
         if data_container is not None:
-            if vtk_geom_type == _bme.vtk_geo.cell:
+            if vtk_geom_type == VTKGeometry.cell:
                 n_items = self.grid.GetNumberOfCells()
             else:
                 n_items = self.grid.GetNumberOfPoints()
@@ -220,7 +251,7 @@ class VTKWriter:
                 value, data_type = _get_data_value_and_type(item_value)
 
                 # Data type.
-                if vtk_geom_type == _bme.vtk_geo.cell:
+                if vtk_geom_type == VTKGeometry.cell:
                     vtk_tensor_type = self._get_vtk_data_type(value)
                 else:
                     for item in value:
@@ -229,12 +260,12 @@ class VTKWriter:
                 # Check if key already exists.
                 if key not in self.data[vtk_geom_type, vtk_tensor_type].keys():
                     # Set up the VTK data array.
-                    if data_type is _bme.vtk_type.float:
+                    if data_type is VTKType.float:
                         data = _vtk.vtkDoubleArray()
                     else:
                         data = _vtk.vtkIntArray()
                     data.SetName(key)
-                    if vtk_tensor_type == _bme.vtk_tensor.scalar:
+                    if vtk_tensor_type == VTKTensor.scalar:
                         data.SetNumberOfComponents(1)
                     else:
                         data.SetNumberOfComponents(3)
@@ -260,7 +291,7 @@ class VTKWriter:
 
         # Add to global data. Check if there is something to be added. If not an empty value
         # is added.
-        for key_tensor in _bme.vtk_tensor:
+        for key_tensor in VTKTensor:
             global_data = self.data[vtk_geom_type, key_tensor]
             if data_container is None:
                 data_container = {}
@@ -272,7 +303,7 @@ class VTKWriter:
                     data_values, _ = _get_data_value_and_type(data_container[key])
 
                     # Add the given data.
-                    if vtk_geom_type == _bme.vtk_geo.cell:
+                    if vtk_geom_type == VTKGeometry.cell:
                         self._add_single_data_item(
                             value, key_tensor, non_zero_data=data_values
                         )
@@ -283,7 +314,7 @@ class VTKWriter:
                             )
                 else:
                     # Add empty data.
-                    if vtk_geom_type == _bme.vtk_geo.cell:
+                    if vtk_geom_type == VTKGeometry.cell:
                         self._add_single_data_item(value, key_tensor)
                     else:
                         for item in range(n_new_items):
@@ -298,12 +329,12 @@ class VTKWriter:
 
         if isinstance(data, (list, _np.ndarray)):
             if len(data) == 3:
-                return _bme.vtk_tensor.vector
+                return VTKTensor.vector
             raise IndexError(
                 f"Only 3d vectors are implemented yet! Got len(data) = {len(data)}"
             )
         elif isinstance(data, _numbers.Number):
-            return _bme.vtk_tensor.scalar
+            return VTKTensor.scalar
 
         raise ValueError(f"Data {data} did not match any expected case!")
 
@@ -311,12 +342,12 @@ class VTKWriter:
     def _add_single_data_item(data, vtk_tensor_type, non_zero_data=None):
         """Add data to a VTK data array."""
 
-        if _get_vtk_array_type(data) == _bme.vtk_type.int:
-            nan_value = _bme.vtk_nan_int
-        elif _get_vtk_array_type(data) == _bme.vtk_type.float:
-            nan_value = _bme.vtk_nan_float
+        if _get_vtk_array_type(data) == VTKType.int:
+            nan_value = VTK_NAN_INT
+        elif _get_vtk_array_type(data) == VTKType.float:
+            nan_value = VTK_NAN_FLOAT
 
-        if vtk_tensor_type == _bme.vtk_tensor.scalar:
+        if vtk_tensor_type == VTKTensor.scalar:
             if non_zero_data is None:
                 data.InsertNextTuple1(nan_value)
             else:
@@ -333,7 +364,7 @@ class VTKWriter:
         """Add the stored data to the vtk grid."""
         for (key_geom, _key_data), value in self.data.items():
             for vtk_data in value.values():
-                if key_geom == _bme.vtk_geo.cell:
+                if key_geom == VTKGeometry.cell:
                     self.grid.GetCellData().AddArray(vtk_data)
                 else:
                     self.grid.GetPointData().AddArray(vtk_data)

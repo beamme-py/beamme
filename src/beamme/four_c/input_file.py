@@ -32,6 +32,7 @@ from typing import List as _List
 from fourcipp.fourc_input import FourCInput as _FourCInput
 
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
+from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
 from beamme.core.function import Function as _Function
@@ -211,9 +212,7 @@ class InputFile(_FourCInput):
                 lines = input_file.readlines()
 
                 if add_header_default:
-                    lines = [
-                        "# " + line + "\n" for line in _bme.input_file_header
-                    ] + lines
+                    lines = ["# " + line + "\n" for line in _INPUT_FILE_HEADER] + lines
 
                 if add_footer_application_script:
                     application_path = _Path(_sys.argv[0]).resolve()
