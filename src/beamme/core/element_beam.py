@@ -44,7 +44,7 @@ class Beam(_Element):
     nodes_create: _Any = []
 
     # A list of valid material types for this element.
-    valid_material: _Any = []
+    valid_materials: _Any = []
 
     # Coupling strings.
     coupling_fix_string: _Optional[str] = None
@@ -182,7 +182,7 @@ class Beam(_Element):
     def _check_material(self):
         """Check if the linked material is valid for this type of beam
         element."""
-        for material_type in type(self).valid_material:
+        for material_type in type(self).valid_materials:
             if isinstance(self.material, material_type):
                 break
         else:
@@ -341,3 +341,26 @@ class Beam(_Element):
         vtk_writer_beam.add_cell(
             _vtk.vtkPolyLine, indices[point_connectivity], cell_data=cell_data
         )
+
+
+def generate_beam_class(n_nodes: int):
+    """Return a class representing a general beam with n_nodes in BeamMe.
+
+    Args:
+        n_nodes: Number of equally spaced nodes along the beam centerline.
+
+    Returns:
+        A beam object that has n_nodes along the centerline.
+    """
+
+    # Define the class variable responsible for creating the nodes.
+    nodes_create = _np.linspace(-1, 1, num=n_nodes)
+
+    # Create the beam class which inherits from the base beam class.
+    return type(f"Beam{n_nodes}", (Beam,), {"nodes_create": nodes_create})
+
+
+Beam2 = generate_beam_class(2)
+Beam3 = generate_beam_class(3)
+Beam4 = generate_beam_class(4)
+Beam5 = generate_beam_class(5)
