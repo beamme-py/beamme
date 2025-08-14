@@ -236,6 +236,11 @@ def create_block_cubit():
     # Create the block.
     cube = create_brick(cubit, 1, 1, 1, mesh_factor=9)
 
+    # Set the material.
+    cubit.fourc_input["MATERIALS"] = [
+        {"MAT": 1, "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2}}
+    ]
+
     # Add the boundary condition.
     cubit.add_node_set(
         cube.volumes()[0],
@@ -288,6 +293,12 @@ def create_solid_shell_meshes(file_path_blocks, file_path_dome):
             element_type=element_type,
             mesh=True,
         )
+        cubit.fourc_input["MATERIALS"] = [
+            {
+                "MAT": 1,
+                "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2},
+            }
+        ]
         _, mesh = import_cubitpy_model(cubit, convert_input_to_mesh=True)
         return mesh
 
@@ -330,4 +341,10 @@ def create_solid_shell_meshes(file_path_blocks, file_path_dome):
         cubit, [cubit.surface(2)], 0.1, n_layer=1
     )
     cubit.add_element_type(dome_mesh, cupy.element_type.hex8sh)
+    cubit.fourc_input["MATERIALS"] = [
+        {
+            "MAT": 1,
+            "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2},
+        }
+    ]
     cubit.dump(file_path_dome)
