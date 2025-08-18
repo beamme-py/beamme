@@ -191,7 +191,7 @@ def test_four_c_simulation_beam_potential_helix(
         pot_law_prefactor=[-1.0e-3, 12.45e-8],
         pot_law_exponent=[6.0, 12.0],
         pot_law_line_charge_density=[1.0, 2.0],
-        pot_law_line_charge_density_funcs=[fun, "none"],
+        pot_law_line_charge_density_funcs=[fun, None],
     )
 
     # set headers for static case and beam potential
