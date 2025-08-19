@@ -1,3 +1,9 @@
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2
 BEAM INTERACTION/BEAM TO SOLID SURFACE MESHTYING SURFACE:
   - COUPLING_ID: 2
     E: 1

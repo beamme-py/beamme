@@ -1,4 +1,9 @@
-MATERIALS: []
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2
 NODE COORDS:
   - NODE 1 COORD -1.8 0 15
   - NODE 2 COORD -1.8 0 13.5

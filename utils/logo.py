@@ -1197,6 +1197,9 @@ def create_2d_mesh_cubit(plot_data):
             volume.mesh()
             cubit.add_element_type(volume, cupy.element_type.tet4)
 
+    # Set the material.
+    cubit.fourc_input["MATERIALS"] = [{"MAT": 1, "dummy": {}}]
+
     cubit.dump(plot_data["input_file_name"])
 
 

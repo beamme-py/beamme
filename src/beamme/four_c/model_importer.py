@@ -51,6 +51,7 @@ from beamme.four_c.input_file import (
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
+from beamme.four_c.material import MaterialSolid as _MaterialSolid
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 
 if _cubitpy_is_available():
@@ -112,12 +113,13 @@ def import_four_c_model(
         return input_file, _Mesh()
 
 
-def _element_from_dict(nodes: _List[_Node], element: dict):
+def _element_from_dict(nodes: _List[_Node], element: dict, material_id_map: dict):
     """Create a solid element from a dictionary from a 4C input file.
 
     Args:
         nodes: A list of nodes that are part of the element.
         element: A dictionary with the element data.
+        material_id_map: A map between the global material ID and the BeamMe material object.
     Returns:
         A solid element object.
     """
@@ -139,7 +141,14 @@ def _element_from_dict(nodes: _List[_Node], element: dict):
             f"Could not create a BeamMe element for {element['data']['type']} {element['cell']['type']}!"
         )
 
-    return element_type[element["cell"]["type"]](nodes=nodes, data=element["data"])
+    created_element = element_type[element["cell"]["type"]](
+        nodes=nodes, data=element["data"]
+    )
+    # Check if we have to link this element to a material object (rigid spheres do not
+    # have a material).
+    if "MAT" in created_element.data:
+        created_element.data["MAT"] = material_id_map[created_element.data["MAT"]]
+    return created_element
 
 
 def _boundary_condition_from_dict(
@@ -211,17 +220,41 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
     # Go through all sections that have to be converted to full BeamMe objects
     mesh = _Mesh()
 
+    # Add materials
+    material_id_map = {}
+    if "MATERIALS" in input_file:
+        for material_in_input_file in input_file.pop("MATERIALS"):
+            material_id = material_in_input_file.pop("MAT")
+            if not len(material_in_input_file) == 1:
+                raise ValueError(
+                    f"Could not convert the material data {material_in_input_file} to a BeamMe material."
+                )
+            material_string = list(material_in_input_file.keys())[0]
+            material_data = list(material_in_input_file.values())[0]
+            material = _MaterialSolid(
+                material_string=material_string, data=material_data
+            )
+            material_id_map[material_id] = material
+            mesh.add(material)
+
     # Add nodes
     if "NODE COORDS" in input_file:
         mesh.nodes = [_Node(node["COORD"]) for node in input_file.pop("NODE COORDS")]
 
     # Add elements
     if "STRUCTURE ELEMENTS" in input_file:
-        for element in input_file.pop("STRUCTURE ELEMENTS"):
+        for element_in_input_file in input_file.pop("STRUCTURE ELEMENTS"):
             nodes = [
-                mesh.nodes[node_id - 1] for node_id in element["cell"]["connectivity"]
+                mesh.nodes[node_id - 1]
+                for node_id in element_in_input_file["cell"]["connectivity"]
             ]
-            mesh.elements.append(_element_from_dict(nodes=nodes, element=element))
+            mesh.elements.append(
+                _element_from_dict(
+                    nodes=nodes,
+                    element=element_in_input_file,
+                    material_id_map=material_id_map,
+                )
+            )
 
     # Add geometry sets
     geometry_sets_in_sections: dict[str, dict[int, _GeometrySetNodes]] = {

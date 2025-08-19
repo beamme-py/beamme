@@ -123,6 +123,11 @@ def create_solid_block(cubit, file_path, nx, ny, nz):
         )
         counter += 1
 
+    # Set the material.
+    cubit.fourc_input["MATERIALS"] = [
+        {"MAT": 1, "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2}}
+    ]
+
     # Export mesh
     cubit.dump(file_path)
 
