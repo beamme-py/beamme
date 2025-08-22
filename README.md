@@ -232,7 +232,7 @@ If you also want to execute the associated test suite check out our [development
 
 BeamMe can run 4C simulations directly from within a Python script, allowing for full control over arbitrarily complex simulation workflows. Fore more information, please have a look at the `beamme.four_c.run_four_c` module.
 
-### [CubitPy](https://github.com/beamme-py/cubitpy)
+### [CubitPy](https://github.com/imcs-compsim/cubitpy)
 
 CubitPy is a Python library that contains utility functions extending the Cubit/Coreform Python interface. Furthermore, it allows for the easy creation of 4C-compatible input files directly from within Python. BeamMe can import meshes created with CubitPy and allows for further modification and manipulation of them.
 
