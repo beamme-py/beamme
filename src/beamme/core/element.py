@@ -34,7 +34,7 @@ class Element(_BaseMeshItem):
         if nodes is None:
             self.nodes = []
         else:
-            self.nodes = nodes
+            self.nodes = nodes.copy()
 
         # Material of this element.
         self.material = material

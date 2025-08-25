@@ -21,20 +21,21 @@
 # THE SOFTWARE.
 """This file provides functions to create Abaqus beam element classes."""
 
-import numpy as _np
-
-from beamme.core.element_beam import Beam as _Beam
+from beamme.core.element_beam import Beam2 as _Beam2
+from beamme.core.element_beam import Beam3 as _Beam3
 
 
 def generate_abaqus_beam(beam_type: str):
     """Return a class representing a beam in Abaqus. This class can be used in
     the standard mesh generation functions.
 
-    Args
-    ----
-    beam_type: str:
-        Abaqus identifier for this beam element. For more details, have a look
-        at the Abaqus manual on "Choosing a beam element"
+    Args:
+        beam_type: Abaqus identifier for this beam element. For more details,
+            have a look at the Abaqus manual on "Choosing a beam element".
+
+    Returns:
+        A class representing the Abaqus beam element. The class inherits from
+        the BeamX class, depending on the number of nodes.
     """
 
     if not beam_type[0].lower() == "b":
@@ -46,24 +47,20 @@ def generate_abaqus_beam(beam_type: str):
     if not n_dim == 3:
         raise ValueError("Currently only 3D beams in Abaqus are supported")
     if element_type == 1:
-        n_nodes = 2
+        base_class = _Beam2
     elif element_type == 2:
-        n_nodes = 3
+        base_class = _Beam3
     elif element_type == 3:
-        n_nodes = 2
+        base_class = _Beam2
     else:
         raise ValueError(f"Got unexpected element_type {element_type}")
-
-    # Define the class variable responsible for creating the nodes.
-    nodes_create = _np.linspace(-1, 1, num=n_nodes)
 
     # Create the Abaqus beam class.
     return type(
         "BeamAbaqus" + beam_type,
-        (_Beam,),
+        (base_class,),
         {
             "beam_type": beam_type,
-            "nodes_create": nodes_create,
             "n_dim": n_dim,
         },
     )

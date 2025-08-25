@@ -44,9 +44,9 @@ from beamme.core.rotation import Rotation
 from beamme.core.vtk_writer import VTKWriter
 from beamme.four_c.element_beam import (
     Beam3eb,
-    Beam3k,
     Beam3rHerm2Line3,
     Beam3rLine2Line2,
+    get_four_c_kirchhoff_beam,
 )
 from beamme.four_c.header_functions import (
     add_result_description,
@@ -81,13 +81,14 @@ from beamme.utils.nodes import (
 from tests.create_cubit_input import create_tube_cubit
 
 
-def create_test_mesh(mesh):
+def create_test_mesh():
     """Fill the mesh with a couple of test nodes and elements."""
 
     # Set the seed for the pseudo random numbers
     random.seed(0)
 
     # Add material to mesh.
+    mesh = Mesh()
     material = MaterialReissner()
     mesh.add(material)
 
@@ -115,16 +116,15 @@ def create_test_mesh(mesh):
         n_el=3,
     )
 
+    return mesh
+
 
 def test_rotations(assert_results_close):
     """Check if the Mesh function rotation gives the same results as rotating
     each node it self."""
 
-    mesh_1 = Mesh()
-    create_test_mesh(mesh_1)
-
-    mesh_2 = Mesh()
-    create_test_mesh(mesh_2)
+    mesh_1 = create_test_mesh()
+    mesh_2 = create_test_mesh()
 
     # Set the seed for the pseudo random numbers
     random.seed(0)
@@ -147,11 +147,8 @@ def test_mesh_rotations_individual(assert_results_close):
     """Check if the Mesh function rotation gives the same results as rotating
     each node it self, when an array is passed with different rotations."""
 
-    mesh_1 = Mesh()
-    create_test_mesh(mesh_1)
-
-    mesh_2 = Mesh()
-    create_test_mesh(mesh_2)
+    mesh_1 = create_test_mesh()
+    mesh_2 = create_test_mesh()
 
     # Set the seed for the pseudo random numbers
     random.seed(0)
@@ -565,7 +562,9 @@ def test_kirchhoff_beam(assert_results_close, get_corresponding_reference_file_p
                 for rotvec in (True, False):
                     # Define the beam object factory function for the
                     # creation functions.
-                    BeamObject = Beam3k(weak=weak, rotvec=rotvec, is_fad=is_fad)
+                    BeamObject = get_four_c_kirchhoff_beam(
+                        weak=weak, rotvec=rotvec, is_fad=is_fad
+                    )
 
                     # Create a beam.
                     set_1 = create_beam_mesh_line(
