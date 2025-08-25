@@ -215,6 +215,35 @@ def test_space_time_varying_material_length(
     )
 
 
+def test_space_time_named_node_set(
+    assert_results_close, get_corresponding_reference_file_path
+):
+    """Create a straight beam and check that named node sets are handled
+    correctly."""
+
+    # Create the beam mesh in space
+    mesh = Mesh()
+    mat = MaterialBeamBase()
+    beam_type = generate_beam_class(2)
+    create_beam_mesh_line(mesh, beam_type, mat, [0, 0, 0], [6, 0, 0], n_el=2)
+
+    # Get the space-time mesh
+    space_time_mesh, return_set = beam_to_space_time(mesh, 6.9, 3, time_start=2.5)
+
+    # Add all sets to the mesh
+    return_set["start"].name = "start"
+    return_set["right"].name = "right"
+    return_set["surface"].name = "surface"
+    space_time_mesh.add(return_set)
+
+    # Check the mesh data arrays
+    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    assert_results_close(
+        get_corresponding_reference_file_path(extension="json"),
+        mesh_data_arrays,
+    )
+
+
 @pytest.mark.performance
 def test_performance_create_mesh_in_space(evaluate_execution_time, cache_data):
     """Test the performance of the mesh creation in space."""
