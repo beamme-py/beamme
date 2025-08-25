@@ -304,12 +304,17 @@ def mesh_to_data_arrays(mesh: _Mesh):
             )
 
     geometry_sets = mesh.get_unique_geometry_sets()
-    node_sets: _Dict[str, _List] = {}
+    node_sets: _Dict[str, _Dict] = {}
     for value in geometry_sets.values():
         for geometry_set in value:
-            node_sets[str(len(node_sets) + 1)] = _np.array(
-                [node.i_global for node in geometry_set.get_all_nodes()]
-            )
+            node_set_data = {
+                "node_ids": _np.array(
+                    [node.i_global for node in geometry_set.get_all_nodes()]
+                )
+            }
+            if geometry_set.name is not None:
+                node_set_data["name"] = geometry_set.name
+            node_sets[str(len(node_sets) + 1)] = node_set_data
 
     return_dict = {
         "coordinates": coordinates,
