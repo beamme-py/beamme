@@ -24,6 +24,15 @@
 from enum import Enum as _Enum
 from enum import auto as _auto
 
+# Lines to be added to each created input file
+INPUT_FILE_HEADER = [
+    "-" * 40,
+    "This input file was created with BeamMe.",
+    "Copyright (c) 2018-2025 BeamMe Authors",
+    "https://beamme-py.github.io/beamme/",
+    "-" * 40,
+]
+
 
 class Geometry(_Enum):
     """Enum for geometry types."""
@@ -78,36 +87,6 @@ class DoubleNodes(_Enum):
     keep = _auto()
 
 
-class GeometricSearchAlgorithm(_Enum):
-    """Enum for VTK value types."""
-
-    automatic = _auto()
-    brute_force_cython = _auto()
-    binning_cython = _auto()
-    boundary_volume_hierarchy_arborx = _auto()
-
-
-class VTKGeometry(_Enum):
-    """Enum for VTK geometry types (for now cells and points)."""
-
-    point = _auto()
-    cell = _auto()
-
-
-class VTKTensor(_Enum):
-    """Enum for VTK tensor types."""
-
-    scalar = _auto()
-    vector = _auto()
-
-
-class VTKType(_Enum):
-    """Enum for VTK value types."""
-
-    int = _auto()
-    float = _auto()
-
-
 class BeamMe(object):
     """A global object that stores options for the whole BeamMe application."""
 
@@ -126,17 +105,6 @@ class BeamMe(object):
         # Handling of multiple nodes in Neumann bcs.
         self.double_nodes = DoubleNodes
 
-        # Geometric search options.
-        self.geometric_search_algorithm = GeometricSearchAlgorithm
-
-        # VTK types.
-        # Geometry types, cell or point.
-        self.vtk_geo = VTKGeometry
-        # Tensor types, scalar or vector.
-        self.vtk_tensor = VTKTensor
-        # Data types, integer or float.
-        self.vtk_type = VTKType
-
     def set_default_values(self):
         """Set the configuration to the default values."""
 
@@ -149,24 +117,8 @@ class BeamMe(object):
         # match.
         self.allow_beam_rotation = True
 
-        # Number of digits for node set output (this will be set in the
-        # Mesh.get_unique_geometry_sets() method.
-        self.vtk_node_set_format = "{:05}"
-        # Nan values for vtk data, since we currently can't set nan explicitly.
-        self.vtk_nan_int = -1
-        self.vtk_nan_float = 0.0
-
         # Check for overlapping elements when creating an input file.
         self.check_overlapping_elements = True
-
-        # Lines to be added to each created input file
-        self.input_file_header = [
-            "-" * 40,
-            "This input file was created with BeamMe.",
-            "Copyright (c) 2018-2025 BeamMe Authors",
-            "https://beamme-py.github.io/beamme/",
-            "-" * 40,
-        ]
 
 
 bme = BeamMe()
