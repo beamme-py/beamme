@@ -25,6 +25,7 @@ import os
 
 import numpy as np
 import pytest
+import quaternion
 
 from beamme.core.boundary_condition import BoundaryCondition
 from beamme.core.conf import bme
@@ -47,6 +48,7 @@ from beamme.four_c.header_functions import (
     set_runtime_output,
 )
 from beamme.four_c.input_file import InputFile
+from beamme.four_c.locsys_condition import LocSysCondition
 from beamme.four_c.material import MaterialReissner
 from beamme.four_c.model_importer import import_four_c_model
 from beamme.four_c.run_four_c import run_four_c
@@ -1111,7 +1113,7 @@ def test_four_c_simulation_beam_to_beam_contact_example(
 
     # Set up mesh and material.
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.1, youngs_modulus=1)
+    mat = MaterialReissner(radius=r_beam, youngs_modulus=1)
 
     # Create a beam in x-axis.
     beam_x = create_beam_mesh_line(
@@ -1226,3 +1228,162 @@ def test_four_c_simulation_beam_to_beam_contact_example(
 
     initial_run_name = "beam_to_beam_contact_simulation"
     run_four_c_test(tmp_path, initial_run_name, input_file, n_proc=1)
+
+
+@pytest.mark.parametrize(*PYTEST_4C_SIMULATION_PARAMETRIZE)
+def test_four_c_simulation_locsys(
+    tmp_path,
+    enforce_four_c,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
+    """Create a star like structure made out of 3 beams to test complex locsys
+    conditions.
+
+    We first rotate the star and then apply a prescribed displacemet to
+    its center.
+    """
+
+    # Define Parameters for example
+    l_beam = 2
+    r_beam = 0.05
+    n_ele_base = 2
+
+    # Set up mesh and material.
+    mesh = Mesh()
+    mat = MaterialReissner(radius=r_beam, youngs_modulus=1)
+
+    # List of rotations to be applied on the full stystem starting from time t=0.
+    initial_rotation = Rotation()
+    final_rotation = Rotation([1, 2, 3], np.pi / 5.0)
+    time_values = np.linspace(0, 1, 10)
+    rotations = [
+        Rotation.from_quaternion(
+            quaternion.slerp_evaluate(
+                initial_rotation.get_numpy_quaternion(),
+                final_rotation.get_numpy_quaternion(),
+                xi,
+            )  # TODO: Add slerp for BeamMe rotations
+        )
+        for xi in time_values
+    ]
+
+    # Create the beams.
+    for i in range(3):
+        phi = np.pi * 2.0 / 3.0 * i
+        ref_position = l_beam * np.array([np.cos(phi), np.sin(phi), 0])
+        beam_set = create_beam_mesh_line(
+            mesh,
+            Beam3rHerm2Line3,
+            mat,
+            [0, 0, 0],
+            ref_position,
+            n_el=n_ele_base
+            + i,  # A variable number of elements helps to take the symmetry out of the system.
+        )
+
+        # Get the functions describing the rotation vector components.
+        ref_rotation = Rotation([0, 0, 1], phi)
+        rotation_vectors = np.array(
+            [(rotation * ref_rotation).get_rotation_vector() for rotation in rotations]
+        )
+        rotation_vector_component_functions = [
+            create_linear_interpolation_function(
+                time_values, rotation_vectors[:, i_dir]
+            )
+            for i_dir in range(3)
+        ]
+        mesh.add(rotation_vector_component_functions)
+
+        # Get the "displacements" for the end node for each time step, also in the locsys coordinate system.
+        displacements = np.array(
+            [rotation * ref_position - ref_position for rotation in rotations]
+        )
+        displacements_locsys = np.array(
+            [
+                (rotation * ref_rotation).inv() * displacement
+                for rotation, displacement in zip(rotations, displacements)
+            ]
+        )
+        displacements_locsys_functions = [
+            create_linear_interpolation_function(
+                time_values, displacements_locsys[:, i_dir]
+            )
+            for i_dir in range(3)
+        ]
+        mesh.add(displacements_locsys_functions)
+
+        # Set the boundary condition and locsys on the outer end.
+        mesh.add(
+            LocSysCondition(
+                beam_set["end"],
+                Rotation.from_rotation_vector(
+                    [1, 1, 1]
+                ),  # This is a hack for now to ensure that we directly use the values from the functions.
+                function_array=rotation_vector_component_functions,
+            )
+        )
+        mesh.add(
+            BoundaryCondition(
+                beam_set["end"],
+                {
+                    "NUMDOF": 9,
+                    "ONOFF": [0, 1, 1] + [0] * 6,
+                    "VAL": [1, 1, 1] + [0] * 6,
+                    "FUNCT": displacements_locsys_functions + [0] * 6,
+                },
+                bc_type=bme.bc.dirichlet,
+            )
+        )
+
+    # Couple the nodes at the origin together.
+    mesh.couple_nodes()
+
+    # Apply the boundary condition to the last node at the origin. This DBC is applied starting from time t=1
+    f_dbc = create_linear_interpolation_function([0, 1, 2], [0, 0, 1])
+    mesh.add(f_dbc)
+    mesh.add(LocSysCondition(beam_set["start"], final_rotation))
+    mesh.add(
+        BoundaryCondition(
+            beam_set["start"],
+            {
+                "NUMDOF": 9,
+                "ONOFF": [0, 0, 1] + [0] * 6,
+                "VAL": [0, 0, 1.0] + [0] * 6,
+                "FUNCT": [0, 0, f_dbc] + [0] * 6,
+            },
+            bc_type=bme.bc.dirichlet,
+        )
+    )
+
+    # Create the input file
+    input_file = InputFile()
+
+    # Add the standard,static header.
+    set_header_static(
+        input_file,
+        total_time=2.0,
+        n_steps=20,
+        tol_residuum=1e-12,
+        tol_increment=1e-12,
+    )
+    set_runtime_output(input_file)
+
+    # Add the mesh to the input file.
+    input_file.add(mesh)
+
+    # Add result checks
+    displacements = [
+        [-6.26693202358605039e-01, 8.32271999424795572e-01, -4.56166283491497349e-01]
+    ]
+    nodes = [5]
+    add_result_description(input_file, displacements, nodes, tol=1e-10)
+
+    # Compare with the reference solution.
+    assert_results_close(get_corresponding_reference_file_path(), input_file)
+
+    # Check if we still have to actually run 4C.
+    if not enforce_four_c:
+        return
+
+    run_four_c_test(tmp_path, "test_four_c_simulation_locsys", input_file, n_proc=1)
