@@ -96,28 +96,27 @@ STRUCTURE ELEMENTS:
   - 5 WALLNURBS NURBS9 9 10 11 13 14 15 17 18 19 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
   - 6 WALLNURBS NURBS9 10 11 12 14 15 16 18 19 20 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
 STRUCTURE KNOTVECTORS:
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 1
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
+  PATCHES:
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 1

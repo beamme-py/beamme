@@ -267,99 +267,94 @@ BEAM INTERACTION/BEAM TO SOLID VOLUME MESHTYING LINE:
   - E: 37
     COUPLING_ID: 1
 STRUCTURE KNOTVECTORS:
-  - "NURBS_DIMENSION 3"
-  - "BEGIN NURBSPATCH"
-  - "ID 1"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "END NURBSPATCH"
-  - "NURBS_DIMENSION 3"
-  - "BEGIN NURBSPATCH"
-  - "ID 2"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "END NURBSPATCH"
-  - "NURBS_DIMENSION 3"
-  - "BEGIN NURBSPATCH"
-  - "ID 3"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "NUMKNOTS 6"
-  - "DEGREE 2"
-  - "TYPE Interpolated"
-  - "0.0"
-  - "0.0"
-  - "0.0"
-  - "1.0"
-  - "1.0"
-  - "1.0"
-  - "END NURBSPATCH"
+  PATCHES:
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 1
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 2
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 3
 DSURF-NODE TOPOLOGY:
   - "NODE 3 DSURFACE 1"
   - "NODE 6 DSURFACE 1"

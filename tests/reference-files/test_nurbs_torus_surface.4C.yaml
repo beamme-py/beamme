@@ -1386,403 +1386,372 @@ STRUCTURE ELEMENTS:
   - 95 WALLNURBS NURBS9 309 310 311 313 314 315 317 318 319 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
   - 96 WALLNURBS NURBS9 310 311 312 314 315 316 318 319 320 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
 STRUCTURE KNOTVECTORS:
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 1
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 2
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 3
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 4
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 5
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 6
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 7
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 8
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 9
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 10
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 11
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 12
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 13
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 14
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 15
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 16
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 8
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.3333333333333333'
-  - '0.6666666666666666'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
+  PATCHES:
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 1
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 2
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 3
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 4
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 5
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 6
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 7
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 8
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 9
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 10
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 11
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 12
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 13
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 14
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 15
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.3333333333333333
+            - 0.6666666666666666
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 16

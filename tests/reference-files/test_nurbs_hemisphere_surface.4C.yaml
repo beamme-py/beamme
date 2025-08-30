@@ -370,123 +370,114 @@ STRUCTURE ELEMENTS:
   - 19 WALLNURBS NURBS9 69 70 71 73 74 75 77 78 79 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
   - 20 WALLNURBS NURBS9 70 71 72 74 75 76 78 79 80 MAT 1 KINEM linear EAS none THICK 1.0 STRESS_STRAIN plane_strain GP 3 3
 STRUCTURE KNOTVECTORS:
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 1
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 2
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 3
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 4
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
-  - NURBS_DIMENSION 2
-  - BEGIN NURBSPATCH
-  - ID 5
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - NUMKNOTS 7
-  - DEGREE 2
-  - TYPE Interpolated
-  - '0.0'
-  - '0.0'
-  - '0.0'
-  - '0.5'
-  - '1.0'
-  - '1.0'
-  - '1.0'
-  - END NURBSPATCH
+  PATCHES:
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 1
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 2
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 3
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 4
+    - KNOT_VECTORS:
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+        - DEGREE: 2
+          TYPE: Interpolated
+          KNOTS:
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.5
+            - 1.0
+            - 1.0
+            - 1.0
+      ID: 5

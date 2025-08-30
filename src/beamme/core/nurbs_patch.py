@@ -55,7 +55,7 @@ class NURBSPatch(_Element):
         self.polynomial_orders = polynomial_orders
 
         # Set numbers for elements
-        self.n_nurbs_patch = None
+        self.i_nurbs_patch = None
 
     def get_nurbs_dimension(self) -> int:
         """Determine the number of dimensions of the NURBS structure.
@@ -91,7 +91,7 @@ class NURBSPatch(_Element):
         """Set the knot vectors of the NURBS patch in the input file."""
 
         patch_data: dict[str, _Any] = {
-            "knot_vectors": [],
+            "KNOT_VECTORS": [],
         }
 
         for dir_manifold in range(self.get_nurbs_dimension()):
@@ -111,24 +111,31 @@ class NURBSPatch(_Element):
                     knotvector_type = "Periodic"
                     break
 
-            patch_data["knot_vectors"].append(
+            patch_data["KNOT_VECTORS"].append(
                 {
                     "DEGREE": self.polynomial_orders[dir_manifold],
                     "TYPE": knotvector_type,
-                    "knots": [
+                    "KNOTS": [
                         knot_vector_val
                         for knot_vector_val in self.knot_vectors[dir_manifold]
                     ],
                 }
             )
 
-        if "STRUCTURE KNOTVECTORS" not in input_file:
-            input_file.add({"STRUCTURE KNOTVECTORS": []})
-            input_file["STRUCTURE KNOTVECTORS"] = []
+        if "STRUCTURE KNOTVECTORS" in input_file:
+            # Get all existing patches in the input file - they will be added to the
+            # input file again at the end of this function. By doing it this way, the
+            # FourCIPP type converter will be applied to the current patch.
+            # This also means that we apply the type converter again already existing
+            # patches. But, with the usual number of patches and data size, this
+            # should not lead to a measurable performance impact.
+            patches = input_file.pop("STRUCTURE KNOTVECTORS")["PATCHES"]
+        else:
+            patches = []
 
-        patches = input_file["STRUCTURE KNOTVECTORS"]
-        patch_data["ID"] = len(patches) + 1
+        patch_data["ID"] = self.i_nurbs_patch + 1
         patches.append(patch_data)
+        input_file.add({"STRUCTURE KNOTVECTORS": {"PATCHES": patches}})
 
     def get_number_elements(self) -> int:
         """Determine the number of elements in this patch by checking the
