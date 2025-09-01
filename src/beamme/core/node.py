@@ -94,15 +94,6 @@ class Node(_BaseMeshItem):
         """Don't do anything for a standard node, as this node can not be
         rotated."""
 
-    def dump_to_list(self):
-        """Return a list with the legacy string representing this node."""
-
-        return {
-            "id": self.i_global + 1,
-            "COORD": self.coordinates,
-            "data": {"type": "NODE"},
-        }
-
 
 class NodeCosserat(Node):
     """This object represents a Cosserat node in the mesh, i.e., it contains
@@ -152,13 +143,3 @@ class ControlPoint(Node):
 
         # Weight of this node
         self.weight = weight
-
-    def dump_to_list(self):
-        """Return a list with the legacy string representing this control
-        point."""
-
-        return {
-            "id": self.i_global + 1,
-            "COORD": self.coordinates,
-            "data": {"type": "CP", "weight": self.weight},
-        }

@@ -40,18 +40,6 @@ class VolumeElement(_Element):
         super().__init__(nodes=nodes, material=None, **kwargs)
         self.data = data
 
-    def dump_to_list(self):
-        """Return a dict with the items representing this object."""
-
-        return {
-            "id": self.i_global + 1,
-            "cell": {
-                "type": element_type_to_four_c_string[type(self)],
-                "connectivity": self.nodes,
-            },
-            "data": self.data,
-        }
-
     def get_vtk(self, vtk_writer_beam, vtk_writer_solid, **kwargs):
         """Add the representation of this element to the VTK writer as a
         quad."""
@@ -170,13 +158,3 @@ class VolumeHEX27(VolumeElement):
         25,
         26,
     ]
-
-
-element_type_to_four_c_string = {
-    VolumeHEX8: "HEX8",
-    VolumeHEX20: "HEX20",
-    VolumeHEX27: "HEX27",
-    VolumeTET4: "TET4",
-    VolumeTET10: "TET10",
-    VolumeWEDGE6: "WEDGE6",
-}
