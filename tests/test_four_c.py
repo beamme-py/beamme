@@ -183,11 +183,10 @@ def test_four_c_simulation_beam_potential_helix(
 
     # define function for line charge density
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
+    mesh.add(fun)
 
     # define the beam potential
     beampotential = BeamPotential(
-        input_file,
-        mesh,
         pot_law_prefactor=[-1.0e-3, 12.45e-8],
         pot_law_exponent=[6.0, 12.0],
         pot_law_line_charge_density=[1.0, 2.0],
@@ -195,19 +194,26 @@ def test_four_c_simulation_beam_potential_helix(
     )
 
     # set headers for static case and beam potential
-    beampotential.add_header(
-        potential_type="volume",
-        cutoff_radius=10.0,
-        evaluation_strategy="single_length_specific_small_separations_simple",
-        regularization_type="linear",
-        regularization_separation=0.1,
-        integration_segments=2,
-        gauss_points=50,
-        potential_reduction_length=15.0,
-        automatic_differentiation=False,
-        choice_master_slave="smaller_eleGID_is_slave",
+    input_file.add(
+        beampotential.create_header(
+            potential_type="volume",
+            cutoff_radius=10.0,
+            evaluation_strategy="single_length_specific_small_separations_simple",
+            regularization_type="linear",
+            regularization_separation=0.1,
+            integration_segments=2,
+            gauss_points=50,
+            potential_reduction_length=15.0,
+            automatic_differentiation=False,
+            choice_master_slave="smaller_eleGID_is_slave",
+            runtime_output_interval_steps=1,
+            runtime_output_force=True,
+            runtime_output_moment=True,
+            runtime_output_uids=True,
+            runtime_output_per_ele_pair=True,
+            runtime_output_every_iteration=True,
+        )
     )
-    beampotential.add_runtime_output(every_iteration=True)
 
     # create helix
     helix_set = create_beam_mesh_helix(
@@ -222,8 +228,10 @@ def test_four_c_simulation_beam_potential_helix(
         n_el=4,
     )
 
-    # add potential charge conditions to helix
-    beampotential.add_potential_charge_condition(geometry_set=helix_set["line"])
+    # add potential charge conditions to input file
+    mesh.add(
+        beampotential.create_potential_charge_conditions(geometry_set=helix_set["line"])
+    )
 
     # Add boundary condition to bottom node
     mesh.add(
