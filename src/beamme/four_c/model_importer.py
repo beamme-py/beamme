@@ -34,19 +34,15 @@ from beamme.core.boundary_condition import (
 )
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
-from beamme.core.element_volume import VolumeHEX8 as _VolumeHEX8
-from beamme.core.element_volume import VolumeHEX20 as _VolumeHEX20
-from beamme.core.element_volume import VolumeHEX27 as _VolumeHEX27
-from beamme.core.element_volume import VolumeTET4 as _VolumeTET4
-from beamme.core.element_volume import VolumeTET10 as _VolumeTET10
-from beamme.core.element_volume import VolumeWEDGE6 as _VolumeWEDGE6
 from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.node import Node as _Node
-from beamme.four_c.element_volume import SolidRigidSphere as _SolidRigidSphere
 from beamme.four_c.input_file import InputFile as _InputFile
 from beamme.four_c.input_file import (
     get_geometry_set_indices_from_section as _get_geometry_set_indices_from_section,
+)
+from beamme.four_c.input_file_mappings import (
+    FOUR_C_STRING_TO_ELEMENT_TYPE as _FOUR_C_STRING_TO_ELEMENT_TYPE,
 )
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
@@ -124,26 +120,15 @@ def _element_from_dict(nodes: _List[_Node], element: dict, material_id_map: dict
         A solid element object.
     """
 
-    # Depending on the number of nodes chose which solid element to return.
-    # TODO reuse element_type_to_four_c_string from beamme.core.element_volume
-    element_type = {
-        "HEX8": _VolumeHEX8,
-        "HEX20": _VolumeHEX20,
-        "HEX27": _VolumeHEX27,
-        "TET4": _VolumeTET4,
-        "TET10": _VolumeTET10,
-        "WEDGE6": _VolumeWEDGE6,
-        "POINT1": _SolidRigidSphere,
-    }
-
-    if element["cell"]["type"] not in element_type:
+    # Check which element to create.
+    if element["cell"]["type"] not in _FOUR_C_STRING_TO_ELEMENT_TYPE:
         raise TypeError(
             f"Could not create a BeamMe element for {element['data']['type']} {element['cell']['type']}!"
         )
-
-    created_element = element_type[element["cell"]["type"]](
+    created_element = _FOUR_C_STRING_TO_ELEMENT_TYPE[element["cell"]["type"]](
         nodes=nodes, data=element["data"]
     )
+
     # Check if we have to link this element to a material object (rigid spheres do not
     # have a material).
     if "MAT" in created_element.data:
