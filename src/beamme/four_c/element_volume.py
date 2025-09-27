@@ -30,21 +30,3 @@ class SolidRigidSphere(_VolumeElement):
     def __init__(self, **kwargs):
         """Initialize solid sphere object."""
         _VolumeElement.__init__(self, **kwargs)
-
-        self.radius = float(self.data["RADIUS"])
-
-    # TODO this method should be removed!
-    # This method should use the super method of _VolumeElement
-    # but currently this results in a circular import if we use the
-    # element to 4C mappings. Think about a better solution.
-    def dump_to_list(self):
-        """Return a dict with the items representing this object."""
-
-        return {
-            "id": self.i_global + 1,
-            "cell": {
-                "type": "POINT1",
-                "connectivity": self.nodes,
-            },
-            "data": self.data,
-        }

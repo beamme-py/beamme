@@ -42,4 +42,4 @@ class BaseMeshItem:
             self.data = {}
 
         # Global index of this item in a mesh.
-        self.i_global = None
+        self.i_global: None | int = None

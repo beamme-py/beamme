@@ -39,14 +39,6 @@ from beamme.core.node import Node as _Node
 class GeometrySetBase(_BaseMeshItem):
     """Base class for a geometry set."""
 
-    # Node set names for the input file file.
-    geometry_set_names = {
-        _bme.geo.point: "DNODE",
-        _bme.geo.line: "DLINE",
-        _bme.geo.surface: "DSURFACE",
-        _bme.geo.volume: "DVOL",
-    }
-
     def __init__(
         self, geometry_type: _conf.Geometry, name: str | None = None, **kwargs
     ):
@@ -143,25 +135,6 @@ class GeometrySetBase(_BaseMeshItem):
         raise NotImplementedError(
             'The "get_all_nodes" method has to be overwritten in the derived class'
         )
-
-    def dump_to_list(self):
-        """Return a list with the legacy strings of this geometry set."""
-
-        # Sort nodes based on their global index
-        nodes = sorted(self.get_all_nodes(), key=lambda n: n.i_global)
-
-        if not nodes:
-            raise ValueError("Writing empty geometry sets is not supported")
-
-        return [
-            {
-                "type": "NODE",
-                "node_id": node.i_global + 1,
-                "d_type": self.geometry_set_names[self.geometry_type],
-                "d_id": self.i_global + 1,
-            }
-            for node in nodes
-        ]
 
     def __add__(self, other):
         """Create a new geometry set with the combined geometries from this set

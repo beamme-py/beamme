@@ -33,18 +33,15 @@ from typing import List as _List
 from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
 
-from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.conf import bme as _bme
-from beamme.core.coupling import Coupling as _Coupling
 from beamme.core.function import Function as _Function
-from beamme.core.geometry_set import GeometrySet as _GeometrySet
-from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.material import Material as _Material
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.node import Node as _Node
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
-from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.four_c.input_file_dump import dump_item_to_list as _dump_item_to_list
+from beamme.four_c.input_file_dump import dump_item_to_section as _dump_item_to_section
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -77,43 +74,6 @@ def get_geometry_set_indices_from_section(
             geometry_set_dict[id_geometry_set].append(index_node)
 
     return geometry_set_dict
-
-
-def _dump_coupling(coupling):
-    """Return the input file representation of the coupling condition."""
-
-    # TODO: Move this to a better place / gather all dump functions for general
-    # BeamMe items in a file or so.
-
-    if isinstance(coupling.data, dict):
-        data = coupling.data
-    else:
-        # In this case we have to check which beams are connected to the node.
-        # TODO: Coupling also makes sense for different beam types, this can
-        # be implemented at some point.
-        nodes = coupling.geometry_set.get_points()
-        connected_elements = [
-            element for node in nodes for element in node.element_link
-        ]
-        element_types = {type(element) for element in connected_elements}
-        if len(element_types) > 1:
-            raise TypeError(
-                f"Expected a single connected type of beam elements, got {element_types}"
-            )
-        element_type = element_types.pop()
-        if element_type.four_c_beam_type is _BeamType.kirchhoff:
-            rotvec = {
-                type(element).four_c_element_data["ROTVEC"]
-                for element in connected_elements
-            }
-            if len(rotvec) > 1 or not rotvec.pop():
-                raise TypeError(
-                    "Couplings for Kirchhoff beams and rotvec==False not yet implemented."
-                )
-
-        data = element_type.get_coupling_dict(coupling.data)
-
-    return {"E": coupling.geometry_set.i_global + 1, **data}
 
 
 class InputFile(_FourCInput):
@@ -342,26 +302,7 @@ class InputFile(_FourCInput):
             list = []
 
             for item in data_list:
-                if (
-                    isinstance(item, _GeometrySet)
-                    or isinstance(item, _GeometrySetNodes)
-                    or isinstance(item, _NURBSPatch)
-                ):
-                    list.extend(item.dump_to_list())
-                elif hasattr(item, "dump_to_list"):
-                    list.append(item.dump_to_list())
-                elif isinstance(item, _BoundaryCondition):
-                    list.append(
-                        {
-                            "E": item.geometry_set.i_global + 1,
-                            **item.data,
-                        }
-                    )
-
-                elif isinstance(item, _Coupling):
-                    list.append(_dump_coupling(item))
-                else:
-                    raise TypeError(f"Could not dump {item}")
+                _dump_item_to_list(list, item)
 
             # If section already exists, retrieve from input file and
             # add newly. We always need to go through fourcipp to convert
@@ -429,7 +370,7 @@ class InputFile(_FourCInput):
 
         # Add additional element sections, e.g., for NURBS knot vectors.
         for element in mesh.elements:
-            element.dump_element_specific_section(self)
+            _dump_item_to_section(self, element)
 
         # Add the geometry sets.
         for geom_key, item in mesh_sets.items():

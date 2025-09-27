@@ -64,10 +64,6 @@ class Element(_BaseMeshItem):
                 "The node that should be replaced is not in the current element"
             )
 
-    def dump_element_specific_section(self, yaml_dict):
-        """Add information of this element to specific section (e.g. STRUCTURE
-        KNOTVECTORS for NURBS elements)."""
-
     def get_vtk(self, vtk_writer_beam, vtk_writer_solid, **kwargs):
         """Add representation of this element to the vtk_writers for solid and
         beam."""

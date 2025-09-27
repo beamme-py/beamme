@@ -25,6 +25,25 @@ files."""
 from typing import Any as _Any
 
 from beamme.core.conf import bme as _bme
+from beamme.core.element_volume import (
+    VolumeHEX8 as _VolumeHEX8,
+)
+from beamme.core.element_volume import (
+    VolumeHEX20 as _VolumeHEX20,
+)
+from beamme.core.element_volume import (
+    VolumeHEX27 as _VolumeHEX27,
+)
+from beamme.core.element_volume import (
+    VolumeTET4 as _VolumeTET4,
+)
+from beamme.core.element_volume import (
+    VolumeTET10 as _VolumeTET10,
+)
+from beamme.core.element_volume import (
+    VolumeWEDGE6 as _VolumeWEDGE6,
+)
+from beamme.four_c.element_volume import SolidRigidSphere as _SolidRigidSphere
 from beamme.four_c.four_c_types import BeamType as _BeamType
 
 INPUT_FILE_MAPPINGS: dict[str, _Any] = {
@@ -96,4 +115,27 @@ INPUT_FILE_MAPPINGS: dict[str, _Any] = {
     },
     "n_nodes_to_cell_type": {2: "LINE2", 3: "LINE3"},
     "n_nodes_to_node_ordering": {2: [0, 1], 3: [0, 2, 1]},
+}
+
+
+GEOMETRY_SET_NAMES = {
+    _bme.geo.point: "DNODE",
+    _bme.geo.line: "DLINE",
+    _bme.geo.surface: "DSURFACE",
+    _bme.geo.volume: "DVOL",
+}
+
+
+ELEMENT_TYPE_TO_FOUR_C_STRING = {
+    _VolumeHEX8: "HEX8",
+    _VolumeHEX20: "HEX20",
+    _VolumeHEX27: "HEX27",
+    _VolumeTET4: "TET4",
+    _VolumeTET10: "TET10",
+    _VolumeWEDGE6: "WEDGE6",
+    _SolidRigidSphere: "POINT1",
+}
+
+FOUR_C_STRING_TO_ELEMENT_TYPE = {
+    value: key for key, value in ELEMENT_TYPE_TO_FOUR_C_STRING.items()
 }

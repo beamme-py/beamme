@@ -157,11 +157,7 @@ def test_nurbs_brick(assert_results_close, get_corresponding_reference_file_path
     mat = MaterialStVenantKirchhoff(youngs_modulus=710, nu=0.19, density=5.3e-7)
 
     # Create patch set
-    patch_set = add_geomdl_nurbs_to_mesh(
-        mesh,
-        vol_obj,
-        material=mat,
-    )
+    patch_set = add_geomdl_nurbs_to_mesh(mesh, vol_obj, material=mat)
 
     mesh.add(patch_set)
 
