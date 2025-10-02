@@ -54,6 +54,7 @@ the [Institute for Computational Mechanics (LNM)](https://www.epc.ed.tum.de/lnm/
 ## Overview <!-- omit from toc -->
 - [Examples](#examples)
 - [How to use BeamMe?](#how-to-use-beamme)
+- [Getting started](#getting-started)
 - [How to cite BeamMe?](#how-to-cite-beamme)
 - [Work that uses BeamMe](#work-that-uses-beamme)
 - [Installation](#installation)
@@ -107,6 +108,52 @@ They can be run locally or directly tested from your browser via the following l
 
 You can also interactively test the entire BeamMe framework directly from your browser here [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/beamme-py/beamme/main)
 
+
+## Getting started
+This example demonstrates how to create a small structural model using BeamMe:
+```python test:getting_started
+import numpy as np
+
+from beamme.core.element_beam import Beam2, Beam3, Beam4
+from beamme.core.material import MaterialBeamBase
+from beamme.core.mesh import Mesh
+from beamme.mesh_creation_functions.beam_arc import create_beam_mesh_arc_segment_2d
+from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
+
+# Create a new empty mesh container
+mesh = Mesh()
+
+# Define a simple circular cross-section beam material with radius 0.02
+material = MaterialBeamBase(radius=0.03)
+
+# Create a straight line: 3 two-noded beam elements
+create_beam_mesh_line(
+    mesh, Beam2, material, start_point=[0, 0, 0], end_point=[1, 0, 0], n_el=3
+)
+
+# Create a quarter-circle arc: 5 three-noded beam elements
+create_beam_mesh_arc_segment_2d(
+    mesh,
+    Beam3,
+    material,
+    center=[0, 0, 0],
+    radius=1.0,
+    phi_start=0.0,
+    phi_end=0.5 * np.pi,
+    n_el=5,
+)
+
+# Add a vertical line with a single four-noded element and a thicker beam cross-section
+material_thick = MaterialBeamBase(radius=0.05)
+create_beam_mesh_line(mesh, Beam4, material_thick, [0, 1, 0], [0, 1, 1], n_el=1)
+
+# Visualize the final structure with PyVista
+mesh.display_pyvista()
+```
+This will open the following window, displaying the created beam structure:
+<td align="center">
+  <img src="https://raw.githubusercontent.com/beamme-py/beamme/refs/heads/main/doc/assets/snippet_getting_started_result.png" width="500" class="dark-light" title="Getting started example">
+</td>
 
 ## How to cite BeamMe?
 
