@@ -103,6 +103,10 @@ INPUT_FILE_MAPPINGS["boundary_conditions"] = {
         _bme.geo.point,
     ): "DESIGN POINT PENALTY COUPLING CONDITIONS",
     (
+        _bme.bc.point_coupling_penalty_indirect,
+        _bme.geo.line,
+    ): "BEAM INTERACTION/BEAM TO BEAM POINT COUPLING CONDITIONS",
+    (
         "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",
         _bme.geo.surface,
     ): "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",

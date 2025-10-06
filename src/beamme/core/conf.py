@@ -56,6 +56,7 @@ class BoundaryCondition(_Enum):
     beam_to_solid_surface_contact = _auto()
     point_coupling = _auto()
     point_coupling_penalty = _auto()
+    point_coupling_penalty_indirect = _auto()
 
     def is_point_coupling_pairwise(self) -> bool:
         """Check whether the point coupling condition should be applied
