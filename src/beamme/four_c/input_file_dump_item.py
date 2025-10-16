@@ -32,8 +32,6 @@ from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.node import ControlPoint as _ControlPoint
 from beamme.core.node import Node as _Node
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
-from beamme.core.nurbs_patch import NURBSSurface as _NURBSSurface
-from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
 from beamme.four_c.four_c_types import BeamType as _BeamType
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
@@ -181,14 +179,14 @@ def dump_nurbs_patch_knotvectors(input_file, nurbs_patch) -> None:
     input_file.add({"STRUCTURE KNOTVECTORS": {"PATCHES": patches}})
 
 
-def dump_nurbs_patch_elements(nurbs_patch):
+def dump_nurbs_patch_elements(nurbs_patch: _NURBSPatch) -> list[dict[str, _Any]]:
     """Return a list with all the element definitions contained in this
     patch."""
 
-    nurbs_type_to_default_four_c_type = {
-        _NURBSSurface: "WALLNURBS",
-        _NURBSVolume: "SOLID",
-    }
+    if nurbs_patch.i_global is None:
+        raise ValueError(
+            "i_global is not set, make sure that the NURBS patch is added to the mesh"
+        )
 
     # Check the material
     nurbs_patch._check_material()
@@ -196,8 +194,8 @@ def dump_nurbs_patch_elements(nurbs_patch):
     patch_elements = []
     j = 0
 
-    for knot_span in nurbs_patch._get_knot_span_iterator():  # TODO better name for this
-        element_cps_ids = nurbs_patch._get_ids_ctrlpts(*knot_span)
+    for knot_span in nurbs_patch.get_knot_span_iterator():
+        element_cps_ids = nurbs_patch.get_ids_ctrlpts(*knot_span)
         connectivity = [nurbs_patch.nodes[i] for i in element_cps_ids]
         num_cp = len(connectivity)
 
@@ -209,7 +207,9 @@ def dump_nurbs_patch_elements(nurbs_patch):
                     "connectivity": connectivity,
                 },
                 "data": {
-                    "type": nurbs_type_to_default_four_c_type[type(nurbs_patch)],
+                    "type": _INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"][
+                        type(nurbs_patch)
+                    ],
                     "MAT": nurbs_patch.material,
                     **(nurbs_patch.data if nurbs_patch.data else {}),
                 },

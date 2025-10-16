@@ -287,7 +287,7 @@ class InputFile(_FourCInput):
                 item.i_global = i
                 if isinstance(item, _NURBSPatch):
                     item.i_nurbs_patch = i_nurbs_patch
-                    offset = item.get_number_elements()
+                    offset = item.get_number_of_elements()
                     i += offset
                     i_nurbs_patch += 1
                 else:

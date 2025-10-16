@@ -508,6 +508,30 @@ def test_nurbs_torus_surface(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
+def test_nurbs_empty_knot_spans(
+    assert_results_close, get_corresponding_reference_file_path
+):
+    """Test that NURBS patches with empty knot spans are handled correctly."""
+
+    # Create the pipe geometry with splinepy
+    disk = splinepy.helpme.create.disk(
+        outer_radius=2.3, inner_radius=1.7, angle=360, n_knot_spans=1
+    )
+    pipe = disk.create.extruded(extrusion_vector=[0.0, 0.0, 2.0])
+    pipe.elevate_degrees([0, 2])
+    pipe.uniform_refine(2, 2)
+
+    # Create mesh
+    mesh = Mesh()
+    mat = MaterialStVenantKirchhoff(youngs_modulus=1, nu=0.3)
+    patch_set = add_splinepy_nurbs_to_mesh(mesh, pipe, material=mat)
+    mesh.add(patch_set)
+    mesh.couple_nodes(reuse_matching_nodes=True)
+
+    # Compare with the reference file
+    assert_results_close(get_corresponding_reference_file_path(), mesh)
+
+
 @pytest.mark.parametrize(
     ("nurbs_patch", "reference_values"),
     [

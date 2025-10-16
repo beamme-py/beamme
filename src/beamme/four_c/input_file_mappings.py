@@ -43,6 +43,8 @@ from beamme.core.element_volume import (
 from beamme.core.element_volume import (
     VolumeWEDGE6 as _VolumeWEDGE6,
 )
+from beamme.core.nurbs_patch import NURBSSurface as _NURBSSurface
+from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
 from beamme.four_c.element_volume import SolidRigidSphere as _SolidRigidSphere
 from beamme.four_c.four_c_types import BeamType as _BeamType
 
@@ -134,3 +136,7 @@ INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {
 }
 INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"] = {2: "LINE2", 3: "LINE3"}
 INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"] = {2: [0, 1], 3: [0, 2, 1]}
+INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"] = {
+    _NURBSSurface: "WALLNURBS",
+    _NURBSVolume: "SOLID",
+}
