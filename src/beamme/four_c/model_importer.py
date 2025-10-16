@@ -21,13 +21,10 @@
 # THE SOFTWARE.
 """This module contains functions to load and parse existing 4C input files."""
 
+from collections import defaultdict as _defaultdict
 from pathlib import Path as _Path
-from typing import Dict as _Dict
-from typing import List as _List
 from typing import Tuple as _Tuple
-from typing import Union as _Union
 
-import beamme.core.conf as _conf
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.boundary_condition import (
     BoundaryConditionBase as _BoundaryConditionBase,
@@ -38,9 +35,6 @@ from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.node import Node as _Node
 from beamme.four_c.input_file import InputFile as _InputFile
-from beamme.four_c.input_file import (
-    get_geometry_set_indices_from_section as _get_geometry_set_indices_from_section,
-)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -106,177 +100,125 @@ def import_four_c_model(
         return input_file, _Mesh()
 
 
-def _element_from_dict(nodes: _List[_Node], element: dict, material_id_map: dict):
-    """Create a solid element from a dictionary from a 4C input file.
+def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
+    """Convert an InputFile into a native mesh by translating sections like
+    materials, nodes, elements, geometry sets, and boundary conditions.
 
     Args:
-        nodes: A list of nodes that are part of the element.
-        element: A dictionary with the element data.
-        material_id_map: A map between the global material ID and the BeamMe material object.
+        input_file: The input file containing 4C sections.
     Returns:
-        A solid element object.
+        A tuple (input_file, mesh). The input_file is modified in place to remove
+        sections converted into BeamMe objects.
     """
 
-    # Check which element to create.
-    if (
-        element["cell"]["type"]
-        not in _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"]
-    ):
-        raise TypeError(
-            f"Could not create a BeamMe element for {element['data']['type']} {element['cell']['type']}!"
+    # function to pop sections from the input file
+    _pop_section = lambda name: input_file.pop(name, [])
+
+    # convert all sections to native objects and add to a new mesh
+    mesh = _Mesh()
+
+    # extract materials
+    material_id_map = {}
+
+    for mat in _pop_section("MATERIALS"):
+        mat_id = mat.pop("MAT")
+        if len(mat) != 1:
+            raise ValueError(
+                f"Could not convert the material data `{mat}` to a BeamMe material!"
+            )
+        mat_name, mat_data = list(mat.items())[0]
+        material = _MaterialSolid(material_string=mat_name, data=mat_data)
+        mesh.add(material)
+        material_id_map[mat_id] = material
+
+    # extract nodes
+    mesh.nodes = [_Node(node["COORD"]) for node in _pop_section("NODE COORDS")]
+
+    # extract elements
+    for input_element in _pop_section("STRUCTURE ELEMENTS"):
+        if (
+            input_element["cell"]["type"]
+            not in _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"]
+        ):
+            raise TypeError(
+                f"Could not create a BeamMe element for `{input_element['data']['type']}` `{input_element['cell']['type']}`!"
+            )
+        nodes = [mesh.nodes[i - 1] for i in input_element["cell"]["connectivity"]]
+        element_class = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
+            input_element["cell"]["type"]
+        ]
+        element = element_class(nodes=nodes, data=input_element["data"])
+        if "MAT" in element.data:
+            element.data["MAT"] = material_id_map[element.data["MAT"]]
+        mesh.elements.append(element)
+
+    # extract geometry sets
+    geometry_sets_in_sections: dict[str, dict[int, _GeometrySetNodes]] = {
+        key: {} for key in _bme.geo
+    }
+
+    for section_name in input_file.sections:
+        if not section_name.endswith("TOPOLOGY"):
+            continue
+
+        items = _pop_section(section_name)
+        if not items:
+            continue
+
+        # Find geometry key for this section
+        geom_section_keys = list(
+            _INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"].keys()
         )
-    created_element = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
-        element["cell"]["type"]
-    ](nodes=nodes, data=element["data"])
+        geom_section_values = list(
+            _INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"].values()
+        )
 
-    # Check if we have to link this element to a material object (rigid spheres do not
-    # have a material).
-    if "MAT" in created_element.data:
-        created_element.data["MAT"] = material_id_map[created_element.data["MAT"]]
-    return created_element
+        try:
+            geometry_key = geom_section_keys[geom_section_values.index(section_name)]
+        except ValueError as e:
+            raise ValueError(f"Unknown geometry section: {section_name}") from e
 
+        # Extract geometry set indices
+        geom_dict: dict[int, list[int]] = _defaultdict(list)
+        for entry in items:
+            geom_dict[entry["d_id"]].append(entry["node_id"] - 1)
 
-def _boundary_condition_from_dict(
-    geometry_set: _GeometrySetNodes,
-    bc_key: _Union[_conf.BoundaryCondition, str],
-    data: _Dict,
-) -> _BoundaryConditionBase:
-    """This function acts as a factory and creates the correct boundary
-    condition object from a dictionary parsed from an input file."""
+        geometry_sets_in_sections[geometry_key] = {
+            gid: _GeometrySetNodes(geometry_key, nodes=[mesh.nodes[i] for i in ids])
+            for gid, ids in geom_dict.items()
+        }
 
-    del data["E"]
+        mesh.geometry_sets[geometry_key] = list(
+            geometry_sets_in_sections[geometry_key].values()
+        )
 
-    if bc_key in (
+    # extract boundary conditions
+    _standard_bc_types = (
         _bme.bc.dirichlet,
         _bme.bc.neumann,
         _bme.bc.locsys,
         _bme.bc.beam_to_solid_surface_meshtying,
         _bme.bc.beam_to_solid_surface_contact,
         _bme.bc.beam_to_solid_volume_meshtying,
-    ) or isinstance(bc_key, str):
-        return _BoundaryCondition(geometry_set, data, bc_type=bc_key)
-    elif bc_key is _bme.bc.point_coupling:
-        return _Coupling(geometry_set, bc_key, data, check_overlapping_nodes=False)
-    else:
-        raise ValueError("Got unexpected boundary condition!")
+    )
 
+    for (bc_key, geometry_key), section_name in _INPUT_FILE_MAPPINGS[
+        "boundary_conditions"
+    ].items():
+        for bc_data in _pop_section(section_name):
+            geometry_set = geometry_sets_in_sections[geometry_key][bc_data.pop("E")]
 
-def _get_yaml_geometry_sets(
-    nodes: _List[_Node], geometry_key: _conf.Geometry, section_list: _List
-) -> _Dict[int, _GeometrySetNodes]:
-    """Add sets of points, lines, surfaces or volumes to the object."""
+            bc_obj: _BoundaryConditionBase
 
-    # Create the individual geometry sets
-    geometry_set_dict = _get_geometry_set_indices_from_section(section_list)
-    geometry_sets_in_this_section = {}
-    for geometry_set_id, node_ids in geometry_set_dict.items():
-        geometry_sets_in_this_section[geometry_set_id] = _GeometrySetNodes(
-            geometry_key, nodes=[nodes[node_id] for node_id in node_ids]
-        )
-    return geometry_sets_in_this_section
-
-
-def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
-    """Convert an existing input file to a BeamMe mesh with mesh items, e.g.,
-    nodes, elements, element sets, node sets, boundary conditions, materials.
-
-    Args:
-        input_file: The input file object that contains the sections to be
-            converted to a BeamMe mesh.
-    Returns:
-        A tuple with the input file and the mesh. The input file will be
-            modified to remove the sections that have been converted to a
-            BeamMe mesh.
-    """
-
-    def _get_section_items(section_name):
-        """Return the items in a given section.
-
-        Since we will add the created BeamMe objects to the mesh, we
-        delete them from the plain data storage to avoid having
-        duplicate entries.
-        """
-
-        if section_name in input_file:
-            return input_file.pop(section_name)
-        else:
-            return []
-
-    # Go through all sections that have to be converted to full BeamMe objects
-    mesh = _Mesh()
-
-    # Add materials
-    material_id_map = {}
-    if "MATERIALS" in input_file:
-        for material_in_input_file in input_file.pop("MATERIALS"):
-            material_id = material_in_input_file.pop("MAT")
-            if not len(material_in_input_file) == 1:
-                raise ValueError(
-                    f"Could not convert the material data {material_in_input_file} to a BeamMe material."
+            if bc_key in _standard_bc_types or isinstance(bc_key, str):
+                bc_obj = _BoundaryCondition(geometry_set, bc_data, bc_type=bc_key)
+            elif bc_key is _bme.bc.point_coupling:
+                bc_obj = _Coupling(
+                    geometry_set, bc_key, bc_data, check_overlapping_nodes=False
                 )
-            material_string = list(material_in_input_file.keys())[0]
-            material_data = list(material_in_input_file.values())[0]
-            material = _MaterialSolid(
-                material_string=material_string, data=material_data
-            )
-            material_id_map[material_id] = material
-            mesh.add(material)
+            else:
+                raise ValueError(f"Unexpected boundary condition: {bc_key}")
 
-    # Add nodes
-    if "NODE COORDS" in input_file:
-        mesh.nodes = [_Node(node["COORD"]) for node in input_file.pop("NODE COORDS")]
-
-    # Add elements
-    if "STRUCTURE ELEMENTS" in input_file:
-        for element_in_input_file in input_file.pop("STRUCTURE ELEMENTS"):
-            nodes = [
-                mesh.nodes[node_id - 1]
-                for node_id in element_in_input_file["cell"]["connectivity"]
-            ]
-            mesh.elements.append(
-                _element_from_dict(
-                    nodes=nodes,
-                    element=element_in_input_file,
-                    material_id_map=material_id_map,
-                )
-            )
-
-    # Add geometry sets
-    geometry_sets_in_sections: dict[str, dict[int, _GeometrySetNodes]] = {
-        key: {} for key in _bme.geo
-    }
-    for section_name in input_file.sections.keys():
-        if section_name.endswith("TOPOLOGY"):
-            section_items = _get_section_items(section_name)
-            if len(section_items) > 0:
-                # Get the geometry key for this set
-                for key, value in _INPUT_FILE_MAPPINGS[
-                    "geometry_sets_geometry_to_condition_name"
-                ].items():
-                    if value == section_name:
-                        geometry_key = key
-                        break
-                else:
-                    raise ValueError(f"Could not find the set {section_name}")
-                geometry_sets_in_section = _get_yaml_geometry_sets(
-                    mesh.nodes, geometry_key, section_items
-                )
-                geometry_sets_in_sections[geometry_key] = geometry_sets_in_section
-                mesh.geometry_sets[geometry_key] = list(
-                    geometry_sets_in_section.values()
-                )
-
-    # Add boundary conditions
-    for (
-        bc_key,
-        geometry_key,
-    ), section_name in _INPUT_FILE_MAPPINGS["boundary_conditions"].items():
-        for item in _get_section_items(section_name):
-            geometry_set_id = item["E"]
-            geometry_set = geometry_sets_in_sections[geometry_key][geometry_set_id]
-            mesh.boundary_conditions.append(
-                (bc_key, geometry_key),
-                _boundary_condition_from_dict(geometry_set, bc_key, item),
-            )
+            mesh.boundary_conditions.append((bc_key, geometry_key), bc_obj)
 
     return input_file, mesh
