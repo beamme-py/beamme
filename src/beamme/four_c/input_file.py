@@ -178,6 +178,15 @@ class InputFile(_FourCInput):
             use_fourcipp_yaml_style=fourcipp_yaml_style,
         )
 
+        # Search for Application Path - if not found, reset variable.
+        application_path = self._resolve_application_path()
+
+        if application_path is None and add_footer_application_script:
+            print(
+                "Could not find the application_path, setting add_footer_application_script to False."
+            )
+            add_footer_application_script = False
+
         if add_header_default or add_footer_application_script:
             with open(input_file_path, "r") as input_file:
                 lines = input_file.readlines()
@@ -186,7 +195,6 @@ class InputFile(_FourCInput):
                     lines = ["# " + line + "\n" for line in _INPUT_FILE_HEADER] + lines
 
                 if add_footer_application_script:
-                    application_path = _Path(_sys.argv[0]).resolve()
                     lines += self._get_application_script(application_path)
 
                 with open(input_file_path, "w") as input_file:
@@ -403,29 +411,39 @@ class InputFile(_FourCInput):
         )
 
         # application which created the input file
-        application_path = _Path(_sys.argv[0]).resolve()
-        header["BeamMe"]["Application"] = {"path": str(application_path)}
+        application_path = self._resolve_application_path()
+        if application_path:
+            header["BeamMe"]["Application"] = {"path": str(application_path)}
 
-        application_git_sha, application_git_date = _get_git_data(
-            application_path.parent
-        )
-        if application_git_sha is not None and application_git_date is not None:
-            header["BeamMe"]["Application"].update(
-                {
-                    "git_sha": application_git_sha,
-                    "git_date": application_git_date,
-                }
+            try:
+                resolved = application_path.parent.resolve(strict=True)
+            except (FileNotFoundError, NotADirectoryError):
+                resolved = None
+
+            if resolved is not None and resolved.is_dir():
+                application_git_sha, application_git_date = _get_git_data(
+                    application_path.parent
+                )
+            else:
+                application_git_sha = application_git_date = None
+
+            if application_git_sha is not None and application_git_date is not None:
+                header["BeamMe"]["Application"].update(
+                    {
+                        "git_sha": application_git_sha,
+                        "git_date": application_git_date,
+                    }
+                )
+
+            # BeamMe information
+            beamme_git_sha, beamme_git_date = _get_git_data(
+                _Path(__file__).resolve().parent
             )
-
-        # BeamMe information
-        beamme_git_sha, beamme_git_date = _get_git_data(
-            _Path(__file__).resolve().parent
-        )
-        if beamme_git_sha is not None and beamme_git_date is not None:
-            header["BeamMe"]["BeamMe"] = {
-                "git_SHA": beamme_git_sha,
-                "git_date": beamme_git_date,
-            }
+            if beamme_git_sha is not None and beamme_git_date is not None:
+                header["BeamMe"]["BeamMe"] = {
+                    "git_SHA": beamme_git_sha,
+                    "git_date": beamme_git_date,
+                }
 
         # CubitPy information
         if _cubitpy_is_available():
@@ -441,7 +459,7 @@ class InputFile(_FourCInput):
 
         return header
 
-    def _get_application_script(self, application_path: _Path) -> list[str]:
+    def _get_application_script(self, application_path: _Path | None) -> list[str]:
         """Get the script that created this input file.
 
         Args:
@@ -454,7 +472,31 @@ class InputFile(_FourCInput):
             "# Application script which created this input file:\n"
         ]
 
-        with open(application_path) as script_file:
-            application_script_lines.extend("# " + line for line in script_file)
+        if application_path is not None:
+            with open(application_path) as script_file:
+                application_script_lines.extend("# " + line for line in script_file)
 
         return application_script_lines
+
+    def _resolve_application_path(self) -> _Path | None:
+        """Get the application path which created this input file.
+
+        Args:
+
+        Returns:
+            a path to the file, which created this input file
+            or None.
+        """
+
+        # Check if execution was launched by proper main script
+        main_mod = _sys.modules.get("__main__")
+        if main_mod is not None:
+            main_file = getattr(main_mod, "__file__", None)
+            if main_file is not None:
+                return _Path(main_file).resolve()
+
+        # If no main module Fallback to argv[0]
+        if _sys.argv and _sys.argv[0]:
+            return _Path(_sys.argv[0]).resolve()
+
+        return None
