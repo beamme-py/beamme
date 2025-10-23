@@ -137,3 +137,9 @@ repos:
         language: system
         types: [python]
         require_serial: true # Necessary to print opening and closing message only once
+      - id: validate-4C-files
+        name: Validate 4C input files
+        entry: python3 utils/validate_4C_files.py
+        files: '.*\.4C\.yaml$'
+        language: system
+        require_serial: true # Necessary to print opening and closing message only once
