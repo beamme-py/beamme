@@ -66,7 +66,7 @@ MATERIALS:
     MAT_Struct_StVenantKirchhoff:
       DENS: 0.0
       NUE: 0.0
-      YOUNG: -1.0
+      YOUNG: 1.0
 NODE COORDS:
   - CP 1 COORD -0.5 -1.5 0.0 1.0
   - CP 2 COORD -0.33333333333333337 -1.5 0.0 1.0

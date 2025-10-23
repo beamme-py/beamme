@@ -49,9 +49,9 @@ class MaterialBeamBase(Material):
 
     def __init__(
         self,
-        radius=-1.0,
+        radius=1.0,
         material_string=None,
-        youngs_modulus=-1.0,
+        youngs_modulus=0.0,
         nu=0.0,
         density=0.0,
         interaction_radius=None,

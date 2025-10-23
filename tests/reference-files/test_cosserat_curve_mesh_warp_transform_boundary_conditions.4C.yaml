@@ -7532,7 +7532,7 @@ MATERIALS:
       YOUNG: 2
   - MAT: 2
     MAT_BeamReissnerElastHyper:
-      YOUNG: -1.0
+      YOUNG: 0.0
       POISSONRATIO: 0.0
       DENS: 0.0
       CROSSAREA: 0.007853981633974483

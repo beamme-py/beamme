@@ -263,7 +263,7 @@ class MaterialSolid(_MaterialSolidBase):
 class MaterialStVenantKirchhoff(MaterialSolid):
     """Holds material definition for StVenant Kirchhoff solids."""
 
-    def __init__(self, youngs_modulus=-1.0, nu=0.0, density=0.0):
+    def __init__(self, youngs_modulus=1.0, nu=0.0, density=0.0):
         super().__init__(
             material_string="MAT_Struct_StVenantKirchhoff",
             data={"YOUNG": youngs_modulus, "NUE": nu, "DENS": density},
