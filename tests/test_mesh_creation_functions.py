@@ -33,7 +33,6 @@ from beamme.core.mesh import Mesh
 from beamme.core.node import NodeCosserat
 from beamme.core.rotation import Rotation
 from beamme.four_c.element_beam import Beam3eb, Beam3rHerm2Line3
-from beamme.four_c.material import MaterialEulerBernoulli, MaterialReissner
 from beamme.mesh_creation_functions.applications.beam_fibers_in_rectangle import (
     create_fibers_in_rectangle,
 )
@@ -147,19 +146,20 @@ def create_testing_nurbs_curve():
 
 
 def test_mesh_creation_functions_arc_segment_via_axis(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a circular segment via the axis method and compare it with the
     reference file."""
 
     # Create mesh
     mesh = Mesh()
-    mat = MaterialReissner()
     radius = 2.0
     beam_set = create_beam_mesh_arc_segment_via_axis(
         mesh,
         Beam3rHerm2Line3,
-        mat,
+        get_default_test_beam_material(material_type="reissner"),
         [0, 0, 1],
         [0, radius, 0],
         [0, 0, 0],
@@ -173,7 +173,9 @@ def test_mesh_creation_functions_arc_segment_via_axis(
 
 
 def test_mesh_creation_functions_arc_segment_start_end_node(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Check that if start end nodes with non-matching positions or tangents
     are provided we get an error."""
@@ -189,7 +191,7 @@ def test_mesh_creation_functions_arc_segment_start_end_node(
         """This is the base function we use to generate the beam in this test
         case."""
         mesh = Mesh()
-        mat = MaterialReissner()
+        mat = get_default_test_beam_material(material_type="reissner")
         if start_node is not None:
             mesh.add(start_node)
         if end_node is not None:
@@ -248,7 +250,9 @@ def test_mesh_creation_functions_arc_segment_start_end_node(
 
 
 def test_mesh_creation_functions_arc_segment_via_rotation(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a circular segment via the rotation method and compare it with
     the reference file."""
@@ -257,7 +261,7 @@ def test_mesh_creation_functions_arc_segment_via_rotation(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create mesh.
     beam_set = create_beam_mesh_arc_segment_via_rotation(
@@ -279,7 +283,9 @@ def test_mesh_creation_functions_arc_segment_via_rotation(
 
 
 def test_mesh_creation_functions_arc_segment_2d(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a circular segments in 2D."""
 
@@ -287,7 +293,7 @@ def test_mesh_creation_functions_arc_segment_2d(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create mesh.
     beam_set_1 = create_beam_mesh_arc_segment_2d(
@@ -320,7 +326,9 @@ def test_mesh_creation_functions_arc_segment_2d(
 
 
 def test_mesh_creation_functions_node_positions_of_elements_option(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Creates a line, a circular segments in 2D and a helix by setting the
     node_positions_of_elements."""
@@ -329,7 +337,7 @@ def test_mesh_creation_functions_node_positions_of_elements_option(
     mesh = Mesh()
 
     # Create and add material to mesh.
-    material = MaterialReissner()
+    material = get_default_test_beam_material(material_type="reissner")
     mesh.add(material)
 
     # Create a beam line with specified node_positions_of_elements.
@@ -385,7 +393,9 @@ def test_mesh_creation_functions_node_positions_of_elements_option(
 
 
 def test_mesh_creation_functions_stent(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the stent creation function."""
 
@@ -393,7 +403,7 @@ def test_mesh_creation_functions_stent(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create mesh.
     create_beam_mesh_stent(
@@ -416,7 +426,9 @@ def test_mesh_creation_functions_stent(
 
 
 def test_mesh_creation_functions_fibers_in_rectangle(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the create_fibers_in_rectangle function."""
 
@@ -424,7 +436,7 @@ def test_mesh_creation_functions_fibers_in_rectangle(
     mesh = Mesh()
 
     # Create mesh.
-    mat = MaterialEulerBernoulli()
+    mat = get_default_test_beam_material(material_type="euler_bernoulli")
     create_fibers_in_rectangle(mesh, Beam3eb, mat, 4, 1, 45, 0.45, 0.35)
     mesh.translate([0, 0, 1])
     create_fibers_in_rectangle(mesh, Beam3eb, mat, 4, 1, 0, 0.45, 0.35)
@@ -447,7 +459,9 @@ def test_mesh_creation_functions_fibers_in_rectangle(
 
 
 def test_mesh_creation_functions_fibers_in_rectangle_reference_point(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the create_fibers_in_rectangle function with using the
     reference_point option."""
@@ -456,7 +470,7 @@ def test_mesh_creation_functions_fibers_in_rectangle_reference_point(
     mesh = Mesh()
 
     # Create mesh.
-    mat = MaterialEulerBernoulli()
+    mat = get_default_test_beam_material(material_type="euler_bernoulli")
     create_fibers_in_rectangle(mesh, Beam3eb, mat, 4, 1, 45, 0.45, 0.35)
     reference_point = 0.5 * np.array([4.0, 1.0]) + 0.1 * np.array(
         [-1.0, 1.0]
@@ -478,7 +492,9 @@ def test_mesh_creation_functions_fibers_in_rectangle_reference_point(
 
 
 def test_mesh_creation_functions_fibers_in_rectangle_return_set(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the set returned by the create_fibers_in_rectangle function."""
 
@@ -486,7 +502,7 @@ def test_mesh_creation_functions_fibers_in_rectangle_return_set(
     mesh = Mesh()
 
     # Create mesh.
-    mat = MaterialEulerBernoulli()
+    mat = get_default_test_beam_material(material_type="euler_bernoulli")
     beam_set = create_fibers_in_rectangle(mesh, Beam3eb, mat, 4, 1, 45, 0.45, 0.35)
     mesh.add(beam_set)
 
@@ -495,7 +511,9 @@ def test_mesh_creation_functions_fibers_in_rectangle_return_set(
 
 
 def test_mesh_creation_functions_wire(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the create_wire_fibers function."""
 
@@ -503,9 +521,9 @@ def test_mesh_creation_functions_wire(
     mesh = Mesh()
 
     # Create two wires with different parameters.
-    mat = MaterialEulerBernoulli(radius=0.05)
+    mat = get_default_test_beam_material(material_type="euler_bernoulli")
     mesh_1 = Mesh()
-    set_1 = create_wire_fibers(mesh_1, Beam3eb, mat, 3.0, layers=2, n_el=2)
+    set_1 = create_wire_fibers(mesh_1, Beam3eb, mat, 3.0, layers=2, n_el=2, radius=0.05)
     mesh_2 = Mesh()
     set_2 = create_wire_fibers(mesh_2, Beam3eb, mat, 3.0, layers=2, n_el=2, radius=0.1)
     mesh_2.translate([0.0, 1.5, 0.0])
@@ -526,6 +544,7 @@ def test_mesh_creation_functions_splinepy(
     name,
     curve_creation_function,
     ref_length,
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
@@ -533,7 +552,7 @@ def test_mesh_creation_functions_splinepy(
     curves."""
 
     curve = curve_creation_function()
-    mat = MaterialReissner(radius=0.05)
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh = Mesh()
     _, length = create_beam_mesh_from_splinepy(
         mesh, Beam3rHerm2Line3, mat, curve, n_el=3, output_length=True
@@ -570,12 +589,14 @@ def test_mesh_creation_functions_splinepy_unit(assert_results_close):
 
 
 def test_mesh_creation_functions_node_continuation(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test that the node continuation function work as expected."""
 
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     start_node = NodeCosserat([1, 2, 3], Rotation())
@@ -620,7 +641,9 @@ def test_mesh_creation_functions_node_continuation(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_mesh_creation_functions_node_continuation_accumulated(assert_results_close):
+def test_mesh_creation_functions_node_continuation_accumulated(
+    get_default_test_beam_material, assert_results_close
+):
     """Test that the arc node continuation function can be applied multiple
     times in a row.
 
@@ -629,7 +652,7 @@ def test_mesh_creation_functions_node_continuation_accumulated(assert_results_cl
     """
 
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     n_segments = 100
@@ -663,13 +686,15 @@ def test_mesh_creation_functions_node_continuation_accumulated(assert_results_cl
 
 
 def test_mesh_creation_functions_element_length_option(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test that the element length can be specified in the beam creation
     functions."""
 
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     l_el = 1.5
 
@@ -726,7 +751,9 @@ def test_mesh_creation_functions_element_length_option(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_mesh_creation_functions_argument_checks():
+def test_mesh_creation_functions_argument_checks(
+    get_default_test_beam_material,
+):
     """Test that wrong input values leads to failure."""
 
     dummy_arg = "dummy"
@@ -742,7 +769,7 @@ def test_mesh_creation_functions_argument_checks():
         create_beam_mesh_line(
             mesh,
             Beam3rHerm2Line3,
-            MaterialReissner(),
+            get_default_test_beam_material(material_type="reissner"),
             [1.0, 2.0, 0.0],
             [3.0, 4.0, 6.0],
             n_el=1,
@@ -867,13 +894,13 @@ def test_mesh_creation_functions_argument_checks():
     ["line", "arc"],
 )
 def test_mesh_creation_functions_arc_length(
-    basic_creation_function, assert_results_close
+    basic_creation_function, get_default_test_beam_material, assert_results_close
 ):
     """Test that the arc length can be stored in the nodes when creating a
     filament."""
 
     node_positions_of_elements = [0, 0.25, 1]
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     offset = 3.0
     if basic_creation_function == "line":
         length = 2.5
@@ -1004,7 +1031,9 @@ def test_mesh_creation_functions_arc_length(
     )
 
 
-def test_mesh_creation_functions_arc_length_argument_checks():
+def test_mesh_creation_functions_arc_length_argument_checks(
+    get_default_test_beam_material,
+):
     """Test that wrong input values leads to failure."""
 
     dummy_arg = "dummy"
@@ -1020,7 +1049,7 @@ def test_mesh_creation_functions_arc_length_argument_checks():
         create_beam_mesh_line(
             mesh,
             Beam3rHerm2Line3,
-            MaterialReissner(),
+            get_default_test_beam_material(material_type="reissner"),
             [1.0, 2.0, 0.0],
             [3.0, 4.0, 6.0],
             n_el=1,
@@ -1141,7 +1170,9 @@ def test_mesh_creation_functions_arc_length_argument_checks():
 
 
 def test_mesh_creation_functions_curve_3d_helix(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix from a parametric curve where the parameter is
     transformed so the arc length along the beam is not proportional to the
@@ -1151,7 +1182,7 @@ def test_mesh_creation_functions_curve_3d_helix(
     mesh = Mesh()
 
     # Add material and functions.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Get the helix curve function
     R = 2.0
@@ -1178,13 +1209,15 @@ def test_mesh_creation_functions_curve_3d_helix(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_mesh_creation_functions_curve_3d_helix_length(assert_results_close):
+def test_mesh_creation_functions_curve_3d_helix_length(
+    get_default_test_beam_material, assert_results_close
+):
     """Create a helix from a parametric curve where and check that the correct
     length is returned."""
 
     mesh_1 = Mesh()
     mesh_2 = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Get the helix curve function
     R = 2.0
@@ -1212,7 +1245,9 @@ def test_mesh_creation_functions_curve_3d_helix_length(assert_results_close):
 
 
 def test_mesh_creation_functions_curve_2d_sin(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a sin from a parametric curve."""
 
@@ -1220,7 +1255,7 @@ def test_mesh_creation_functions_curve_2d_sin(
     mesh = Mesh()
 
     # Add material and functions.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Set parameters for the sin.
     n_el = 8
@@ -1248,7 +1283,9 @@ def test_mesh_creation_functions_curve_2d_sin(
 
 
 def test_mesh_creation_functions_curve_3d_curve_rotation(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a line from a parametric curve and prescribe the rotation."""
 
@@ -1256,7 +1293,7 @@ def test_mesh_creation_functions_curve_3d_curve_rotation(
     mesh = Mesh()
 
     # Add material and functions.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Set parameters for the line.
     L = 1.1
@@ -1301,7 +1338,9 @@ def test_mesh_creation_functions_curve_3d_curve_rotation(
 
 
 def test_mesh_creation_functions_curve_3d_line(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a line from a parametric curve.
 
@@ -1314,7 +1353,7 @@ def test_mesh_creation_functions_curve_3d_line(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     def line(t):
         """Create a line with a parametric curve (and a transformed
@@ -1338,7 +1377,9 @@ def test_mesh_creation_functions_curve_3d_line(
 
 
 def test_mesh_creation_functions_helix_no_rotation(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
 
@@ -1347,7 +1388,7 @@ def test_mesh_creation_functions_helix_no_rotation(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(
@@ -1376,7 +1417,7 @@ def test_mesh_creation_functions_helix_no_rotation(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(
@@ -1404,7 +1445,7 @@ def test_mesh_creation_functions_helix_no_rotation(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(
@@ -1430,7 +1471,9 @@ def test_mesh_creation_functions_helix_no_rotation(
 
 
 def test_mesh_creation_functions_helix_rotation_offset(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
 
@@ -1438,7 +1481,7 @@ def test_mesh_creation_functions_helix_rotation_offset(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(
@@ -1464,7 +1507,9 @@ def test_mesh_creation_functions_helix_rotation_offset(
 
 
 def test_mesh_creation_functions_helix_radius_zero(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
 
@@ -1472,7 +1517,7 @@ def test_mesh_creation_functions_helix_radius_zero(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(
@@ -1499,7 +1544,9 @@ def test_mesh_creation_functions_helix_radius_zero(
 
 
 def test_mesh_creation_functions_helix_helix_angle_right_angle(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
 
@@ -1507,7 +1554,7 @@ def test_mesh_creation_functions_helix_helix_angle_right_angle(
     mesh = Mesh()
 
     # Add material and function.
-    mat = MaterialReissner(youngs_modulus=1e5, radius=0.5, shear_correction=1.0)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Add simple line to verify that the helix creation does not alter additional meshes
     create_beam_mesh_line(

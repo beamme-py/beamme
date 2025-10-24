@@ -8,7 +8,7 @@ runs:
       run: |
         cd ${GITHUB_WORKSPACE}
         source python-workflow-venv/bin/activate
-        pip install -e .[dev]
+        pip install -e .[dev,fourc]
         pre-commit install --install-hooks
         if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
           SKIP=no-commit-to-branch pre-commit run --all-files

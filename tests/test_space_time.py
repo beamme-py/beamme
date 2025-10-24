@@ -26,7 +26,6 @@ import pytest
 
 from beamme.core.conf import bme
 from beamme.core.element_beam import generate_beam_class
-from beamme.core.material import MaterialBeamBase
 from beamme.core.mesh import Mesh
 from beamme.mesh_creation_functions.beam_arc import create_beam_mesh_arc_segment_2d
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
@@ -46,16 +45,24 @@ def get_name(beam_class):
 
 @pytest.mark.parametrize("n_nodes", [2, 3])
 def test_space_time_straight(
-    n_nodes, assert_results_close, get_corresponding_reference_file_path
+    n_nodes,
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create the straight beam for the tests."""
 
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
-    beam_radius = 0.05
-    mat = MaterialBeamBase(radius=beam_radius)
     mesh = Mesh()
-    create_beam_mesh_line(mesh, beam_type, mat, [0, 0, 0], [6, 0, 0], n_el=3)
+    create_beam_mesh_line(
+        mesh,
+        beam_type,
+        get_default_test_beam_material(material_type="base"),
+        [0, 0, 0],
+        [6, 0, 0],
+        n_el=3,
+    )
 
     # Get the space-time mesh
     space_time_mesh, return_set = beam_to_space_time(mesh, 6.9, 5, time_start=2.5)
@@ -76,17 +83,25 @@ def test_space_time_straight(
 
 @pytest.mark.parametrize("n_nodes", [2, 3])
 def test_space_time_curved(
-    n_nodes, assert_results_close, get_corresponding_reference_file_path
+    n_nodes,
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a curved beam for the tests."""
 
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
-    beam_radius = 0.05
-    mat = MaterialBeamBase(radius=beam_radius)
     mesh = Mesh()
     create_beam_mesh_arc_segment_2d(
-        mesh, beam_type, mat, [0.5, 1, 0], 0.75, 0.0, np.pi * 2.0 / 3.0, n_el=3
+        mesh,
+        beam_type,
+        get_default_test_beam_material(material_type="base"),
+        [0.5, 1, 0],
+        0.75,
+        0.0,
+        np.pi * 2.0 / 3.0,
+        n_el=3,
     )
 
     # Get the space-time mesh
@@ -109,15 +124,18 @@ def test_space_time_curved(
 @pytest.mark.parametrize("n_nodes", [2, 3])
 @pytest.mark.parametrize("couple_nodes", [False, True])
 def test_space_time_elbow(
-    n_nodes, couple_nodes, assert_results_close, get_corresponding_reference_file_path
+    n_nodes,
+    couple_nodes,
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create an elbow beam for the tests."""
 
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
-    beam_radius = 0.05
-    mat = MaterialBeamBase(radius=beam_radius)
     mesh = Mesh()
+    mat = get_default_test_beam_material(material_type="base")
     create_beam_mesh_line(mesh, beam_type, mat, [0, 0, 0], [1, 0, 0], n_el=3)
     create_beam_mesh_line(mesh, beam_type, mat, [1, 0, 0], [1, 1, 0], n_el=2)
 
@@ -151,6 +169,7 @@ def test_space_time_varying_material_length(
     n_nodes,
     couple_nodes,
     arc_length,
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
@@ -160,8 +179,7 @@ def test_space_time_varying_material_length(
 
     def beam_mesh_in_space_generator(time):
         """Create the beam mesh in space generator."""
-        beam_radius = 0.05
-        mat = MaterialBeamBase(youngs_modulus=100, radius=beam_radius, density=1)
+        mat = get_default_test_beam_material(material_type="base")
         pos_y = 0.25 * (time - 1.7)
 
         mesh_1 = Mesh()
@@ -216,16 +234,24 @@ def test_space_time_varying_material_length(
 
 
 def test_space_time_named_node_set(
-    assert_results_close, get_corresponding_reference_file_path
+    assert_results_close,
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
 ):
     """Create a straight beam and check that named node sets are handled
     correctly."""
 
     # Create the beam mesh in space
     mesh = Mesh()
-    mat = MaterialBeamBase()
     beam_type = generate_beam_class(2)
-    create_beam_mesh_line(mesh, beam_type, mat, [0, 0, 0], [6, 0, 0], n_el=2)
+    create_beam_mesh_line(
+        mesh,
+        beam_type,
+        get_default_test_beam_material(material_type="base"),
+        [0, 0, 0],
+        [6, 0, 0],
+        n_el=2,
+    )
 
     # Get the space-time mesh
     space_time_mesh, return_set = beam_to_space_time(mesh, 6.9, 3, time_start=2.5)
@@ -245,7 +271,9 @@ def test_space_time_named_node_set(
 
 
 @pytest.mark.performance
-def test_performance_create_mesh_in_space(evaluate_execution_time, cache_data):
+def test_performance_create_mesh_in_space(
+    evaluate_execution_time, cache_data, get_default_test_beam_material
+):
     """Test the performance of the mesh creation in space."""
 
     mesh = Mesh()
@@ -257,7 +285,7 @@ def test_performance_create_mesh_in_space(evaluate_execution_time, cache_data):
         kwargs={
             "mesh": mesh,
             "beam_class": beam_type,
-            "material": MaterialBeamBase(radius=0.05),
+            "material": get_default_test_beam_material(material_type="base"),
             "start_point": [0, 0, 0],
             "end_point": [1, 0, 0],
             "n_el": 100,

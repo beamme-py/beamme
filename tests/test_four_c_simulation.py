@@ -94,7 +94,12 @@ def create_cantilever_model(n_steps, time_step=0.5):
     )
     mesh.add(ft)
 
-    mat = MaterialReissner(youngs_modulus=100.0, radius=0.1)
+    mat = MaterialReissner(
+        youngs_modulus=100.0,
+        radius=0.1,
+        nu=0.0,
+        density=0.0,
+    )
     beam_set = create_beam_mesh_line(
         mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [2, 0, 0], n_el=10
     )
@@ -197,7 +202,9 @@ def test_four_c_simulation_honeycomb_sphere(
     input_file.add({"RESULT DESCRIPTION": result_descriptions})
 
     # Material for the beam.
-    material = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
+    material = MaterialReissner(
+        youngs_modulus=2.07e2, radius=0.1, nu=0.0, density=0.0, shear_correction=1.1
+    )
 
     # Create the honeycomb mesh.
     mesh_honeycomb = Mesh()
@@ -323,7 +330,13 @@ def test_four_c_simulation_beam_and_solid_tube(
     mesh = Mesh()
     sin = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "sin(t*2*pi)"}])
     cos = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "cos(t*2*pi)"}])
-    material = MaterialReissner(youngs_modulus=1e9, radius=0.25, shear_correction=0.75)
+    material = MaterialReissner(
+        youngs_modulus=1e9,
+        radius=0.25,
+        shear_correction=0.75,
+        nu=0.0,
+        density=0.0,
+    )
     mesh.add(sin, cos, material)
 
     # Add a straight beam.
@@ -474,7 +487,9 @@ def test_four_c_simulation_honeycomb_variants(
 
     # Create four meshes with different types of honeycomb structure.
     mesh = Mesh()
-    material = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
+    material = MaterialReissner(
+        youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1, nu=0.0, density=0.0
+    )
     ft = []
     ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
     ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
@@ -589,7 +604,9 @@ def test_four_c_simulation_rotated_beam_axis(
     mesh.add(ft)
 
     # Set beam material.
-    mat = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
+    mat = MaterialReissner(
+        youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1, nu=0.0, density=0.0
+    )
 
     # Direction of the lines and the rotation between the beams.
     direction = np.array([0.5, 1, 2])
@@ -1022,7 +1039,7 @@ def test_four_c_simulation_cantilever_convergence(
         set_runtime_output(input_file, output_energy=True)
 
         mesh = Mesh()
-        mat = MaterialReissner(radius=0.1, youngs_modulus=10000.0)
+        mat = MaterialReissner(radius=0.1, youngs_modulus=10000.0, nu=0.0, density=0.0)
         beam_set = create_beam_mesh_line(
             mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 0, 0], n_el=n_el
         )
@@ -1106,7 +1123,7 @@ def test_four_c_simulation_beam_to_beam_contact_example(
 
     # Set up mesh and material.
     mesh = Mesh()
-    mat = MaterialReissner(radius=r_beam, youngs_modulus=1)
+    mat = MaterialReissner(radius=r_beam, youngs_modulus=1, nu=0.0, density=0.0)
 
     # Create a beam in x-axis.
     beam_x = create_beam_mesh_line(
@@ -1244,7 +1261,7 @@ def test_four_c_simulation_locsys(
 
     # Set up mesh and material.
     mesh = Mesh()
-    mat = MaterialReissner(radius=r_beam, youngs_modulus=1)
+    mat = MaterialReissner(radius=r_beam, youngs_modulus=1, nu=0.0, density=0.0)
 
     # List of rotations to be applied on the full stystem starting from time t=0.
     final_rotation_vector = (

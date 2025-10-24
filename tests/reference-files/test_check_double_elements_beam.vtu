@@ -55,7 +55,7 @@
       </PointData>
       <CellData>
         <DataArray type="Float64" Name="cross_section_radius" format="ascii" RangeMin="-1" RangeMax="-1">
-          -1 -1 -1
+          1 1 1
         </DataArray>
         <DataArray type="Float64" Name="partner_index" format="ascii" RangeMin="0" RangeMax="1">
           1 0 1

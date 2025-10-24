@@ -329,15 +329,15 @@
         </DataArray>
       </PointData>
       <CellData>
-        <DataArray type="Float64" Name="cross_section_radius" format="ascii" RangeMin="0.05" RangeMax="0.05">
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05 0.05 0.05 0.05 0.05
-          0.05 0.05
+        <DataArray type="Float64" Name="cross_section_radius" format="ascii" RangeMin="1.0" RangeMax="1.0">
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0 1.0 1.0 1.0 1.0
+          1.0 1.0
         </DataArray>
       </CellData>
       <Points>

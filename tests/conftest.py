@@ -30,6 +30,14 @@ from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 
 from beamme.core.conf import bme
+from beamme.core.material import MaterialBeamBase
+from beamme.four_c.material import (
+    MaterialEulerBernoulli,
+    MaterialKirchhoff,
+    MaterialReissner,
+    MaterialReissnerElastoplastic,
+    MaterialStVenantKirchhoff,
+)
 
 # Import additional confest files (split for better overview)
 pytest_plugins = [
@@ -237,3 +245,92 @@ def get_bc_data() -> Callable:
         }
 
     return _get_bc_data
+
+
+@pytest.fixture(scope="function")
+def get_default_test_beam_material() -> Callable:
+    """Return a function to create a default beam material for testing
+    purposes.
+
+    Returns:
+        A function that creates a default beam material.
+    """
+
+    def _get_default_test_beam_material(material_type: str = "reissner", **kwargs):
+        """Return a default material for testing purposes.
+
+        Args:
+            material_type: The type of beam material to return.
+
+        Returns:
+            A material object corresponding to the specified beam type.
+        """
+
+        if material_type == "base":
+            return MaterialBeamBase(
+                radius=1.0, youngs_modulus=1.0, nu=0.3, density=1.0, **kwargs
+            )
+
+        elif material_type == "reissner":
+            return MaterialReissner(
+                radius=1.0, youngs_modulus=1.0, nu=0.3, density=1.0, **kwargs
+            )
+
+        elif material_type == "reissner_elastoplastic":
+            return MaterialReissnerElastoplastic(
+                radius=1.0,
+                youngs_modulus=1.0,
+                nu=0.3,
+                density=1.0,
+                yield_moment=2.0,
+                isohardening_modulus_moment=3.0,
+                **kwargs,
+            )
+
+        elif material_type == "kirchhoff":
+            return MaterialKirchhoff(
+                radius=1.0, youngs_modulus=1.0, nu=1.0, density=1.0, **kwargs
+            )
+
+        elif material_type == "euler_bernoulli":
+            return MaterialEulerBernoulli(
+                radius=1.0, youngs_modulus=1.0, nu=0.3, density=1.0, **kwargs
+            )
+
+        else:
+            raise ValueError(f"Unknown beam type: {material_type}")
+
+    return _get_default_test_beam_material
+
+
+@pytest.fixture(scope="function")
+def get_default_test_solid_material() -> Callable:
+    """Return a function to create a default solid material for testing
+    purposes.
+
+    Args:
+        material_type: The type of solid material to return.
+
+    Returns:
+        A function that creates a default solid material.
+    """
+
+    def _get_default_test_solid_material(
+        material_type: str = "st_venant_kirchhoff",
+    ):
+        """Return a default solid material for testing purposes.
+
+        Args:
+            material_type: The type of solid material to return.
+
+        Returns:
+            A material object corresponding to the specified solid material type.
+        """
+
+        if material_type == "st_venant_kirchhoff":
+            return MaterialStVenantKirchhoff(youngs_modulus=1.0, nu=0.3, density=1.0)
+
+        else:
+            raise ValueError(f"Unknown solid material type: {material_type}")
+
+    return _get_default_test_solid_material

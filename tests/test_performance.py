@@ -137,7 +137,9 @@ def create_beam_mesh(n_x, n_y, n_z, n_el):
     cells"."""
 
     mesh = Mesh()
-    material = MaterialReissner(radius=0.25 / np.max([n_x, n_y, n_z]))
+    material = MaterialReissner(
+        radius=0.25 / np.max([n_x, n_y, n_z]), youngs_modulus=0.0, nu=0.0, density=0.0
+    )
 
     for i_x in range(n_x + 1):
         for i_y in range(n_y + 1):

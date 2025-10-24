@@ -24,15 +24,16 @@
 from beamme.core.mesh import Mesh
 from beamme.core.mesh_utils import get_coupled_nodes_to_master_map
 from beamme.four_c.element_beam import Beam3rLine2Line2
-from beamme.four_c.material import MaterialReissner
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
 
-def test_input_file_utils_get_coupled_nodes_to_master_map():
+def test_input_file_utils_get_coupled_nodes_to_master_map(
+    get_default_test_beam_material,
+):
     """Test the get_coupled_nodes_to_master_map function."""
 
     beam_class = Beam3rLine2Line2
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh = Mesh()
     create_beam_mesh_line(mesh, beam_class, mat, [0, 0, 0], [1, 0, 0])
     create_beam_mesh_line(mesh, beam_class, mat, [1, 0, 0], [1, 1, 0])

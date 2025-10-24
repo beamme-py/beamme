@@ -341,9 +341,9 @@ DVOL-NODE TOPOLOGY:
 MATERIALS:
   - MAT: 1
     MAT_Struct_StVenantKirchhoff:
-      DENS: 5.3e-07
-      NUE: 0.19
-      YOUNG: 710
+      DENS: 1.0
+      NUE: 0.3
+      YOUNG: 1.0
 NODE COORDS:
   - CP 1 COORD -0.75 -1.5 -1.2 1.0
   - CP 2 COORD -0.375 -1.5 -1.2 1.0

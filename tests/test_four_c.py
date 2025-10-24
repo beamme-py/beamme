@@ -36,7 +36,6 @@ from beamme.four_c.dbc_monitor import linear_time_transformation
 from beamme.four_c.element_beam import Beam3rHerm2Line3
 from beamme.four_c.input_file import InputFile
 from beamme.four_c.locsys_condition import LocSysCondition
-from beamme.four_c.material import MaterialReissner
 from beamme.four_c.model_importer import import_four_c_model
 from beamme.four_c.solid_shell_thickness_direction import (
     get_visualization_third_parameter_direction_hex8,
@@ -48,7 +47,9 @@ from beamme.utils.nodes import is_node_on_plane
 
 
 def test_four_c_material_numbering(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test that materials can be added as strings to an input file (as is done
     when importing input files) and that the numbering with other added
@@ -163,7 +164,7 @@ def test_four_c_material_numbering(
     )
 
     mesh = Mesh()
-    mesh.add(MaterialReissner(youngs_modulus=1.0, radius=2.0))
+    mesh.add(get_default_test_beam_material(material_type="reissner"))
 
     input_file.add(mesh)
 
@@ -171,15 +172,15 @@ def test_four_c_material_numbering(
 
 
 def test_four_c_simulation_beam_potential_helix(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the correct creation of input files for simulations including beam
     to beam potential interactions."""
 
     mesh = Mesh()
     input_file = InputFile()
-
-    mat = MaterialReissner(youngs_modulus=1000, radius=0.5, shear_correction=1.0)
 
     # define function for line charge density
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
@@ -219,7 +220,7 @@ def test_four_c_simulation_beam_potential_helix(
     helix_set = create_beam_mesh_helix(
         mesh,
         Beam3rHerm2Line3,
-        mat,
+        get_default_test_beam_material(material_type="reissner"),
         [0.0, 0.0, 1.0],
         [0.0, 0.0, 0.0],
         [2.0, 0.0, 0.0],
@@ -260,6 +261,7 @@ def test_four_c_simulation_beam_potential_helix(
 
 
 def test_four_c_solid_shell_direction_detection(
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
     tmp_path,
@@ -275,9 +277,13 @@ def test_four_c_solid_shell_direction_detection(
     )
 
     # Add a beam element to check the function also works with beam elements
-    mat = MaterialReissner()
     create_beam_mesh_line(
-        mesh_block, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 0, 0], n_el=1
+        mesh_block,
+        Beam3rHerm2Line3,
+        get_default_test_beam_material(material_type="reissner"),
+        [0, 0, 0],
+        [1, 0, 0],
+        n_el=1,
     )
     # Set the thickness direction and compare result
     set_solid_shell_thickness_direction(mesh_block.elements, selection_type="thickness")
@@ -346,7 +352,9 @@ def test_four_c_solid_shell_direction_detection(
 
 
 def test_four_c_locsys_condition(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test case for point locsys condition for beams.
 
@@ -363,12 +371,14 @@ def test_four_c_locsys_condition(
     fun = Function([{"SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
     mesh.add(fun)
 
-    mat = MaterialReissner()
-    mesh.add(mat)
-
     # Create the beam.
     beam_set = create_beam_mesh_line(
-        mesh, Beam3rHerm2Line3, mat, [2.5, 2.5, 2.5], [4.5, 2.5, 2.5], n_el=1
+        mesh,
+        Beam3rHerm2Line3,
+        get_default_test_beam_material(material_type="reissner"),
+        [2.5, 2.5, 2.5],
+        [4.5, 2.5, 2.5],
+        n_el=1,
     )
 
     # Add dirichlet boundary conditions.
@@ -542,7 +552,9 @@ def test_four_c_linear_time_transformation_flip():
     assert force_trans.tolist() == force_result.tolist()
 
 
-def test_four_c_add_beam_interaction_condition():
+def test_four_c_add_beam_interaction_condition(
+    get_default_test_beam_material,
+):
     """Ensure that the contact-boundary conditions ids are estimated
     correctly."""
 
@@ -550,7 +562,7 @@ def test_four_c_add_beam_interaction_condition():
     mesh = Mesh()
 
     # Create Material.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create a beam in x-axis.
     beam_x = create_beam_mesh_line(
@@ -608,7 +620,9 @@ def test_four_c_add_beam_interaction_condition():
 
 
 def test_four_c_beam_to_beam_contact(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Test the beam-to-beam contact boundary conditions."""
 
@@ -616,7 +630,7 @@ def test_four_c_beam_to_beam_contact(
     mesh = Mesh()
 
     # Create Material.
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create a beam in x-axis.
     beam_x = create_beam_mesh_line(
@@ -648,7 +662,9 @@ def test_four_c_beam_to_beam_contact(
 
 
 def test_four_c_beam_to_solid(
-    get_corresponding_reference_file_path, assert_results_close
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
+    assert_results_close,
 ):
     """Test that the automatic ID creation for beam-to-solid conditions
     works."""
@@ -677,7 +693,7 @@ def test_four_c_beam_to_solid(
     volume_set = mesh.geometry_sets[bme.geo.volume][0]
 
     # Add the beam
-    material = MaterialReissner()
+    material = get_default_test_beam_material(material_type="reissner")
     beam_set_1 = create_beam_mesh_line(
         mesh, Beam3rHerm2Line3, material, [0, 0, 0], [0, 0, 1], n_el=1
     )
@@ -743,6 +759,7 @@ def test_four_c_beam_to_solid(
 def test_four_c_import_non_consecutive_geometry_sets(
     full_import,
     additional_identifier,
+    get_default_test_beam_material,
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
@@ -755,7 +772,7 @@ def test_four_c_import_non_consecutive_geometry_sets(
         convert_input_to_mesh=full_import,
     )
 
-    material = MaterialReissner()
+    material = get_default_test_beam_material(material_type="reissner")
     for i in range(3):
         beam_set = create_beam_mesh_line(
             mesh,
