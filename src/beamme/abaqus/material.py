@@ -21,10 +21,10 @@
 # THE SOFTWARE.
 """This file provides functions to create Abaqus beam element classes."""
 
-from beamme.core.material import MaterialBeamBase as _MaterialBeamBase
+from beamme.core.base_mesh_item import BaseMeshItem as _BaseMeshItem
 
 
-class AbaqusBeamMaterial(_MaterialBeamBase):
+class AbaqusBeamMaterial(_BaseMeshItem):
     """A class representing an Abaqus beam material."""
 
     def __init__(self, name: str):
@@ -37,8 +37,8 @@ class AbaqusBeamMaterial(_MaterialBeamBase):
         name: str
             Name of the material, this will be the name of the resulting element set
         """
-        super().__init__(data=name)
+        super().__init__({"name": name})
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-        return [self.data]
+        return [self.data["name"]]

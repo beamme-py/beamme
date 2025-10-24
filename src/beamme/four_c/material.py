@@ -32,7 +32,7 @@ class MaterialReissner(_MaterialBeamBase):
 
     def __init__(
         self,
-        shear_correction=1,
+        shear_correction=1.0,
         *,
         by_modes=False,
         scale_axial_rigidity=1.0,
@@ -225,9 +225,9 @@ class MaterialEulerBernoulli(_MaterialBeamBase):
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-        area, mom2, _mom3, _polar = self.calc_area_stiffness()
+        area, mom2, _, _ = self.calc_area_stiffness()
         if self.area is None and self.mom2 is None:
-            area, mom2, _mom3, _polar = self.calc_area_stiffness()
+            area, mom2, _, _ = self.calc_area_stiffness()
         elif self.area is not None and self.mom2 is not None:
             area = self.area
             mom2 = self.mom2
@@ -263,7 +263,13 @@ class MaterialSolid(_MaterialSolidBase):
 class MaterialStVenantKirchhoff(MaterialSolid):
     """Holds material definition for StVenant Kirchhoff solids."""
 
-    def __init__(self, youngs_modulus=1.0, nu=0.0, density=0.0):
+    def __init__(self, youngs_modulus=None, nu=None, density=None):
+        if youngs_modulus is None or nu is None or density is None:
+            raise ValueError(
+                "Young's modulus, Poisson's ratio, and density "
+                "must be provided for StVenant Kirchhoff solid materials."
+            )
+
         super().__init__(
             material_string="MAT_Struct_StVenantKirchhoff",
             data={"YOUNG": youngs_modulus, "NUE": nu, "DENS": density},

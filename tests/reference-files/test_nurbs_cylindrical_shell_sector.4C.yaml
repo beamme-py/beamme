@@ -91,8 +91,8 @@ DSURF-NODE TOPOLOGY:
 MATERIALS:
   - MAT: 1
     MAT_Struct_StVenantKirchhoff:
-      DENS: 0.0
-      NUE: 0.0
+      DENS: 1.0
+      NUE: 0.3
       YOUNG: 1.0
 NODE COORDS:
   - CP 1 COORD -1.1499999999999997 -0.85 -1.991858428704209 1.0

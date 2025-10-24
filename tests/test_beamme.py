@@ -39,7 +39,6 @@ from beamme.core.coupling import Coupling
 from beamme.core.element_beam import Beam
 from beamme.core.function import Function
 from beamme.core.geometry_set import GeometryName, GeometrySet, GeometrySetNodes
-from beamme.core.material import MaterialBeamBase
 from beamme.core.mesh import Mesh
 from beamme.core.node import Node, NodeCosserat
 from beamme.core.rotation import Rotation
@@ -56,9 +55,7 @@ from beamme.four_c.header_functions import (
 )
 from beamme.four_c.input_file import InputFile
 from beamme.four_c.material import (
-    MaterialEulerBernoulli,
     MaterialKirchhoff,
-    MaterialReissner,
     MaterialReissnerElastoplastic,
     MaterialStVenantKirchhoff,
 )
@@ -78,7 +75,7 @@ from beamme.utils.nodes import get_min_max_coordinates
 from tests.create_cubit_input import create_tube_cubit
 
 
-def create_test_mesh():
+def create_test_mesh(get_default_test_beam_material):
     """Fill the mesh with a couple of test nodes and elements."""
 
     # Set the seed for the pseudo random numbers
@@ -86,7 +83,7 @@ def create_test_mesh():
 
     # Add material to mesh.
     mesh = Mesh()
-    material = MaterialReissner()
+    material = get_default_test_beam_material(material_type="reissner")
     mesh.add(material)
 
     # Add three test nodes and add them to a beam element
@@ -116,12 +113,12 @@ def create_test_mesh():
     return mesh
 
 
-def test_rotations(assert_results_close):
+def test_rotations(get_default_test_beam_material, assert_results_close):
     """Check if the Mesh function rotation gives the same results as rotating
     each node it self."""
 
-    mesh_1 = create_test_mesh()
-    mesh_2 = create_test_mesh()
+    mesh_1 = create_test_mesh(get_default_test_beam_material)
+    mesh_2 = create_test_mesh(get_default_test_beam_material)
 
     # Set the seed for the pseudo random numbers
     random.seed(0)
@@ -140,12 +137,14 @@ def test_rotations(assert_results_close):
     assert_results_close(mesh_1, mesh_2)
 
 
-def test_mesh_rotations_individual(assert_results_close):
+def test_mesh_rotations_individual(
+    get_default_test_beam_material, assert_results_close
+):
     """Check if the Mesh function rotation gives the same results as rotating
     each node it self, when an array is passed with different rotations."""
 
-    mesh_1 = create_test_mesh()
-    mesh_2 = create_test_mesh()
+    mesh_1 = create_test_mesh(get_default_test_beam_material)
+    mesh_2 = create_test_mesh(get_default_test_beam_material)
 
     # Set the seed for the pseudo random numbers
     random.seed(0)
@@ -169,7 +168,9 @@ def test_mesh_rotations_individual(assert_results_close):
 
 @pytest.mark.parametrize("origin", [False, True])
 @pytest.mark.parametrize("flip", [False, True])
-def test_mesh_reflection(origin, flip, assert_results_close):
+def test_mesh_reflection(
+    origin, flip, get_default_test_beam_material, assert_results_close
+):
     """Create a mesh, and its mirrored counterpart and then compare the input
     files."""
 
@@ -179,7 +180,7 @@ def test_mesh_reflection(origin, flip, assert_results_close):
 
     mesh_ref = Mesh()
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create the reference mesh.
     if not flip:
@@ -240,6 +241,7 @@ def test_mesh_reflection(origin, flip, assert_results_close):
 
 
 def test_mesh_transformations_with_solid(
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
@@ -260,7 +262,7 @@ def test_mesh_transformations_with_solid(
             convert_input_to_mesh=import_full,
         )
 
-        mat = MaterialReissner(radius=0.05)
+        mat = get_default_test_beam_material(material_type="reissner")
 
         # Create the line.
         create_beam_mesh_line(
@@ -310,6 +312,7 @@ def test_mesh_transformations_with_solid(
 
 
 def test_fluid_element_section(
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
@@ -322,7 +325,7 @@ def test_fluid_element_section(
     )
 
     beam_mesh = Mesh()
-    material = MaterialEulerBernoulli(youngs_modulus=1e8, radius=0.001, density=10)
+    material = get_default_test_beam_material(material_type="euler_bernoulli")
     beam_mesh.add(material)
 
     create_beam_mesh_line(
@@ -336,7 +339,9 @@ def test_fluid_element_section(
 
 
 def test_wrap_cylinder_not_on_same_plane(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create a helix that is itself wrapped around a cylinder."""
 
@@ -345,7 +350,7 @@ def test_wrap_cylinder_not_on_same_plane(
 
     # Create the mesh.
     mesh = Mesh()
-    mat = MaterialReissner(radius=0.05)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     # Create the line and bend it to a helix.
     create_beam_mesh_line(
@@ -372,7 +377,7 @@ def test_wrap_cylinder_not_on_same_plane(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_get_nodes_by_function(assert_results_close):
+def test_get_nodes_by_function(get_default_test_beam_material, assert_results_close):
     """Check if the get_nodes_by_function method of Mesh works properly."""
 
     def get_nodes_at_x(node, x_value):
@@ -382,7 +387,7 @@ def test_get_nodes_by_function(assert_results_close):
         else:
             return False
 
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
 
     mesh = Mesh()
     create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [5, 0, 0], n_el=5)
@@ -395,7 +400,9 @@ def test_get_nodes_by_function(assert_results_close):
 
 
 def test_get_min_max_coordinates(
-    get_corresponding_reference_file_path, assert_results_close
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
+    assert_results_close,
 ):
     """Test if the get_min_max_coordinates function works properly."""
 
@@ -407,7 +414,7 @@ def test_get_min_max_coordinates(
         convert_input_to_mesh=True,
     )
 
-    mat = MaterialReissner(radius=0.05)
+    mat = get_default_test_beam_material(material_type="reissner")
     create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [2, 3, 4], n_el=10)
 
     # Check the results.
@@ -441,14 +448,17 @@ def test_geometry_sets(assert_results_close, get_corresponding_reference_file_pa
 
 
 def test_unique_ordering_of_get_all_nodes_for_line_condition(
-    get_bc_data, assert_results_close, get_corresponding_reference_file_path
+    get_bc_data,
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """This test ensures that the ordering of the nodes returned from the
     function get_all_nodes is unique for line sets."""
 
     # set up a beam mesh with material
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     beam_set = create_beam_mesh_line(
         mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [2, 0, 0], n_el=10
     )
@@ -476,6 +486,8 @@ def test_reissner_elasto_plastic(assert_results_close):
 
     kwargs = {
         "radius": 0.1,
+        "nu": 1.0,
+        "density": 1.0,
         "youngs_modulus": 1000,
         "interaction_radius": 2.0,
         "shear_correction": 5.0 / 6.0,
@@ -488,8 +500,8 @@ def test_reissner_elasto_plastic(assert_results_close):
         "MAT": 69,
         "MAT_BeamReissnerElastPlastic": {
             "YOUNG": 1000,
-            "POISSONRATIO": 0.0,
-            "DENS": 0.0,
+            "POISSONRATIO": 1.0,
+            "DENS": 1.0,
             "CROSSAREA": 0.031415926535897934,
             "SHEARCORR": 0.8333333333333334,
             "MOMINPOL": 0.00015707963267948968,
@@ -524,7 +536,9 @@ def test_kirchhoff_material(assert_results_close):
         material.mom3 = 4.0
         material.polar = 5.0
 
-    material = MaterialKirchhoff(youngs_modulus=1000, is_fad=True)
+    material = MaterialKirchhoff(
+        youngs_modulus=1000, radius=1.0, nu=1.0, density=1.0, is_fad=True
+    )
     material.i_global = 26
     set_stiff(material)
     assert_results_close(
@@ -533,8 +547,8 @@ def test_kirchhoff_material(assert_results_close):
             "MAT": 27,
             "MAT_BeamKirchhoffElastHyper": {
                 "YOUNG": 1000,
-                "SHEARMOD": 500.0,
-                "DENS": 0.0,
+                "SHEARMOD": 250.0,
+                "DENS": 1.0,
                 "CROSSAREA": 2.0,
                 "MOMINPOL": 5.0,
                 "MOMIN2": 3.0,
@@ -544,7 +558,9 @@ def test_kirchhoff_material(assert_results_close):
         },
     )
 
-    material = MaterialKirchhoff(youngs_modulus=1000, is_fad=False)
+    material = MaterialKirchhoff(
+        youngs_modulus=1000, radius=1.0, nu=1.0, density=1.0, is_fad=False
+    )
     material.i_global = 26
     set_stiff(material)
     assert_results_close(
@@ -553,8 +569,8 @@ def test_kirchhoff_material(assert_results_close):
             "MAT": 27,
             "MAT_BeamKirchhoffElastHyper": {
                 "YOUNG": 1000,
-                "SHEARMOD": 500.0,
-                "DENS": 0.0,
+                "SHEARMOD": 250.0,
+                "DENS": 1.0,
                 "CROSSAREA": 2.0,
                 "MOMINPOL": 5.0,
                 "MOMIN2": 3.0,
@@ -564,7 +580,9 @@ def test_kirchhoff_material(assert_results_close):
         },
     )
 
-    material = MaterialKirchhoff(youngs_modulus=1000, interaction_radius=1.1)
+    material = MaterialKirchhoff(
+        youngs_modulus=1000, radius=1.0, nu=1.0, density=1.0, interaction_radius=1.1
+    )
     material.i_global = 26
     set_stiff(material)
     assert_results_close(
@@ -573,8 +591,8 @@ def test_kirchhoff_material(assert_results_close):
             "MAT": 27,
             "MAT_BeamKirchhoffElastHyper": {
                 "YOUNG": 1000,
-                "SHEARMOD": 500.0,
-                "DENS": 0.0,
+                "SHEARMOD": 250.0,
+                "DENS": 1.0,
                 "CROSSAREA": 2.0,
                 "MOMINPOL": 5.0,
                 "MOMIN2": 3.0,
@@ -586,7 +604,11 @@ def test_kirchhoff_material(assert_results_close):
     )
 
 
-def test_close_beam(assert_results_close, get_corresponding_reference_file_path):
+def test_close_beam(
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
     """
     Create a circle with different methods.
     - Create the mesh manually by creating the nodes and connecting them to
@@ -603,7 +625,7 @@ def test_close_beam(assert_results_close, get_corresponding_reference_file_path)
     additional_rotation = Rotation([0, 1, 0], 0.5)
 
     # Define material.
-    mat = MaterialReissner(radius=0.1)
+    mat = get_default_test_beam_material(material_type="reissner")
 
     def create_mesh_manually(start_rotation):
         """Create the full circle manually."""
@@ -821,12 +843,12 @@ def test_close_beam(assert_results_close, get_corresponding_reference_file_path)
     )
 
 
-def test_geometry_set_get_geometry_objects():
+def test_geometry_set_get_geometry_objects(get_default_test_beam_material):
     """Test if the geometry set returns the objects(elements) in the correct
     order."""
 
     # Initialize material and mesh
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh = Mesh()
 
     # number of elements
@@ -850,13 +872,16 @@ def test_geometry_set_get_geometry_objects():
 
 @pytest.mark.parametrize("use_nodal_geometry_sets", [True, False])
 def test_replace_nodes_geometry_set(
-    get_bc_data, use_nodal_geometry_sets, assert_results_close
+    get_bc_data,
+    get_default_test_beam_material,
+    use_nodal_geometry_sets,
+    assert_results_close,
 ):
     """Test case for coupling of nodes, and reusing the identical nodes."""
 
     bme.check_overlapping_elements = False
 
-    mat = MaterialReissner(radius=0.1, youngs_modulus=1)
+    mat = get_default_test_beam_material(material_type="reissner")
     rot = Rotation([1, 2, 43], 213123)
 
     # Create a beam with two elements. Once immediately and once as two
@@ -1012,7 +1037,9 @@ def test_replace_nodes_geometry_set(
 
 
 def create_beam_to_solid_conditions_model(
-    get_corresponding_reference_file_path, full_import: bool
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
+    full_import: bool,
 ):
     """Create the input file for the beam-to-solid input conditions tests."""
 
@@ -1026,7 +1053,7 @@ def create_beam_to_solid_conditions_model(
 
     # Add beams to the model
     mesh_beams = Mesh()
-    material = MaterialReissner(youngs_modulus=1000, radius=0.05)
+    material = get_default_test_beam_material(material_type="reissner")
     create_beam_mesh_line(
         mesh_beams, Beam3rHerm2Line3, material, [0, 0, 0], [0, 0, 1], n_el=3
     )
@@ -1069,6 +1096,7 @@ def create_beam_to_solid_conditions_model(
 def test_beam_to_solid_conditions(
     full_import,
     additional_identifier,
+    get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
@@ -1076,7 +1104,9 @@ def test_beam_to_solid_conditions(
 
     # Get the input file.
     input_file, mesh = create_beam_to_solid_conditions_model(
-        get_corresponding_reference_file_path, full_import=full_import
+        get_default_test_beam_material,
+        get_corresponding_reference_file_path,
+        full_import=full_import,
     )
     input_file.add(mesh)
 
@@ -1109,7 +1139,11 @@ def test_surface_to_surface_contact_import(
 
 
 def test_nurbs_import(
-    assert_results_close, get_corresponding_reference_file_path, tmp_path
+    get_default_test_beam_material,
+    get_default_test_solid_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+    tmp_path,
 ):
     """Test if the import of a NURBS mesh works as expected.
 
@@ -1134,7 +1168,7 @@ def test_nurbs_import(
 
     # Add NURBS to mesh (3 times to get the full cylinder)
     mesh = Mesh()
-    mat = MaterialStVenantKirchhoff(youngs_modulus=10, nu=0)
+    mat = get_default_test_solid_material(material_type="st_venant_kirchhoff")
     element_description = {"KINEM": "nonlinear"}
 
     volume_set = GeometrySetNodes(geometry_type=bme.geo.volume)
@@ -1216,7 +1250,7 @@ def test_nurbs_import(
     mesh.add(fun)
 
     # Create the beam material.
-    material = MaterialReissner(youngs_modulus=1000, radius=0.05)
+    material = get_default_test_beam_material(material_type="reissner")
 
     # Create the beams.
     set_1 = create_beam_mesh_line(
@@ -1343,12 +1377,17 @@ def test_stvenantkirchhoff_solid(
     ],
 )
 def test_point_couplings(
-    coupling_type, assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    coupling_type,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Create the input file for the test_point_couplings method."""
 
     # Create material and mesh
-    material = MaterialReissner(radius=0.1, youngs_modulus=1000, interaction_radius=2.0)
+    material = get_default_test_beam_material(
+        material_type="reissner", interaction_radius=2.0
+    )
     mesh = Mesh()
 
     # Create a 2x2 grid of beams.
@@ -1478,7 +1517,10 @@ def test_vtk_writer(
 
 
 def test_vtk_writer_beam(
-    assert_results_close, get_corresponding_reference_file_path, tmp_path
+    assert_results_close,
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
+    tmp_path,
 ):
     """Create a sample mesh and check the VTK output."""
 
@@ -1486,9 +1528,14 @@ def test_vtk_writer_beam(
     mesh = Mesh()
 
     # Add content to the mesh.
-    mat = MaterialBeamBase(radius=0.05)
     honeycomb_set = create_beam_mesh_honeycomb(
-        mesh, Beam3rHerm2Line3, mat, 2.0, 2, 3, n_el=2
+        mesh,
+        Beam3rHerm2Line3,
+        get_default_test_beam_material(material_type="base"),
+        2.0,
+        2,
+        3,
+        n_el=2,
     )
     mesh.add(honeycomb_set)
 
@@ -1588,7 +1635,10 @@ def test_vtk_writer_solid_elements(
 
 
 def test_vtk_curve_cell_data(
-    assert_results_close, get_corresponding_reference_file_path, tmp_path
+    assert_results_close,
+    get_default_test_beam_material,
+    get_corresponding_reference_file_path,
+    tmp_path,
 ):
     """Test that when creating a beam, cell data can be given.
 
@@ -1604,7 +1654,7 @@ def test_vtk_curve_cell_data(
         mesh = Mesh()
 
         # Add content to the mesh.
-        mat = MaterialBeamBase(radius=0.05)
+        mat = get_default_test_beam_material(material_type="base")
         create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [2, 0, 0], n_el=2)
         create_beam_mesh_line(
             mesh,
@@ -1664,12 +1714,12 @@ def test_cubitpy_import(
     )
 
 
-def test_deep_copy(get_bc_data, assert_results_close):
+def test_deep_copy(get_bc_data, get_default_test_beam_material, assert_results_close):
     """This test checks that the deep copy function on a mesh does not copy the
     materials or functions."""
 
     # Create material and function object.
-    mat = MaterialReissner(youngs_modulus=1, radius=1)
+    mat = get_default_test_beam_material(material_type="reissner")
     fun = Function("COMPONENT 0 SYMBOLIC_FUNCTION_OF_SPACE_TIME t")
 
     def create_mesh(mesh):
@@ -1757,14 +1807,16 @@ def test_mesh_add_checks():
 
 
 def test_check_two_couplings(
-    assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """The current implementation can handle more than one coupling on a node
     correctly, therefore we check this here."""
 
     # Create mesh object
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     # Add two beams to create an elbow structure. The beams each have a
@@ -1783,7 +1835,10 @@ def test_check_two_couplings(
 
 @pytest.mark.parametrize("reuse_nodes", [[None, False], ["reuse", True]])
 def test_check_multiple_node_penalty_coupling(
-    reuse_nodes, assert_results_close, get_corresponding_reference_file_path
+    get_default_test_beam_material,
+    reuse_nodes,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """For point penalty coupling constraints, we add multiple coupling
     conditions.
@@ -1794,7 +1849,7 @@ def test_check_multiple_node_penalty_coupling(
 
     # Create mesh object
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     # Add three beams that have one common point
@@ -1817,13 +1872,16 @@ def test_check_multiple_node_penalty_coupling(
 
 
 def test_check_double_elements(
-    assert_results_close, get_corresponding_reference_file_path, tmp_path
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+    tmp_path,
 ):
     """Check if there are overlapping elements in a mesh."""
 
     # Create mesh object.
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     # Add two beams to create an elbow structure. The beams each have a
@@ -1857,7 +1915,7 @@ def test_check_double_elements(
 
 
 @pytest.mark.parametrize("check", [True, False])
-def test_check_overlapping_coupling_nodes(check):
+def test_check_overlapping_coupling_nodes(get_default_test_beam_material, check):
     """Per default, we check that coupling nodes are at the same physical
     position.
 
@@ -1867,7 +1925,7 @@ def test_check_overlapping_coupling_nodes(check):
 
     # Create mesh object.
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     # Add two beams to create an elbow structure. The beams each have a
@@ -1891,13 +1949,15 @@ def test_check_overlapping_coupling_nodes(check):
         Coupling(*args, check_overlapping_nodes=False)
 
 
-def test_check_start_end_node_error():
+def test_check_start_end_node_error(
+    get_default_test_beam_material,
+):
     """Check that an error is raised if wrong start and end nodes are given to
     a mesh creation function."""
 
     # Create mesh object.
     mesh = Mesh()
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)
 
     # Try to create a line with a starting node that is not in the mesh.
@@ -1913,13 +1973,16 @@ def test_check_start_end_node_error():
 
 
 def test_userdefined_boundary_condition(
-    get_bc_data, assert_results_close, get_corresponding_reference_file_path
+    get_bc_data,
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
 ):
     """Check if an user defined boundary condition can be added."""
 
     mesh = Mesh()
 
-    mat = MaterialReissner()
+    mat = get_default_test_beam_material(material_type="reissner")
     sets = create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 2, 3])
     mesh.add(
         BoundaryCondition(
@@ -1931,14 +1994,18 @@ def test_userdefined_boundary_condition(
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_display_pyvista(get_corresponding_reference_file_path):
+def test_display_pyvista(
+    get_default_test_beam_material, get_corresponding_reference_file_path
+):
     """Test that the display in pyvista function does not lead to errors.
 
     TODO: Add a check for the created visualziation
     """
 
     _, mesh = create_beam_to_solid_conditions_model(
-        get_corresponding_reference_file_path, full_import=True
+        get_default_test_beam_material,
+        get_corresponding_reference_file_path,
+        full_import=True,
     )
 
     mesh.display_pyvista(resolution=3)

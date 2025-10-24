@@ -124,7 +124,7 @@ mesh = Mesh()
 create_beam_mesh_helix(
     mesh=mesh,  # The helix will be added to this mesh
     beam_class=Beam3,  # Type of beam element for the line
-    material=MaterialBeamBase(radius=0.05),  #  Simple circular cross-section beam material
+    material=MaterialBeamBase(radius=0.05, nu=0.3, youngs_modulus=10, density=1.0),  #  Simple circular cross-section beam material
     axis_vector=[1, 1, 1],  # Vector for the orientation of the helical center axis
     axis_point=[0, 0, 0],  # Point defining the helical center axis
     start_point=[1, 0, 0],  # Start point of the helix. Defines the radius.

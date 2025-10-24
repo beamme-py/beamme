@@ -55,9 +55,9 @@ FUNCT1:
 MATERIALS:
   - MAT: 1
     MAT_BeamKirchhoffTorsionFreeElastHyper:
-      CROSSAREA: 1
-      DENS: 1300000000.0
-      MOMIN: 0.0001
+      CROSSAREA: 3.141592653589793
+      DENS: 1.0
+      MOMIN: 0.7853981633974483
       YOUNG: 1.0
 NODE COORDS:
   - NODE 1 COORD -1.0 0.0 0.0

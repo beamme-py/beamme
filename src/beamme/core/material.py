@@ -49,15 +49,22 @@ class MaterialBeamBase(Material):
 
     def __init__(
         self,
-        radius=1.0,
+        radius=None,
         material_string=None,
-        youngs_modulus=0.0,
-        nu=0.0,
-        density=0.0,
+        youngs_modulus=None,
+        nu=None,
+        density=None,
         interaction_radius=None,
         **kwargs,
     ):
         """Set the material values that all beams have."""
+
+        if radius is None or youngs_modulus is None or nu is None or density is None:
+            raise ValueError(
+                "Radius, Young's modulus, Poisson's ratio, and density "
+                "must be provided for beam materials."
+            )
+
         super().__init__(**kwargs)
 
         self.radius = radius

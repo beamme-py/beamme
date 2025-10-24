@@ -30,7 +30,6 @@ import pytest
 from beamme.core.mesh import Mesh
 from beamme.core.rotation import Rotation
 from beamme.four_c.element_beam import Beam3rHerm2Line3
-from beamme.four_c.material import MaterialReissner
 from beamme.geometric_search.find_close_points import (
     FindClosePointAlgorithm,
     find_close_points,
@@ -346,7 +345,9 @@ def test_find_close_points_between_bins(algorithm, assert_results_close):
 
 
 @pytest.mark.parametrize(*PYTEST_GEOMETRIC_SEARCH_PARAMETRIZE)
-def test_find_close_points_binning_flat(algorithm, assert_results_close):
+def test_find_close_points_binning_flat(
+    algorithm, assert_results_close, get_default_test_beam_material
+):
     """Test case for coupling of points, when the nodes are all on a plane.
 
     This is challenging for a binning based approach. However, this test
@@ -354,7 +355,7 @@ def test_find_close_points_binning_flat(algorithm, assert_results_close):
     """
 
     # Dummy material.
-    material = MaterialReissner(radius=0.1)
+    material = get_default_test_beam_material(material_type="reissner")
 
     def create_flat_mesh():
         """Create a flat honeycomb mesh."""

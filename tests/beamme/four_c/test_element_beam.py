@@ -42,11 +42,6 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.input_file import InputFile
-from beamme.four_c.material import (
-    MaterialEulerBernoulli,
-    MaterialKirchhoff,
-    MaterialReissner,
-)
 from beamme.mesh_creation_functions.beam_arc import (
     create_beam_mesh_arc_segment_via_rotation,
 )
@@ -54,7 +49,11 @@ from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 from beamme.utils.nodes import get_single_node
 
 
-def test_reissner_beam(assert_results_close, get_corresponding_reference_file_path):
+def test_reissner_beam(
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
     """Test that the input file for all types of Reissner beams is generated
     correctly."""
 
@@ -62,7 +61,7 @@ def test_reissner_beam(assert_results_close, get_corresponding_reference_file_pa
     mesh = Mesh()
 
     # Create material
-    material = MaterialReissner(radius=0.1, youngs_modulus=1000, interaction_radius=2.0)
+    material = get_default_test_beam_material("reissner", interaction_radius=2.0)
 
     # Create a beam arc with the different Reissner beam types.
     for i, beam_type in enumerate([Beam3rHerm2Line3, Beam3rLine2Line2]):
@@ -81,7 +80,11 @@ def test_reissner_beam(assert_results_close, get_corresponding_reference_file_pa
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_kirchhoff_beam(assert_results_close, get_corresponding_reference_file_path):
+def test_kirchhoff_beam(
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
     """Test that the input file for all types of Kirchhoff beams is generated
     correctly."""
 
@@ -94,7 +97,7 @@ def test_kirchhoff_beam(assert_results_close, get_corresponding_reference_file_p
 
         # Loop over options.
         for is_fad in (True, False):
-            material = MaterialKirchhoff(radius=0.1, youngs_modulus=1000, is_fad=is_fad)
+            material = get_default_test_beam_material("kirchhoff", is_fad=is_fad)
             for constraint in BeamKirchhoffConstraintType:
                 for parametrization in BeamKirchhoffParametrizationType:
                     # Define the beam object factory function for the
@@ -139,7 +142,11 @@ def test_kirchhoff_beam(assert_results_close, get_corresponding_reference_file_p
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
-def test_euler_bernoulli(assert_results_close, get_corresponding_reference_file_path):
+def test_euler_bernoulli(
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
     """Recreate the 4C test case beam3eb_static_endmoment_quartercircle.4C.yaml
     This tests the implementation for Euler Bernoulli beams."""
 
@@ -147,11 +154,7 @@ def test_euler_bernoulli(assert_results_close, get_corresponding_reference_file_
     mesh = Mesh()
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
     mesh.add(fun)
-    mat = MaterialEulerBernoulli(youngs_modulus=1.0, density=1.3e9)
-
-    # Set the parameters that are also set in the test file.
-    mat.area = 1
-    mat.mom2 = 1e-4
+    mat = get_default_test_beam_material("euler_bernoulli")
 
     # Create the beam.
     beam_set = create_beam_mesh_line(mesh, Beam3eb, mat, [-1, 0, 0], [1, 0, 0], n_el=16)
