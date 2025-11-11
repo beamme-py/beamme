@@ -1003,9 +1003,47 @@ class Mesh:
         else:
             return plotter
 
-    def copy(self):
+    def copy(self) -> "Mesh":
         """Return a deep copy of this mesh.
 
-        The functions and materials will not be deep copied.
+        The internal mesh data (nodes, elements, boundary conditions, and
+        geometry sets) are deep-copied. Materials and functions are not
+        deep-copied.
+
+        **Important:** Some mesh creation functions return geometry set
+        containers (e.g., node or element sets) that hold a reference to the
+        nodes or elements of the mesh they were created with. When using
+        ``mesh.copy()``, these externally returned sets remain linked to the
+        original mesh and are therefore not transferred to the copied mesh.
+
+        To copy both the mesh and the corresponding geometry sets correctly,
+        deep-copy them together.
+
+        Example:
+            ```python
+            import copy
+
+            from beamme.core.element_beam import Beam3
+            from beamme.core.material import MaterialBeamBase
+            from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
+            from beamme.core.mesh import Mesh
+
+            mesh = Mesh()
+            beam_set = create_beam_mesh_line(
+                mesh=mesh,
+                beam_class=Beam3,
+                material=MaterialBeamBase(),
+                start_point=[0, 0, 0],
+                end_point=[1, 0, 0],
+            )
+
+            # Deep-copy both mesh and beam_set to keep node/element references consistent
+            mesh_copy, beam_set_copy = copy.deepcopy((mesh, beam_set))
+            ```
+
+        Returns:
+            A deep copy of the mesh. To copy the mesh together with
+            external geometry sets referencing this mesh, deep-copy them
+            together as shown in the example above.
         """
         return _copy.deepcopy(self)
