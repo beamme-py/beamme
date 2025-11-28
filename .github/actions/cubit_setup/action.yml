@@ -44,24 +44,17 @@ runs:
         # Activate cubit. Retry login until success or timeout.
         timeout="${{ inputs.cubit_activation_timeout }}"
         start=$(date +%s)
-        while true; do
-          $CUBIT_ROOT/bin/rlm_activate --login ${{ inputs.cubit_email }} ${{ inputs.cubit_password }}
-          status=$?
-          # TODO: Remove debug output when stable
-          echo "Cubit activation exit status: ${status}"
-
-          if [ $status -eq 0 ]; then
-            echo "Cubit activation succeeded."
-            break
-          fi
-
+        until $CUBIT_ROOT/bin/rlm_activate --login "${{ inputs.cubit_email }}" "${{ inputs.cubit_password }}"; do
           now=$(date +%s)
           elapsed=$(( now - start ))
-          if [ $elapsed -ge $timeout ]; then
+          if [ "$elapsed" -ge "$timeout" ]; then
             echo "Cubit activation timeout reached after $elapsed seconds."
-            break
+            exit 1
           fi
+
+          echo "Cubit activation failed after ${elapsed} seconds. Threshold is ${timeout} seconds. Retrying..."
 
           # Delay between retries.
           sleep 5
         done
+        echo "Cubit activation succeeded."
