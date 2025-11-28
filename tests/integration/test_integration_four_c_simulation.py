@@ -689,16 +689,10 @@ def test_integration_four_c_simulation_rotated_beam_axis(
 
 
 @pytest.mark.parametrize(*PYTEST_4C_SIMULATION_PARAMETRIZE)
-@pytest.mark.parametrize(
-    "initial_run_name",
-    [
-        "test_integration_four_c_simulation_dbc_monitor_to_input",
-        "test_integration_four_c_simulation_dbc_monitor_to_input_all_values",
-    ],
-)
+@pytest.mark.parametrize("all_values", (True, False))
 def test_integration_four_c_simulation_dbc_monitor_to_input(
     enforce_four_c,
-    initial_run_name,
+    all_values,
     tmp_path,
     assert_results_close,
     get_corresponding_reference_file_path,
@@ -768,6 +762,7 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
         return
 
     # Run the simulation in 4C
+    initial_run_name = "test_dbc_monitor"
     run_four_c_test(tmp_path, initial_run_name, initial_input_file)
 
     # Create and run the second simulation.
@@ -802,17 +797,7 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
     )
     restart_mesh.add(function_nbc)
 
-    if initial_run_name == "test_integration_four_c_simulation_dbc_monitor_to_input":
-        dbc_monitor_to_mesh(
-            restart_mesh,
-            tmp_path / initial_run_name / f"{initial_run_name}-102_monitor_dbc.yaml",
-            n_dof=9,
-            function=function_nbc,
-        )
-    elif (
-        initial_run_name
-        == "test_integration_four_c_simulation_dbc_monitor_to_input_all_values"
-    ):
+    if all_values:
         dbc_monitor_to_mesh_all_values(
             restart_mesh,
             tmp_path / initial_run_name / f"{initial_run_name}-102_monitor_dbc.yaml",
@@ -821,8 +806,11 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
             functions=[function_nbc, function_nbc, function_nbc],
         )
     else:
-        raise ValueError(
-            initial_run_name + " is not yet implemented for this test case."
+        dbc_monitor_to_mesh(
+            restart_mesh,
+            tmp_path / initial_run_name / f"{initial_run_name}-102_monitor_dbc.yaml",
+            n_dof=9,
+            function=function_nbc,
         )
 
     restart_input_file.add(restart_mesh)
