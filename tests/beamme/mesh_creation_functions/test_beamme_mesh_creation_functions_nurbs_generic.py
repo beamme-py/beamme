@@ -209,14 +209,16 @@ from beamme.mesh_creation_functions.nurbs_geometries import (
     ],
 )
 def test_beamme_mesh_creation_functions_nurbs_generic_sets(
-    nurbs_patch, reference_values
+    get_default_test_solid_material, nurbs_patch, reference_values
 ):
     """Test that the add NURBS to mesh functionality returns the correct
     geometry sets."""
 
     # Add the nurbs to a mesh
     mesh = Mesh()
-    add_geomdl_nurbs_to_mesh(mesh, nurbs_patch)
+    add_geomdl_nurbs_to_mesh(
+        mesh, nurbs_patch, material=get_default_test_solid_material()
+    )
     nurbs_patch = mesh.elements[0]
 
     # Create the geometry sets for this patch
