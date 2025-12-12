@@ -277,6 +277,22 @@ class MaterialSolid(_MaterialSolidBase):
 
         return {"MAT": self.i_global + 1, self.material_string: self.data}
 
+    def get_all_contained_materials(self) -> list["MaterialSolid"]:
+        """Get all sub materials contained in this material, also nested ones.
+
+        Returns:
+            All MaterialSolid objects contained in this material, including those
+            found recursively in nested `MATIDS` fields, in depth-first traversal
+            order.
+        """
+        contained_materials = []
+        if "MATIDS" in self.data:
+            for item in self.data["MATIDS"]:
+                if isinstance(item, MaterialSolid):
+                    contained_materials.append(item)
+                    contained_materials.extend(item.get_all_contained_materials())
+        return contained_materials
+
 
 class MaterialStVenantKirchhoff(MaterialSolid):
     """Holds material definition for StVenant Kirchhoff solids."""

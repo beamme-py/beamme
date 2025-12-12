@@ -177,8 +177,21 @@ class Mesh:
 
         Check that the material is only added once.
         """
-        if material not in self.materials:
-            self.materials.append(material)
+        self_materials_set = set(self.materials)
+        all_materials_to_add = [material] + material.get_all_contained_materials()
+        all_materials_to_add_set = set(all_materials_to_add)
+
+        is_subset = all_materials_to_add_set.issubset(self_materials_set)
+        is_disjoint = all_materials_to_add_set.isdisjoint(self_materials_set)
+        if is_subset == is_disjoint:
+            raise ValueError(
+                "The material to be added has some materials that are already "
+                "in the mesh and some that are not. This is not allowed."
+            )
+
+        if is_disjoint:
+            for contained_material in all_materials_to_add:
+                self.materials.append(contained_material)
 
     def add_node(self, node):
         """Add a node to this mesh."""

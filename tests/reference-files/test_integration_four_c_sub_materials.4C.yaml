@@ -1,0 +1,19 @@
+MATERIALS:
+  - MAT: 1
+    MAT_ElastHyper:
+      NUMMAT: 2
+      MATIDS: [2, 3]
+      DENS: 1.0
+  - MAT: 2
+    ELAST_CoupSVK:
+      YOUNG: 1.0
+      NUE: 0.0
+  - MAT: 3
+    MAT_ElastHyper:
+      NUMMAT: 1
+      MATIDS: [4]
+      DENS: 1.0
+  - MAT: 4
+    ELAST_CoupSVK:
+      YOUNG: 2.0
+      NUE: 0.0

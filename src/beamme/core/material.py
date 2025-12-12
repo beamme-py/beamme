@@ -43,6 +43,14 @@ class Material(_BaseMeshItem):
         # Return this object again, as no copy should be created.
         return self
 
+    def get_all_contained_materials(self) -> list:
+        """Get all sub materials contained in this material, also nested ones.
+
+        Returns:
+            List of all contained materials, for the base class this is empty.
+        """
+        return []
+
 
 class MaterialBeamBase(Material):
     """Base class for all beam materials."""

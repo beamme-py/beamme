@@ -25,6 +25,7 @@ from beamme.four_c.material import (
     MaterialKirchhoff,
     MaterialReissner,
     MaterialReissnerElastoplastic,
+    MaterialSolid,
     MaterialStVenantKirchhoff,
 )
 
@@ -241,3 +242,46 @@ def test_beamme_four_c_material_stvenantkirchhoff_solid(assert_results_close):
             },
         },
     )
+
+
+def test_beamme_four_c_material_sub_materials():
+    """Test that sub-materials are correctly returned from the material."""
+
+    material_1_1 = MaterialSolid(material_string="mat_1_1")
+    material_1_2 = MaterialSolid(material_string="mat_1_2")
+    material_1 = MaterialSolid(
+        material_string="mat_1", data={"MATIDS": [material_1_1, material_1_2]}
+    )
+
+    material_2 = MaterialSolid(material_string="mat_2")
+
+    material_3_1 = MaterialSolid(material_string="mat_3_1")
+    material_3_2_1 = MaterialSolid(material_string="mat_3_2_1")
+    material_3_2 = MaterialSolid(
+        material_string="mat_3_2", data={"MATIDS": [material_3_2_1]}
+    )
+    material_3_3 = MaterialSolid(material_string="mat_3_3")
+    material_3 = MaterialSolid(
+        material_string="mat_3",
+        data={"MATIDS": [material_3_1, material_3_2, material_3_3]},
+    )
+
+    material = MaterialSolid(
+        material_string="mat", data={"MATIDS": [material_1, material_2, material_3]}
+    )
+    sub_materials = material.get_all_contained_materials()
+
+    sub_materials_reference = [
+        material_1,
+        material_1_1,
+        material_1_2,
+        material_2,
+        material_3,
+        material_3_1,
+        material_3_2,
+        material_3_2_1,
+        material_3_3,
+    ]
+    assert len(sub_materials_reference) == len(sub_materials)
+    for mat_reference, mat_test in zip(sub_materials_reference, sub_materials):
+        assert mat_reference is mat_test
