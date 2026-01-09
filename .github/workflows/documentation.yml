@@ -19,16 +19,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup virtual python environment
-        uses: ./.github/actions/setup_virtual_python_environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
       - name: Install dependencies
         run: |
           cd ${GITHUB_WORKSPACE}
-          source python-workflow-venv/bin/activate
           pip install -e .[dev,fourc]
       - name: Build API documentation
         run: |
-          source python-workflow-venv/bin/activate
           pdoc --math --docformat google --output-dir api-documentation src/beamme/
       - name: Upload API documentation artifact
         uses: actions/upload-artifact@v4

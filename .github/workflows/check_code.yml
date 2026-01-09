@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup virtual python environment
-        uses: ./.github/actions/setup_virtual_python_environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
       - name: Code quality checks
         uses: ./.github/actions/code_check
