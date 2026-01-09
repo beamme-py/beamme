@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 """This script is used to unittest the functionality of the couplings."""
 
+import numpy as np
 import pytest
 
 from beamme.core.conf import bme
@@ -69,8 +70,11 @@ def test_beamme_core_coupling_factory():
         assert coupling_nodes[1] is reference_geometry_set_nodes[i_coupling + 1]
 
 
-@pytest.mark.parametrize("check_overlapping_nodes", [True, False])
-def test_beamme_core_coupling_check_overlapping_coupling_nodes(check_overlapping_nodes):
+@pytest.mark.parametrize("within_tolerance", (True, False))
+@pytest.mark.parametrize("check_overlapping_nodes", (True, False))
+def test_beamme_core_coupling_check_overlapping_coupling_nodes(
+    within_tolerance, check_overlapping_nodes
+):
     """Per default, we check that coupling nodes are at the same physical
     position.
 
@@ -79,14 +83,18 @@ def test_beamme_core_coupling_check_overlapping_coupling_nodes(check_overlapping
     """
 
     # Create the nodes
-    node_1 = NodeCosserat([0.0, 1.5, 3.0], Rotation())
-    node_2 = NodeCosserat([1.0, 2.5, 4.0], Rotation())
+    factor = 0.5 if within_tolerance else 2.0
+    ref_position = [0.0, 1.5, 3.0]
+    node_1 = NodeCosserat(ref_position, Rotation())
+    node_2 = NodeCosserat(
+        ref_position + factor * bme.eps_pos * np.array([1.0, 1.0, 1.0]), Rotation()
+    )
 
-    # Couple two nodes that are not at the same position.
-    # Per default, this will cause an error, as there are two
-    # couplings for one node.
+    # Couple two nodes whose positions may be within or outside the positional
+    # tolerance. When check_overlapping_nodes is enabled and the nodes are
+    # outside the tolerance, creating the coupling is expected to raise an error.
     args = [[node_1, node_2], bme.bc.point_coupling, "coupling_type_string"]
-    if check_overlapping_nodes:
+    if check_overlapping_nodes and not within_tolerance:
         with pytest.raises(ValueError):
             Coupling(*args)
     else:

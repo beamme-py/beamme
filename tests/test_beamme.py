@@ -21,13 +21,10 @@
 # THE SOFTWARE.
 """This script is used to test the functionality of the core modules."""
 
-import numpy as np
 import pytest
 
 from beamme.core.conf import bme
-from beamme.core.coupling import Coupling
 from beamme.core.mesh import Mesh
-from beamme.core.node import Node
 from beamme.four_c.element_beam import Beam3rHerm2Line3
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
@@ -81,38 +78,3 @@ def test_point_couplings(
         get_corresponding_reference_file_path(additional_identifier=coupling_type[0]),
         mesh,
     )
-
-
-def test_point_couplings_check():
-    """Test that the check for points at the same spatial position works for
-    point couplings."""
-
-    def get_nodes(scale_factor):
-        """Return a list with nodes to be added to a coupling condition.
-
-        The coordinates are modified such that they are close to each
-        other within a radius of bme.eps_pos * scale_factor
-        """
-        coordinates = np.zeros((10, 3))
-        ref_point = [1, 2, 3]
-        coordinates[0] = ref_point
-        for i in range(1, 10):
-            coordinates[i] = ref_point
-            for i_dir in range(3):
-                factor = 2 * ((i + i_dir % 3) % 2) - 1
-                # Multiply with 0.5 here, because we add the tolerance in + and - direction
-                coordinates[i, i_dir] += factor * bme.eps_pos * scale_factor
-        return [Node(coord) for coord in coordinates]
-
-    # This should work, as the points are within the global tolerance of each
-    # other
-    Coupling(get_nodes(0.5), None, None)
-
-    with pytest.raises(ValueError):
-        # This should fail, as the points are not within the global tolerance
-        # of each other
-        Coupling(get_nodes(1.0), None, None)
-
-    # This should work, as the points are not within the global tolerance of
-    # each other but we dont perform the check
-    Coupling(get_nodes(1.0), None, None, check_overlapping_nodes=False)
