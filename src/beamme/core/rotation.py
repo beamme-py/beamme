@@ -109,6 +109,7 @@ class Rotation:
             direction-cosine matrix”
         """
 
+        R = _np.asarray(R)
         q = _np.zeros(4)
         trace = _np.trace(R)
         values = [R[i, i] for i in range(3)]

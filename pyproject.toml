@@ -19,7 +19,7 @@ dependencies = [
   "notebook",
   "numpy",
   "numpy-quaternion",
-  "pyvista",
+  "pyvista[jupyter]",
   "scipy",
   "splinepy",
   "vedo==2024.5.2", # Needed as a fix for the splinepy visualization tool gustaf
