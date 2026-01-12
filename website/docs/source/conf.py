@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import os
+from pathlib import Path
+
 # general configuration
 project = "BeamMe"
 copyright = "2025, BeamMe Authors"
@@ -36,6 +39,7 @@ html_show_sourcelink = False  # Hide "View Source" link on the right side of the
 # extensions
 extensions = [
     "myst_parser",  # to enable Markdown support
+    "nbsphinx",  # to enable Jupyter Notebook support
     "sphinxcontrib.jquery",  # to enable custom JavaScript (open links in new empty tab)
 ]
 
@@ -49,3 +53,38 @@ myst_heading_anchors = 3  # automatic heading anchors for Markdown files
 # JavaScript configuration (to open links in new tabs)
 html_js_files = ["js/custom.js"]
 html_static_path = ["static"]
+
+# Always execute notebooks to ensure outputs are up-to-date
+nbsphinx_execute = "always"
+
+# Prolog for nbsphinx to add a note with a link to the GitHub source and Binder
+# at the top of each rendered html page
+nbsphinx_prolog = r"""
+{% set docname = env.doc2path(env.docname, base=False)|string %}
+{% set binder_path = "/doc/tree/" ~ docname %}
+{% set binder_urlpath = binder_path | urlencode %}
+
+.. raw:: html
+
+    <div class="admonition note">
+      This page was generated from
+      <a href="https://github.com/beamme-py/beamme/blob/main/{{ docname|e }}">
+        {{ docname|e }}
+      </a>.
+      <br>
+      Interactive online version:
+      <a href="https://mybinder.org/v2/gh/beamme-py/beamme/main?urlpath={{ binder_urlpath }}">
+        <img alt="Binder badge"
+             src="https://mybinder.org/badge_logo.svg"
+             style="vertical-align:text-bottom">
+      </a>
+    </div>
+"""
+
+# Create the directory for static files created by pyvista plots
+PYVISTA_DOCS_STATIC = Path(__file__).parent.parent / "build" / "_static" / "pyvista"
+PYVISTA_DOCS_STATIC.mkdir(parents=True, exist_ok=True)
+os.environ["PYVISTA_DOCS_STATIC"] = str(PYVISTA_DOCS_STATIC)
+
+# Set a flag that we are building the docs with nbsphinx
+os.environ["IS_NBSPHINX"] = "1"

@@ -68,6 +68,7 @@ from beamme.utils.nodes import get_min_max_nodes as _get_min_max_nodes
 from beamme.utils.nodes import get_nodal_coordinates as _get_nodal_coordinates
 from beamme.utils.nodes import get_nodal_quaternions as _get_nodal_quaternions
 from beamme.utils.nodes import get_nodes_by_function as _get_nodes_by_function
+from beamme.utils.visualization import show_plotter as _show_plotter
 
 
 class Mesh:
@@ -999,7 +1000,7 @@ class Mesh:
             plotter.add_mesh(solid_grid, color="white", show_edges=True, opacity=0.5)
 
         if not _is_testing():
-            plotter.show()
+            _show_plotter(plotter)
         else:
             return plotter
 

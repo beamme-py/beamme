@@ -18,7 +18,7 @@ In the source directory of BeamMe simply execute
 python website/docs/prepare_docs.py
 ```
 
-to prepare the documents for the website build (currently only the readme gets copied into the website build directory).
+to prepare the documents for the website build.
 
 Then build the website with
 

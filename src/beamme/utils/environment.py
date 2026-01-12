@@ -48,6 +48,11 @@ def is_mybinder():
     return "BINDER_LAUNCH_HOST" in _os.environ.keys()
 
 
+def is_nbsphinx():
+    """Check if the current environment is running in nbsphinx."""
+    return "IS_NBSPHINX" in _os.environ
+
+
 def is_testing():
     """Check if the current environment is a pytest testing run."""
     return "PYTEST_CURRENT_TEST" in _os.environ

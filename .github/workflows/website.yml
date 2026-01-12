@@ -1,22 +1,21 @@
 name: Build and deploy website
 
 on:
-  # Only build and deploy the website once the documentation is built (and the test suite is completed => coverage report and badge are necessary)
-  workflow_run:
-    workflows: [Build documentation]
-    types: [completed]
-    branches: [main]
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  schedule:
+    - cron: '0 06 * * *'
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
 
 jobs:
   build_website:
     # Only run if documentation was built successfully (if it is skipped, it is not successful)
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,62 +26,23 @@ jobs:
           python-version: '3.13'
       - name: Install dependencies
         run: |
+          sudo apt-get install -y libosmesa6-dev
+          sudo apt-get install -y pandoc
+          sudo apt-get install -y xvfb
           python -m pip install --upgrade pip
           pip install -r website/requirements.txt
+          pip install -e .[dev,fourc]
       - name: Prepare docs for the website
         run: |
           python website/docs/prepare_docs.py
       - name: Build Sphinx website
         run: |
-          sphinx-build -b html website/docs/source website/docs/build
+          export PYVISTA_OFF_SCREEN=true
+          export PYVISTA_USE_EGL=true
+          export VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN=1
+          xvfb-run -a sphinx-build -b html website/docs/source website/docs/build
       - name: Upload website artifact
         uses: actions/upload-artifact@v4
         with:
           name: website
           path: website/docs/build/
-
-  deploy:
-    environment:
-      name: Website
-      # TODO Check if this url is really necessary or if it works without it
-      url: http://beamme-py.github.io/beamme
-    runs-on: ubuntu-latest
-    needs: build_website
-    permissions:
-      pages: write
-      id-token: write
-      contents: read
-    steps:
-      - name: Download website artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: website
-          path: ${{ github.workspace }}
-      - name: Download API documentation artifact
-        uses: dawidd6/action-download-artifact@v8
-        with:
-          workflow: documentation.yml
-          name: api-documentation
-          path: ${{ github.workspace }}/api-documentation
-          branch: ${{ github.event.repository.default_branch }}
-      - name: Download coverage report artifact
-        uses: dawidd6/action-download-artifact@v8
-        with:
-          workflow: testing_protected.yml
-          name: coverage-report
-          path: ${{ github.workspace }}/coverage-report
-          branch: ${{ github.event.repository.default_branch }}
-      - name: Download coverage badge artifact
-        uses: dawidd6/action-download-artifact@v8
-        with:
-          workflow: testing_protected.yml
-          name: coverage-badge
-          path: ${{ github.workspace }}/coverage-badge
-          branch: ${{ github.event.repository.default_branch }}
-      - name: Upload all pages artifacts (website, coverage-report, coverage-badge, documentation)
-        uses: actions/upload-pages-artifact@v3
-        id: deployment
-        with:
-          path: ${{ github.workspace }}
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
