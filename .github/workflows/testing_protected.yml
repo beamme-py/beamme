@@ -37,6 +37,10 @@ jobs:
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
       - name: Setup cubit
         id: cubit
         uses: ./.github/actions/cubit_setup
