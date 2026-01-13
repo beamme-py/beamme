@@ -68,14 +68,14 @@ jobs:
       - name: Download coverage report artifact
         uses: dawidd6/action-download-artifact@v8
         with:
-          workflow: testing_protected.yml
+          workflow: testing.yml
           name: coverage-report
           path: ${{ github.workspace }}/coverage-report
           branch: ${{ github.event.repository.default_branch }}
       - name: Download coverage badge artifact
         uses: dawidd6/action-download-artifact@v8
         with:
-          workflow: testing_protected.yml
+          workflow: testing.yml
           name: coverage-badge
           path: ${{ github.workspace }}/coverage-badge
           branch: ${{ github.event.repository.default_branch }}

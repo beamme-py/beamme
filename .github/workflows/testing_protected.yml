@@ -19,6 +19,7 @@ env:
 jobs:
   beamme-testing-all-dependencies:
     name: ubuntu-latest with all dependencies
+    continue-on-error: true # Set this to true if there are issues with the Cubit workflow
     runs-on: ubuntu-latest
     environment:
       # Use the trusted environment only for PRs authored by an COLLABORATOR (no approval needed); all others use the untrusted environment (someone has to approve the workflow run).
@@ -66,11 +67,10 @@ jobs:
         with:
           name: ${{ github.job }}-${{ github.run_number }}
           path: ${{ env.PYTEST_TMPDIR }}
-      - name: Coverage badge and report
-        uses: ./.github/actions/coverage
 
   beamme-performance-testing:
     needs: beamme-testing-all-dependencies
+    if: needs.beamme-testing-all-dependencies.result == 'success'
     name: performance tests
     continue-on-error: true
     runs-on: ubuntu-latest
