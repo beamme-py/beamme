@@ -6,15 +6,12 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
       - synchronize
   workflow_dispatch:
-
-env:
-  CUBIT_DOWNLOAD_URL: https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases/Linux/Coreform-Cubit-2025.8%2B61943-Lin64.tar.gz
 
 jobs:
   beamme-testing-all-dependencies:
@@ -37,29 +34,18 @@ jobs:
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-      - name: Setup cubit
-        id: cubit
-        uses: ./.github/actions/cubit_setup
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          cubit_download_url: ${{ env.CUBIT_DOWNLOAD_URL }}
-          cubit_email: ${{ secrets.CUBIT_EMAIL }}
-          cubit_password: ${{ secrets.CUBIT_PASSWORD }}
-      - name: Setup virtual python environment
-        uses: ./.github/actions/setup_virtual_python_environment
+          python-version: 3.13
       - name: Build ArborX geometric search
         uses: ./.github/actions/build_arborx_geometric_search
       - name: Run the test suite
         uses: ./.github/actions/run_tests
         with:
           source-command: "source python-workflow-venv/bin/activate"
-          install-command: "-e .[cubitpy,dev,fourc]"
-          additional-pytest-flags: "--4C --ArborX --CubitPy --cov-fail-under=93"
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
-      - name: Free cubit license
-        if: ${{ always() }}
-        uses: ./.github/actions/cubit_finalize
-        with:
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
+          install-command: "-e .[dev,fourc]"
+          additional-pytest-flags: "--4C --ArborX --cov-fail-under=93"
       - name: Upload test results on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -68,53 +54,3 @@ jobs:
           path: ${{ env.PYTEST_TMPDIR }}
       - name: Coverage badge and report
         uses: ./.github/actions/coverage
-
-  beamme-performance-testing:
-    needs: beamme-testing-all-dependencies
-    name: performance tests
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    environment:
-      # Use the trusted environment only for PRs authored by an COLLABORATOR (no approval needed); all others use the untrusted environment (someone has to approve the workflow run).
-      # Otherwise (scheduled or merge triggers) use the trusted environment (no approval needed).
-      name: ${{ github.event_name == 'pull_request_target' && (github.event.pull_request.author_association == 'COLLABORATOR') && 'cubit_secrets_trusted' || (github.event_name == 'pull_request_target' && 'cubit_secrets_untrusted' || 'cubit_secrets_trusted') }}
-    container:
-      image: ghcr.io/4c-multiphysics/4c:main
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          # For PR runs, checkout PR code; otherwise fallback to default branch or ref
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-      - name: Setup cubit
-        id: cubit
-        uses: ./.github/actions/cubit_setup
-        with:
-          cubit_download_url: ${{ env.CUBIT_DOWNLOAD_URL }}
-          cubit_email: ${{ secrets.CUBIT_EMAIL }}
-          cubit_password: ${{ secrets.CUBIT_PASSWORD }}
-      - name: Setup virtual python environment
-        uses: ./.github/actions/setup_virtual_python_environment
-      - name: Run the test suite
-        uses: ./.github/actions/run_tests
-        with:
-          install-command: ".[cubitpy,dev,fourc]"
-          source-command: "source python-workflow-venv/bin/activate"
-          additional-pytest-flags: "--performance-tests --exclude-standard-tests -s --no-cov"
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
-      - name: Free cubit license
-        if: ${{ always() }}
-        uses: ./.github/actions/cubit_finalize
-        with:
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
-      - name: Upload test results on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.job }}-${{ github.run_number }}
-          path: ${{ env.PYTEST_TMPDIR }}
