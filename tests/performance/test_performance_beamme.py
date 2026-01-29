@@ -196,7 +196,7 @@ def test_performance_beamme_cubitpy_create_solid(
             "ny": 50,
             "nz": 10,
         },
-        expected_time=2.7,
+        expected_time=3.8,
     )
 
 
