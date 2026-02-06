@@ -21,12 +21,18 @@
 # THE SOFTWARE.
 """This file has functions to create a beam from a parametric curve."""
 
-import autograd.numpy as _npAD
+from typing import Callable as _Callable
+from typing import Type as _Type
+
 import numpy as _np
 import scipy.integrate as _integrate
-import scipy.optimize as _optimize
 from autograd import jacobian as _jacobian
+from scipy.interpolate import interp1d as _interp1d
 
+from beamme.core.element_beam import Beam as _Beam
+from beamme.core.geometry_set import GeometryName as _GeometryName
+from beamme.core.material import MaterialBeamBase as _MaterialBeamBase
+from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.rotation import Rotation as _Rotation
 from beamme.core.rotation import smallest_rotation as _smallest_rotation
 from beamme.mesh_creation_functions.beam_generic import (
@@ -34,18 +40,194 @@ from beamme.mesh_creation_functions.beam_generic import (
 )
 
 
+class _ArcLengthEvaluation:
+    """Class to allow evaluation of the arc length S(t) and the inverse mapping
+    t(S).
+
+    This class uses precomputed samples to interpolate between arc
+    length values. This is much more efficient than root finding
+    algorithms and should provide a suitable accuracy.
+    """
+
+    def __init__(
+        self,
+        ds: _Callable,
+        interval: tuple[float, float],
+        n_intervals: int = 100,
+        method: str = "arc-length",
+    ) -> None:
+        """Initialize the arc length evaluator and precomputed samples.
+
+        Args:
+            ds:
+                Function that returns the increment along the curve for a given
+                parameter value t.
+            interval:
+                Start and end values for the parameter coordinate of the curve,
+                must be in ascending order.
+            n_intervals:
+                Number of intervals to use for the precomputation. More intervals
+                lead to higher accuracy.
+            method:
+                Method to use for evaluation of nodal positions along the curve:
+                - "arc-length": Uniform spacing along the arc-length of the curve. This means
+                    that elements along a curve will have equal length in space.
+                - "parametric": Uniform spacing along the parameter coordinate of the curve.
+                    This means that elements along a curve will have equal length in parameter
+                    space, but not necessarily in physical space.
+                - "parametric_consistent_middle_nodes": Same as `parametric`, but element
+                    middle nodes are adjusted to be consistent with the arc-length mapping.
+                    This means that elements along a curve will have equal length in parameter
+                    space, but the middle nodes are placed such that the elements themselves are
+                    not distorted.
+        """
+
+        self.ds = ds
+        self.interval = interval
+        self.n_intervals = n_intervals
+        self.method = method
+
+        self._compute_samples()
+        self._compute_interpolation_functions()
+
+    def _compute_samples(self) -> None:
+        """Compute the samples for the arc length mapping.
+
+        This function computes the arc length S(t) at a set of sample
+        points along the parameter coordinate t with the accumulative
+        Simpson integration.
+        """
+
+        # Uniform grid in t for sampling.
+        self.t_grid = _np.linspace(self.interval[0], self.interval[1], self.n_intervals)
+
+        # Evaluate ds at all grid points.
+        # TODO: This could be vectorized for better performance.
+        ds_at_t_samples = _np.empty_like(self.t_grid)
+        for i, t in enumerate(self.t_grid):
+            ds_at_t_samples[i] = self.ds(t)
+
+        self.S_grid = _integrate.cumulative_simpson(
+            y=ds_at_t_samples, x=self.t_grid, initial=0.0
+        )
+
+    def _compute_interpolation_functions(self) -> None:
+        """Setup the interpolation functions for S(t) and t(S)."""
+        self.S_from_t = _interp1d(
+            self.t_grid,
+            self.S_grid,
+            kind="cubic",
+            fill_value="extrapolate",
+            assume_sorted=True,
+        )
+        self.t_from_S = _interp1d(
+            self.S_grid,
+            self.t_grid,
+            kind="cubic",
+            fill_value="extrapolate",
+            assume_sorted=True,
+        )
+
+    def approximate_total_arc_length(self) -> float:
+        """Approximate the total arc length along the curve.
+
+        This value is only needed to choose the number of elements along
+        the curve.
+        """
+        return self.S_grid[-1]
+
+    def get_total_arc_length(self) -> float:
+        """Get the total arc length along the curve.
+
+        This function might return a different arc-length than `approximate_total_arc_length`,
+        if the integral is adaptively refined in `evaluate_all`.
+        """
+        return self.S_grid[-1]
+
+    def evaluate_all(
+        self, evaluation_points: _np.ndarray, middle_node_flags: _np.ndarray
+    ) -> tuple[_np.ndarray, _np.ndarray]:
+        """Evaluate the parameter coordinates corresponding to each node.
+
+        Args:
+            evaluation_points:
+                Evaluation points in the interval [0, 1]. Depending on the integration method,
+                this can be in normalized parameter space or arc-length space.
+            middle_node_flags:
+                Boolean array indicating which of the evaluation points
+                are middle nodes (True) and which are nodal points (False).
+
+        Returns:
+            t_evaluate:
+                Parameter coordinates along the curve for each evaluation point.
+            S_evaluate:
+                Arc-length coordinates along the curve for each evaluation point.
+        """
+
+        # Todo: Check if it makes sense to adaptively refine the arc-length
+        # integration here.
+
+        if self.method == "arc-length":
+            S_evaluate = evaluation_points * self.get_total_arc_length()
+            t_evaluate = self.t_from_S(S_evaluate)
+
+        elif self.method == "parametric":
+            interval_length = self.interval[1] - self.interval[0]
+            t_evaluate = self.interval[0] + evaluation_points * interval_length
+            S_evaluate = self.S_from_t(t_evaluate)
+
+        elif self.method == "parametric_consistent_middle_nodes":
+            interval_length = self.interval[1] - self.interval[0]
+            is_nodal_point = ~middle_node_flags
+            nodal_evaluation_points = evaluation_points[is_nodal_point]
+
+            n_el = len(nodal_evaluation_points) - 1
+            middle_nodes = int(((len(evaluation_points) - 1) / n_el) - 1)
+
+            t_evaluate = _np.zeros_like(evaluation_points)
+            S_evaluate = _np.zeros_like(evaluation_points)
+
+            # Evaluate the nodal points based on direct parametric mapping.
+            t_evaluate[is_nodal_point] = (
+                self.interval[0] + nodal_evaluation_points * interval_length
+            )
+            S_evaluate[is_nodal_point] = self.S_from_t(t_evaluate[is_nodal_point])
+
+            # For the middle nodes, do an interpolation in arc-length space.
+            for i_interval in range(n_el):
+                eval_a = nodal_evaluation_points[i_interval]
+                eval_b = nodal_evaluation_points[i_interval + 1]
+
+                S_a = S_evaluate[i_interval * (middle_nodes + 1)]
+                S_b = S_evaluate[(i_interval + 1) * (middle_nodes + 1)]
+
+                for i_middle in range(middle_nodes):
+                    index_node = i_interval * (middle_nodes + 1) + i_middle + 1
+                    eval_middle_node = evaluation_points[index_node]
+                    factor = (eval_middle_node - eval_a) / (eval_b - eval_a)
+                    S = S_a + factor * (S_b - S_a)
+                    t_evaluate[index_node] = self.t_from_S(S)
+                    S_evaluate[index_node] = S
+
+        else:
+            raise ValueError(f"Unknown method {self.method} for arc-length evaluation!")
+
+        return (t_evaluate, S_evaluate)
+
+
 def create_beam_mesh_parametric_curve(
-    mesh,
-    beam_class,
-    material,
-    function,
-    interval,
+    mesh: _Mesh,
+    beam_class: _Type[_Beam],
+    material: _MaterialBeamBase,
+    function: _Callable,
+    interval: tuple[float, float],
     *,
-    output_length=False,
-    function_derivative=None,
-    function_rotation=None,
+    output_length: bool | None = False,
+    function_derivative: _Callable | None = None,
+    function_rotation: _Callable | None = None,
+    arc_length_integrator_kwargs: dict | None = None,
     **kwargs,
-):
+) -> _GeometryName | tuple[_GeometryName, float]:
     """Generate a beam from a parametric curve. Integration along the beam is
     performed with scipy, and if the gradient is not explicitly provided, it is
     calculated with the numpy wrapper autograd.
@@ -79,6 +261,8 @@ def create_beam_mesh_parametric_curve(
         is calculated automatically and all subsequent nodal rotations
         are calculated based on a smallest rotation mapping onto the curve
         tangent vector.
+    arc_length_integrator_kwargs:
+        Additional arguments for the arc-length integrator.
 
     **kwargs (for all of them look into create_beam_mesh_function)
     ----
@@ -97,41 +281,40 @@ def create_beam_mesh_parametric_curve(
         with all nodes of the curve.
     """
 
-    # To avoid issues with automatic derivation, we need to ensure that the interval
+    # Set default values for optional arguments.
+    if arc_length_integrator_kwargs is None:
+        arc_length_integrator_kwargs = {}
+
+    # To avoid issues with automatic differentiation, we need to ensure that the interval
     # values are of type float.
-    interval = _np.asarray(interval, dtype=float)
+    interval_array = _np.asarray(interval, dtype=float)
 
     # Validate interval shape, length and order.
-    if interval.ndim != 1:
+    if interval_array.ndim != 1:
         raise ValueError(
-            f"Interval must be a 1D sequence of exactly two values, got array with shape {interval.shape}."
+            f"Interval must be a 1D sequence of exactly two values, got array with shape {interval_array.shape}."
         )
-    if interval.size != 2:
+    if interval_array.size != 2:
         raise ValueError(
-            f"Interval must contain exactly two values, got {interval.size}."
+            f"Interval must contain exactly two values, got {interval_array.size}."
         )
-    if interval[0] >= interval[1]:
-        raise ValueError(f"Interval must be in ascending order, got {interval}.")
+    if interval_array[0] >= interval_array[1]:
+        raise ValueError(f"Interval must be in ascending order, got {interval_array}.")
 
-    # Check size of position function
-    if len(function(interval[0])) == 2:
+    # Check size and type of position function
+    test_evaluation_of_function = function(interval_array[0])
+
+    if len(test_evaluation_of_function) == 2:
         is_3d_curve = False
-    elif len(function(interval[0])) == 3:
+    elif len(test_evaluation_of_function) == 3:
         is_3d_curve = True
     else:
         raise ValueError("Function must return either 2d or 3d curve!")
 
-    # Check rotation function.
-    if function_rotation is None:
-        is_rot_funct = False
-    else:
-        is_rot_funct = True
-
-    # Check that the position is an np.array
-    if not isinstance(function(interval[0]), _np.ndarray):
+    if not isinstance(test_evaluation_of_function, _np.ndarray):
         raise TypeError(
             "Function return value must be of type np.ndarray, got {}!".format(
-                type(function(interval[0]))
+                type(test_evaluation_of_function)
             )
         )
 
@@ -142,119 +325,99 @@ def create_beam_mesh_parametric_curve(
     else:
         rp = function_derivative
 
-    def ds(t):
+    def ds(t: float) -> float:
         """Increment along the curve."""
-        return _npAD.linalg.norm(rp(t))
+        return _np.linalg.norm(rp(t))
 
-    def S(t, start_t=None, start_S=None):
-        """Function that integrates the length until a parameter value.
+    # Setup the arc length integration object.
+    arc_length_evaluator = _ArcLengthEvaluation(
+        ds, interval_array, **arc_length_integrator_kwargs
+    )
 
-        A speedup can be achieved by giving start_t and start_S, the
-        parameter and Length at a known point.
-        """
-        if start_t is None and start_S is None:
-            st = interval[0]
-            sS = 0
-        elif start_t is not None and start_S is not None:
-            st = start_t
-            sS = start_S
-        else:
-            raise ValueError("Input parameters are wrong!")
-        return _integrate.quad(ds, st, t)[0] + sS
-
-    def get_t_along_curve(arc_length, t0, **kwargs):
-        """Calculate the parameter t where the length along the curve is
-        arc_length.
-
-        t0 is the start point for the Newton iteration.
-        """
-        t_root = _optimize.newton(lambda t: S(t, **kwargs) - arc_length, t0, fprime=ds)
-        return t_root
-
-    class BeamFunctions:
-        """This object manages the creation of functions which are used to
-        create the beam nodes.
-
-        By wrapping this in this object, we can store some data and
-        speed up the numerical integration along the curve.
-        """
+    class _BeamFunctionGenerator:
+        """This class manages the creation the actual beam nodes and
+        rotations."""
 
         def __init__(self):
-            """Initialize the object."""
-            self._reset_start_values()
-            self.last_triad = None
-
+            """Initialize the object and define a starting triad."""
             if is_3d_curve:
-                r_prime = rp(interval[0])
+                r_prime = rp(interval_array[0])
                 if abs(_np.dot(r_prime, [0, 0, 1])) < abs(_np.dot(r_prime, [0, 1, 0])):
                     t2_temp = [0, 0, 1]
                 else:
                     t2_temp = [0, 1, 0]
-                self.last_triad = _Rotation.from_basis(r_prime, t2_temp)
+                self.last_created_triad = _Rotation.from_basis(r_prime, t2_temp)
 
-        def _reset_start_values(self):
-            """Reset the stored start values for the next Newton iteration."""
-            self.t_start_newton = interval[0]
-            self.S_start_newton = 0.0
+        def evaluate_positions_and_rotations(
+            self, evaluation_positions: _np.ndarray, middle_node_flags: _np.ndarray
+        ) -> tuple[_np.ndarray, list[_Rotation], _np.ndarray]:
+            """This function evaluates the positions and rotations for given
+            node positions within the interval [0,1].
 
-        def __call__(self, S):
-            """Evaluate the beam position and rotation at S.
+            Args:
+                evaluation_positions:
+                    Node positions in the interval [0, 1]. Depending on the integration method,
+                    this can be in normalized parameter space or arc-length space.
+                middle_node_flags:
+                    Boolean array indicating which of the node positions
+                    are middle nodes (True) and which are inter element nodes (False).
 
-            S is the arc length along the curve.
+            Returns:
+                coordinates:
+                    Physical coordinates of all nodes points along the curve.
+                rotations:
+                    Rotations at all nodes points along the curve.
             """
 
-            # Parameter coordinate for S.
-            t = get_t_along_curve(
-                S,
-                self.t_start_newton,
-                start_t=self.t_start_newton,
-                start_S=self.S_start_newton,
+            # Get the nodal parameter coordinates and the nodal arc-lengths.
+            t_evaluate, S_evaluate = arc_length_evaluator.evaluate_all(
+                evaluation_positions, middle_node_flags
             )
 
             # Position at S.
+            coordinates = _np.zeros((len(evaluation_positions), 3))
             if is_3d_curve:
-                pos = function(t)
+                for i, t in enumerate(t_evaluate):
+                    coordinates[i, :] = function(t)
             else:
-                pos = _np.zeros(3)
-                pos[:2] = function(t)
+                for i, t in enumerate(t_evaluate):
+                    coordinates[i, :2] = function(t)
 
             # Rotation at S.
-            if is_rot_funct:
-                rot = function_rotation(t)
-            else:
-                r_prime = rp(t)
-                if is_3d_curve:
-                    # Create the next triad via the smallest rotation mapping based
-                    # on the last triad.
-                    rot = _smallest_rotation(self.last_triad, r_prime)
-                    self.last_triad = rot.copy()
-                else:
-                    # The rotation simplifies in the 2d case.
-                    rot = _Rotation([0, 0, 1], _np.arctan2(r_prime[1], r_prime[0]))
+            rotations = []
+            if function_rotation is not None:
+                for t in t_evaluate:
+                    rotations.append(function_rotation(t))
 
-            # Set start values for the next iteration
-            self.t_start_newton = t
-            self.S_start_newton = S
+            else:
+                for t in t_evaluate:
+                    r_prime = rp(t)
+                    if is_3d_curve:
+                        # Create the next triad via the smallest rotation mapping based
+                        # on the last triad.
+                        rot = _smallest_rotation(self.last_created_triad, r_prime)
+                        self.last_created_triad = rot.copy()
+                    else:
+                        # The rotation simplifies in the 2d case.
+                        rot = _Rotation([0, 0, 1], _np.arctan2(r_prime[1], r_prime[0]))
+                    rotations.append(rot)
 
             # Return the needed values for beam creation.
-            return (pos, rot, S)
-
-    # Now create the beam.
-    # Get the length of the whole segment.
-    length = S(interval[1])
+            return (coordinates, rotations, S_evaluate)
 
     # Create the beam in the mesh
     created_sets = _create_beam_mesh_generic(
         mesh,
         beam_class=beam_class,
         material=material,
-        beam_function=BeamFunctions(),
-        interval=[0.0, length],
-        interval_length=length,
+        beam_function_evaluate_positions_and_rotations=True,
+        beam_function=_BeamFunctionGenerator(),
+        interval=(0.0, 1.0),
+        interval_length=arc_length_evaluator.approximate_total_arc_length(),
         **kwargs,
     )
 
     if output_length:
-        return (created_sets, length)
+        return (created_sets, arc_length_evaluator.get_total_arc_length())
     else:
         return created_sets

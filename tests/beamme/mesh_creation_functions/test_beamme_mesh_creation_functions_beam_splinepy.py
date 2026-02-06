@@ -32,7 +32,7 @@ def test_beamme_mesh_creation_functions_beam_splinepy_function_and_jacobian(
     """Unittest the function and jacobian creation in the
     create_beam_mesh_from_splinepy function."""
 
-    curve = get_splinepy_object("nurbs")
+    curve = get_splinepy_object("curve_nurbs")
     r, dr, _, _ = get_curve_function_and_jacobian_for_integration(curve, tol=10)
 
     t_values = [5.0 / 7.0, -0.3, 1.2]

@@ -30,6 +30,7 @@ from beamme.core.mesh import Mesh
 from beamme.mesh_creation_functions.beam_parametric_curve import (
     create_beam_mesh_parametric_curve,
 )
+from beamme.mesh_creation_functions.beam_splinepy import create_beam_mesh_from_splinepy
 
 
 @pytest.mark.performance
@@ -52,5 +53,41 @@ def test_performance_mesh_creation_functions_beam_parametric_curve(
             [0, 2 * np.pi],
         ),
         kwargs={"n_el": 500},
-        expected_time=7.8,
+        expected_time=0.35,
+    )
+
+
+@pytest.mark.performance
+def test_performance_mesh_creation_functions_beam_parametric_curve_splinepy(
+    get_splinepy_object,
+    evaluate_execution_time,
+):
+    """Test the performance of the parametric curve creation function with a
+    splinepy object.
+
+    Compared to a pure given function, this method does not have the
+    overhead of evaluating the Jacobian with automated differentiation,
+    as splinepy provides the derivatives explicitly.
+    """
+
+    mesh = Mesh()
+    material = MaterialBeamBase()
+
+    nurbs = get_splinepy_object("curve_nurbs_distorted")
+
+    def function_call_multiple(*args, **kwargs):
+        """Create the mesh multiple times to get a better assessment of the
+        performance."""
+        for _ in range(20):
+            create_beam_mesh_from_splinepy(
+                *args,
+                **kwargs,
+            )
+
+    evaluate_execution_time(
+        "BeamMe: mesh_creation_functions: Beam from splinepy",
+        function_call_multiple,
+        args=(mesh, Beam3, material, nurbs),
+        kwargs={"n_el": 50},
+        expected_time=0.55,
     )

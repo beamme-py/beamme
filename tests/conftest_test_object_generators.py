@@ -323,7 +323,7 @@ def get_splinepy_object() -> Callable:
             A splinepy object.
         """
 
-        if splinepy_type == "bezier":
+        if splinepy_type == "curve_bezier":
             control_points = np.array(
                 [
                     [0.0, 0.0, 0.0],
@@ -334,13 +334,23 @@ def get_splinepy_object() -> Callable:
             )
             return splinepy.Bezier(degrees=[3], control_points=control_points)
 
-        elif splinepy_type == "nurbs":
+        elif splinepy_type == "curve_nurbs":
             return splinepy.NURBS(
                 degrees=[2],
                 knot_vectors=[[0, 0, 0, 1, 1, 1]],
                 control_points=[[0, 0, 0], [1, 2, -1], [2, 0, 0]],
                 weights=[[1.0], [1.0], [1.0]],
             )
+
+        elif splinepy_type == "curve_nurbs_distorted":
+            # A NURBS curve that has a large variation in the Jacobian along the curve.
+            return splinepy.NURBS(
+                degrees=[2],
+                knot_vectors=[[0, 0, 0, 1, 1, 1]],
+                control_points=[[0, 0, 0], [1, 2, -1], [-6, 3, 10]],
+                weights=[[1.0], [0.1], [2.0]],
+            )
+
         else:
             raise ValueError(f"Unknown splinepy object type: {splinepy_type}")
 

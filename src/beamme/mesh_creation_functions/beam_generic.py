@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 """Generic function for beam creation."""
 
+from typing import Any as _Any
 from typing import Callable as _Callable
 from typing import Type as _Type
 
@@ -182,7 +183,7 @@ def _get_interval_nodal_positions(
     return evaluation_positions, middle_node_flags
 
 
-def _evaluate_position_and_rotation(
+def _evaluate_positions_and_rotations(
     beam_function: _Callable[[float], tuple[_np.ndarray, _Rotation, float | None]],
     evaluation_positions: _np.ndarray,
 ) -> tuple[_np.ndarray, list[_Rotation], _np.ndarray]:
@@ -280,8 +281,9 @@ def create_beam_mesh_generic(
     *,
     beam_class: _Type[_Beam],
     material: _MaterialBeamBase,
-    beam_function: _Callable[[float], tuple[_np.ndarray, _Rotation, float | None]],
+    beam_function: _Any,
     interval: tuple[float, float],
+    beam_function_evaluate_positions_and_rotations: bool = False,
     n_el: int | None = None,
     l_el: float | None = None,
     node_positions_of_elements: list[float] | None = None,
@@ -318,6 +320,14 @@ def create_beam_mesh_generic(
         interval:
             Start and end values for interval that will be used to create the
             beam.
+        beam_function_evaluate_positions_and_rotations:
+            Flag to indicate if the beam_function already provides an efficient
+            evaluation of all positions and rotations (and arc lengths) at once.
+            If this is True, the beam_function has to provide a method
+            `evaluate_positions_and_rotations(evaluation_positions, middle_node_flags)`
+            that returns the positions, rotations and arc lengths for all given
+            evaluation positions at once. This can speed up the creation of beams
+            significantly, especially for complex beam functions.
         n_el:
             Number of equally spaced beam elements along the line. Defaults to 1.
             Mutually exclusive with l_el
@@ -395,9 +405,16 @@ def create_beam_mesh_generic(
     )
 
     # Evaluate the centerline position and the rotation for all beam nodes
-    coordinates, rotations, arc_lengths = _evaluate_position_and_rotation(
-        beam_function, evaluation_positions
-    )
+    if not beam_function_evaluate_positions_and_rotations:
+        coordinates, rotations, arc_lengths = _evaluate_positions_and_rotations(
+            beam_function, evaluation_positions
+        )
+    else:
+        coordinates, rotations, arc_lengths = (
+            beam_function.evaluate_positions_and_rotations(
+                evaluation_positions, middle_node_flags
+            )
+        )
 
     # Make sure the material is in the mesh.
     mesh.add_material(material)
@@ -485,10 +502,13 @@ def create_beam_mesh_generic(
     nodes_per_element = len(beam_class.nodes_create)
     elements: list[_Beam] = []
     for i_el in range(n_el):
-        beam = beam_class(material=material)
-        beam.nodes = nodes[
-            i_el * (nodes_per_element - 1) : (i_el + 1) * (nodes_per_element - 1) + 1
-        ]
+        beam = beam_class(
+            material=material,
+            nodes=nodes[
+                i_el * (nodes_per_element - 1) : (i_el + 1) * (nodes_per_element - 1)
+                + 1
+            ],
+        )
         elements.append(beam)
 
     # Set vtk cell data on created elements.

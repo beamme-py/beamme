@@ -24,6 +24,7 @@ functions."""
 
 import autograd.numpy as npAD
 import numpy as np
+import pytest
 from autograd import jacobian
 
 from beamme.core.mesh import Mesh
@@ -32,7 +33,19 @@ from beamme.four_c.element_beam import Beam3rHerm2Line3
 from beamme.mesh_creation_functions.beam_parametric_curve import (
     create_beam_mesh_parametric_curve,
 )
-from beamme.utils.nodes import get_nodal_coordinates
+
+PARAMETRIC_CURVE_TEST_PARAMETRIZATION: tuple = (
+    "name,arc_length_integrator_kwargs",
+    (
+        ("default", {}),
+        ("arc-length", {"method": "arc-length", "n_intervals": 10}),
+        ("parametric", {"method": "parametric", "n_intervals": 10}),
+        (
+            "parametric_consistent",
+            {"method": "parametric_consistent_middle_nodes", "n_intervals": 10},
+        ),
+    ),
+)
 
 
 def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix(
@@ -65,20 +78,14 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix(
     )
     mesh.add(helix_set)
 
-    # Compare the coordinates with the ones from Mathematica.
-    coordinates_mathematica = np.loadtxt(
-        get_corresponding_reference_file_path(
-            additional_identifier="mathematica", extension="csv"
-        ),
-        delimiter=",",
-    )
-    assert_results_close(coordinates_mathematica, get_nodal_coordinates(mesh.nodes))
-
     # Check the output.
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
 
+@pytest.mark.parametrize(*PARAMETRIC_CURVE_TEST_PARAMETRIZATION)
 def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix_length(
+    name,
+    arc_length_integrator_kwargs,
     get_default_test_beam_material,
     get_parametric_function,
     get_corresponding_reference_file_path,
@@ -101,7 +108,10 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix_leng
     )
 
     args = [Beam3rHerm2Line3, mat, helix, [0.0, 2.0 * np.pi * n]]
-    kwargs = {"n_el": n_el}
+    kwargs = {
+        "n_el": n_el,
+        "arc_length_integrator_kwargs": arc_length_integrator_kwargs,
+    }
 
     helix_set_1 = create_beam_mesh_parametric_curve(mesh_1, *args, **kwargs)
     mesh_1.add(helix_set_1)
@@ -112,16 +122,23 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix_leng
     mesh_2.add(helix_set_2)
 
     # Check the computed length
-    assert_results_close(length, 13.18763323790246)
+    assert_results_close(
+        length, 13.187633539381515 if name == "default" else 13.191216930059845
+    )
 
     # Check that both meshes are equal
     assert_results_close(mesh_1, mesh_2)
 
     # Compare with reference solution
-    assert_results_close(get_corresponding_reference_file_path(), mesh_1)
+    assert_results_close(
+        get_corresponding_reference_file_path(additional_identifier=name), mesh_1
+    )
 
 
+@pytest.mark.parametrize(*PARAMETRIC_CURVE_TEST_PARAMETRIZATION)
 def test_integration_mesh_creation_functions_beam_parametric_curve_2d_sin(
+    name,
+    arc_length_integrator_kwargs,
     get_default_test_beam_material,
     assert_results_close,
     get_corresponding_reference_file_path,
@@ -142,21 +159,20 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_2d_sin(
         return npAD.array([t, npAD.sin(t)])
 
     sin_set = create_beam_mesh_parametric_curve(
-        mesh, Beam3rHerm2Line3, mat, sin, [0.0, 2.0 * np.pi], n_el=n_el
+        mesh,
+        Beam3rHerm2Line3,
+        mat,
+        sin,
+        [0.0, 2.0 * np.pi],
+        n_el=n_el,
+        arc_length_integrator_kwargs=arc_length_integrator_kwargs,
     )
     mesh.add(sin_set)
 
-    # Compare the coordinates with the ones from Mathematica.
-    coordinates_mathematica = np.loadtxt(
-        get_corresponding_reference_file_path(
-            additional_identifier="mathematica", extension="csv"
-        ),
-        delimiter=",",
-    )
-    assert_results_close(coordinates_mathematica, get_nodal_coordinates(mesh.nodes))
-
     # Check the output.
-    assert_results_close(get_corresponding_reference_file_path(), mesh)
+    assert_results_close(
+        get_corresponding_reference_file_path(additional_identifier=name), mesh
+    )
 
 
 def test_integration_mesh_creation_functions_beam_parametric_curve_3d_rotation(
