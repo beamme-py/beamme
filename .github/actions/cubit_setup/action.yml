@@ -19,9 +19,9 @@ inputs:
     required: false
     default: "60"
 outputs:
-  cubit_root:
+  cubitpy_config_file:
     description: "Path to the Cubit installation"
-    value: ${{ steps.cubit-setup.outputs.cubit_root }}
+    value: ${{ steps.cubit-setup.outputs.cubitpy_config_file }}
 runs:
   using: composite
   steps:
@@ -46,7 +46,7 @@ runs:
         # Save cubit root path for following steps
         CUBIT_FOLDER=$(find . -maxdepth 1 -type d -name "Coreform-Cubit-*" | head -n 1 | sed 's|^\./||')
         CUBIT_ROOT="$(pwd)/$CUBIT_FOLDER"
-        echo "cubit_root=$CUBIT_ROOT" >> "$GITHUB_OUTPUT"
+        echo "cubit_root=$CUBIT_ROOT" >> "$GITHUB_ENV"
         # Activate cubit. Retry login until success or timeout.
         timeout="${{ inputs.cubit_activation_timeout }}"
         delay="${{ inputs.cubit_activation_delay_between_retries }}"
@@ -65,3 +65,15 @@ runs:
           sleep $delay
         done
         echo "Cubit activation succeeded."
+
+    - name: Create cubit config file
+      shell: bash
+      run: |
+        CUBITPY_CONFIG_FILE="$GITHUB_WORKSPACE/cubit_config.yaml"
+        echo "cubitpy_config_file=$CUBITPY_CONFIG_FILE" >> "$GITHUB_OUTPUT"
+
+        : > $CUBITPY_CONFIG_FILE   # truncate / create file
+
+        printf "cubitpy_mode: local\n" >> $CUBITPY_CONFIG_FILE
+        printf "local_config:\n" >> $CUBITPY_CONFIG_FILE
+        printf "  cubit_path: \"%s\"\n" "$CUBIT_ROOT" >> $CUBITPY_CONFIG_FILE
