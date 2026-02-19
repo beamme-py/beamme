@@ -64,7 +64,6 @@ from beamme.geometric_search.find_close_points import (
 from beamme.utils.environment import is_testing as _is_testing
 from beamme.utils.nodes import filter_nodes as _filter_nodes
 from beamme.utils.nodes import find_close_nodes as _find_close_nodes
-from beamme.utils.nodes import get_min_max_nodes as _get_min_max_nodes
 from beamme.utils.nodes import get_nodal_coordinates as _get_nodal_coordinates
 from beamme.utils.nodes import get_nodal_quaternions as _get_nodal_quaternions
 from beamme.utils.nodes import get_nodes_by_function as _get_nodes_by_function
@@ -724,11 +723,6 @@ class Mesh:
     def get_nodes_by_function(self, *args, **kwargs):
         """Return all nodes for which the function evaluates to true."""
         return _get_nodes_by_function(self.nodes, *args, **kwargs)
-
-    def get_min_max_nodes(self, *args, **kwargs):
-        """Return a geometry set with the max and min nodes in all
-        directions."""
-        return _get_min_max_nodes(self.nodes, *args, **kwargs)
 
     def check_overlapping_elements(self, raise_error=True):
         """Check if there are overlapping elements in the mesh.
