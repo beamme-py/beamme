@@ -25,6 +25,7 @@ elements, sets, ...) for a meshed geometry."""
 import copy as _copy
 import os as _os
 import warnings as _warnings
+from operator import attrgetter as _attrgetter
 from typing import Dict as _Dict
 from typing import List as _List
 from typing import Optional as _Optional
@@ -46,15 +47,25 @@ from beamme.core.element import Element as _Element
 from beamme.core.element_beam import Beam as _Beam
 from beamme.core.function import Function as _Function
 from beamme.core.geometry_set import GeometryName as _GeometryName
+from beamme.core.geometry_set import GeometrySet as _GeometrySet
 from beamme.core.geometry_set import GeometrySetBase as _GeometrySetBase
 from beamme.core.geometry_set import GeometrySetContainer as _GeometrySetContainer
+from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.material import Material as _Material
+from beamme.core.mesh_representation import (
+    MESH_REPRESENTATION_MAPPINGS as _MESH_REPRESENTATION_MAPPINGS,
+)
+from beamme.core.node import ControlPoint as _ControlPoint
 from beamme.core.node import Node as _Node
 from beamme.core.node import NodeCosserat as _NodeCosserat
+from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
 from beamme.core.rotation import Rotation as _Rotation
 from beamme.core.rotation import add_rotations as _add_rotations
 from beamme.core.rotation import rotate_coordinates as _rotate_coordinates
 from beamme.core.vtk_writer import VTKWriter as _VTKWriter
+from beamme.four_c.material import (
+    get_all_contained_materials as _get_all_contained_materials,
+)
 from beamme.geometric_search.find_close_points import (
     find_close_points as _find_close_points,
 )
@@ -763,6 +774,159 @@ class Mesh:
             for i_partner, partners in enumerate(partner_indices):
                 for i_node in partners:
                     middle_nodes[i_node].element_partner_index = i_partner
+
+    def assign_global_indices(self) -> tuple[list[_Material], _GeometrySetContainer]:
+        """Assign global indices to all items in the mesh.
+
+        This includes:
+            - Nodes
+            - Elements
+            - Materials
+            - Functions
+            - Geometry sets
+
+        This function also ensures that there are no duplicate nodes or elements in the mesh.
+
+        Returns:
+            A tuple with:
+                - A list of all materials in the mesh (including nested sub-materials)
+                - A GeometrySetContainer with all geometry sets in the mesh (returned
+                  from `get_unique_geometry_sets`)
+        """
+
+        # Make sure that old links are removed
+        self.unlink_nodes()
+
+        # Nodes
+        if len(self.nodes) != len(set(self.nodes)):
+            raise ValueError("Nodes are not unique!")
+        for i, node in enumerate(self.nodes):
+            node.i_global = i
+
+        # Elements
+        if len(self.elements) != len(set(self.elements)):
+            raise ValueError("Elements are not unique!")
+        i = 0
+        nurbs_count = 0
+        for element in self.elements:
+            element.i_global = i
+            if isinstance(element, _NURBSPatch):
+                element.i_nurbs_patch = nurbs_count
+                i += element.get_number_of_elements()
+                nurbs_count += 1
+                continue
+            i += 1
+
+        # Materials: Get a list of all materials in the mesh,
+        # including nested sub-materials.
+        all_materials = [
+            material
+            for mesh_material in self.materials
+            for material in _get_all_contained_materials(mesh_material)
+        ]
+        if len(all_materials) != len(set(all_materials)):
+            raise ValueError("Materials are not unique!")
+        for i, material in enumerate(all_materials):
+            material.i_global = i
+
+        #   Functions
+        if len(self.functions) != len(set(self.functions)):
+            raise ValueError("Functions are not unique!")
+        for i, function in enumerate(self.functions):
+            function.i_global = i
+
+        # Get all geometry sets in the mesh (this also assigns global IDs)
+        mesh_sets = self.get_unique_geometry_sets()
+
+        return all_materials, mesh_sets
+
+    def get_mesh_representation(self):
+        """Get a vtu representation of the mesh."""
+
+        # Assign the global IDs
+        all_materials, mesh_sets = self.assign_global_indices()
+
+        # Get the required point data
+        point_coordinates = _np.zeros((len(self.nodes), 3))
+        point_rotation_vectors = _np.zeros((len(self.nodes), 3))
+        point_control_point_weight = _np.zeros((len(self.nodes), 3))
+        point_types = _np.zeros(len(self.nodes), dtype=_np.uint8)
+        for i_node, node in enumerate(self.nodes):
+            point_coordinates[i_node, :] = node.coordinates
+            if isinstance(node, _NodeCosserat):
+                point_rotation_vectors[i_node, :] = node.rotation.get_rotation_vector()
+            elif isinstance(node, _ControlPoint):
+                point_control_point_weight[i_node, :] = node.weight
+            point_types[i_node] = _MESH_REPRESENTATION_MAPPINGS["node_class_to_type"][
+                type(node)
+            ]
+
+        # Get the cell types, connectivity and block information for the elements.
+        connectivity = []
+        cell_types = []
+        element_type_and_material_to_cell_block_id = {}
+        cell_block_ids = _np.zeros(len(self.elements), dtype=int)
+        for i_element, element in enumerate(self.elements):
+            indices = [node.i_global for node in element.nodes]
+            connectivity.extend([len(indices)] + indices)
+            cell_types.append(type(element).vtk_cell_type().GetCellType())
+            block_identifier = (type(element), element.material.i_global)
+            block_id = element_type_and_material_to_cell_block_id.setdefault(
+                block_identifier,
+                len(element_type_and_material_to_cell_block_id),
+            )
+            cell_block_ids[i_element] = block_id
+
+        # Invert the block id mapping
+        cell_block_id_to_element_type_and_material = {
+            value: key
+            for key, value in element_type_and_material_to_cell_block_id.items()
+        }
+
+        # Create the vtu grid and assign the required data to it.
+        grid = _pv.UnstructuredGrid(connectivity, cell_types, point_coordinates)
+        grid.point_data["rotation_vector"] = point_rotation_vectors
+        grid.point_data["node_type"] = point_types
+        grid.cell_data["cell_block_id"] = cell_block_ids
+
+        # Set the geometry sets
+        for geometry_key, items in mesh_sets.items():
+            for geometry_set in items:
+                if isinstance(geometry_set, _GeometrySetNodes):
+                    data_size = len(self.nodes)
+                    grid_data_getter = _attrgetter("point_data")
+                    items = geometry_set.get_all_nodes()
+                elif isinstance(geometry_set, _GeometrySet):
+                    items = geometry_set.get_geometry_objects()
+                    if geometry_set.geometry_type == _bme.geo.point:
+                        data_size = len(self.nodes)
+                        grid_data_getter = _attrgetter("point_data")
+                    elif (
+                        geometry_set.geometry_type == _bme.geo.line
+                        or geometry_set.geometry_type == _bme.geo.surface
+                        or geometry_set.geometry_type == _bme.geo.volume
+                    ):
+                        data_size = len(self.elements)
+                        grid_data_getter = _attrgetter("cell_data")
+                    else:
+                        raise ValueError(
+                            f"Unknown geometry type: {geometry_set.geometry_type}"
+                        )
+
+                data = _np.zeros(data_size, dtype=_np.uint8)
+                for item in items:
+                    data[item.i_global] = 1
+                grid_data_getter(grid)[
+                    f"geometry_set_{geometry_key.name}_{geometry_set.i_global}"
+                ] = data
+
+        # The grid should now have all the relevant information
+        return (
+            grid,
+            mesh_sets,
+            all_materials,
+            cell_block_id_to_element_type_and_material,
+        )
 
     def get_vtk_representation(
         self, *, overlapping_elements=True, coupling_sets=False, **kwargs

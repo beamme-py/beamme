@@ -41,6 +41,10 @@ class Beam(_Element):
     # A list of valid material types for this element.
     valid_materials: _Any = []
 
+    # Define vtk representation of this beam element.
+    vtk_cell_type = _vtk.vtkPolyLine
+    vtk_topology = [i for i in range(len(nodes_create))]
+
     def __init__(self, material=None, nodes=None):
         super().__init__(nodes=nodes, material=material)
 
