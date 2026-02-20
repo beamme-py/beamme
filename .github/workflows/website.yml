@@ -58,21 +58,21 @@ jobs:
           name: website
           path: ${{ github.workspace }}
       - name: Download API documentation artifact
-        uses: dawidd6/action-download-artifact@v14
+        uses: dawidd6/action-download-artifact@v15
         with:
           workflow: documentation.yml
           name: api-documentation
           path: ${{ github.workspace }}/api-documentation
           branch: ${{ github.event.repository.default_branch }}
       - name: Download coverage report artifact
-        uses: dawidd6/action-download-artifact@v14
+        uses: dawidd6/action-download-artifact@v15
         with:
           workflow: testing_protected.yml
           name: coverage-report
           path: ${{ github.workspace }}/coverage-report
           branch: ${{ github.event.repository.default_branch }}
       - name: Download coverage badge artifact
-        uses: dawidd6/action-download-artifact@v14
+        uses: dawidd6/action-download-artifact@v15
         with:
           workflow: testing_protected.yml
           name: coverage-badge
