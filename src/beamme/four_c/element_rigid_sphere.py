@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file implements volume elements for 4C."""
+"""This file implements solid elements for 4C."""
 
 from beamme.core.element_volume import VolumeElement as _VolumeElement
 

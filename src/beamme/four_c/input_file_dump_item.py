@@ -27,8 +27,7 @@ from beamme.core.boundary_condition import BoundaryCondition as _BoundaryConditi
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
 from beamme.core.element_volume import VolumeElement as _VolumeElement
-from beamme.core.geometry_set import GeometrySet as _GeometrySet
-from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
+from beamme.core.geometry_set import GeometrySetBase as _GeometrySetBase
 from beamme.core.node import ControlPoint as _ControlPoint
 from beamme.core.node import Node as _Node
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
@@ -73,12 +72,12 @@ def dump_solid_element(solid_element):
     return {
         "id": solid_element.i_global + 1,
         "cell": {
-            "type": _INPUT_FILE_MAPPINGS["element_type_to_four_c_string"][
-                type(solid_element)
+            "type": _INPUT_FILE_MAPPINGS["n_nodes_to_four_c_string"][
+                len(solid_element.nodes)
             ],
             "connectivity": solid_element.nodes,
         },
-        "data": solid_element.data
+        "data": type(solid_element).four_c_element_data
         | (
             {"MAT": solid_element.material}
             if solid_element.material is not None
@@ -228,13 +227,8 @@ def dump_nurbs_patch_elements(nurbs_patch: _NURBSPatch) -> list[dict[str, _Any]]
                     "type": f"NURBS{num_cp}",
                     "connectivity": connectivity,
                 },
-                "data": {
-                    "type": _INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"][
-                        type(nurbs_patch)
-                    ],
-                    "MAT": nurbs_patch.material,
-                    **(nurbs_patch.data if nurbs_patch.data else {}),
-                },
+                "data": getattr(type(nurbs_patch), "four_c_element_data", {})
+                | {"MAT": nurbs_patch.material},
             }
         )
         j += 1
@@ -250,7 +244,7 @@ def dump_item_to_list(dumped_list, item) -> None:
         dumped_list.append(dump_node(item))
     elif isinstance(item, _VolumeElement):
         dumped_list.append(dump_solid_element(item))
-    elif isinstance(item, _GeometrySet) or isinstance(item, _GeometrySetNodes):
+    elif isinstance(item, _GeometrySetBase):
         dumped_list.extend(dump_geometry_set(item))
     elif isinstance(item, _NURBSPatch):
         dumped_list.extend(dump_nurbs_patch_elements(item))

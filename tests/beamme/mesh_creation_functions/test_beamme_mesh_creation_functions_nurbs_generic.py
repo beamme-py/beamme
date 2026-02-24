@@ -24,6 +24,7 @@
 import pytest
 
 from beamme.core.mesh import Mesh
+from beamme.four_c.element_solid import get_four_c_solid
 from beamme.mesh_creation_functions.nurbs_generic import (
     add_geomdl_nurbs_to_mesh,
     create_geometry_sets,
@@ -216,7 +217,8 @@ def test_beamme_mesh_creation_functions_nurbs_generic_sets(
 
     # Add the nurbs to a mesh
     mesh = Mesh()
-    add_geomdl_nurbs_to_mesh(mesh, nurbs_patch)
+    element_type = get_four_c_solid(solid_type="nurbs_volume")
+    add_geomdl_nurbs_to_mesh(mesh, element_type, nurbs_patch)
     nurbs_patch = mesh.elements[0]
 
     # Create the geometry sets for this patch

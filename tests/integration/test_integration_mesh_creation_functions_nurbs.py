@@ -26,6 +26,7 @@ import splinepy
 
 from beamme.core.mesh import Mesh
 from beamme.core.rotation import Rotation
+from beamme.four_c.element_solid import get_four_c_solid
 from beamme.mesh_creation_functions.nurbs_generic import (
     add_geomdl_nurbs_to_mesh,
     add_splinepy_nurbs_to_mesh,
@@ -62,15 +63,15 @@ def test_integration_mesh_creation_functions_nurbs_hollow_cylinder_segment_2d(
     mesh = Mesh()
 
     # Create patch set
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
-
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=element_description,
     )
 
     mesh.add(patch_set)
@@ -97,12 +98,11 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d(
     mat = get_default_test_solid_material(material_type="2d_shell")
 
     # Create patch set
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_shell"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_shell"),
     )
-    patch_set = add_geomdl_nurbs_to_mesh(
-        mesh, surf_obj, material=mat, data=element_description
-    )
+    patch_set = add_geomdl_nurbs_to_mesh(mesh, element_type, surf_obj, material=mat)
 
     mesh.add(patch_set)
 
@@ -131,12 +131,11 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d_splinepy(
     # Create the shell mesh
     mesh = Mesh()
     mat = get_default_test_solid_material(material_type="2d_shell")
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_shell"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_shell"),
     )
-    patch_set = add_splinepy_nurbs_to_mesh(
-        mesh, surf_obj, material=mat, data=element_description
-    )
+    patch_set = add_splinepy_nurbs_to_mesh(mesh, element_type, surf_obj, material=mat)
     mesh.add(patch_set)
     assert_results_close(
         get_corresponding_reference_file_path(
@@ -162,10 +161,11 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d_splinepy_copy(
     # Create mesh
     mesh = Mesh()
     mat = get_default_test_solid_material(material_type="2d_shell")
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_shell"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_shell"),
     )
-    add_splinepy_nurbs_to_mesh(mesh, surf_obj, material=mat, data=element_description)
+    add_splinepy_nurbs_to_mesh(mesh, element_type, surf_obj, material=mat)
 
     mesh_copy = mesh.copy()
     mesh_copy.translate([3, 0, 0])
@@ -190,11 +190,15 @@ def test_integration_mesh_creation_functions_nurbs_brick(
     mesh = Mesh()
 
     # Create patch set
+    element_type = get_four_c_solid(
+        solid_type="nurbs_volume",
+        data=get_default_test_solid_element_description(element_type="3d_solid"),
+    )
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         vol_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=get_default_test_solid_element_description(element_type="3d_solid"),
     )
 
     mesh.add(patch_set)
@@ -227,11 +231,15 @@ def test_integration_mesh_creation_functions_nurbs_brick_splinepy(
     mesh = Mesh()
 
     # Create patch set
+    element_type = get_four_c_solid(
+        solid_type="nurbs_volume",
+        data=get_default_test_solid_element_description(element_type="3d_solid"),
+    )
     patch_set = add_splinepy_nurbs_to_mesh(
         mesh,
+        element_type,
         vol_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=get_default_test_solid_element_description(element_type="3d_solid"),
     )
 
     mesh.add(patch_set)
@@ -262,15 +270,15 @@ def test_integration_mesh_creation_functions_nurbs_rotation_nurbs_surface(
     mesh = Mesh()
 
     # Create patch set
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
-
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=element_description,
     )
 
     mesh.add(patch_set)
@@ -296,16 +304,15 @@ def test_integration_mesh_creation_functions_nurbs_translate_nurbs_surface(
     mesh = Mesh()
 
     # Create patch set
-
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
-
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=element_description,
     )
 
     mesh.add(patch_set)
@@ -333,11 +340,15 @@ def test_integration_mesh_creation_functions_nurbs_cylindrical_shell_sector(
     mesh = Mesh()
 
     # Create patch set
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
+    )
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
 
     mesh.add(patch_set)
@@ -364,14 +375,11 @@ def test_integration_mesh_creation_functions_nurbs_couple_nurbs_meshes(
 
     # Create first patch set
     mat = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
-
-    patch_set_1 = add_geomdl_nurbs_to_mesh(
-        mesh, surf_obj_1, material=mat, data=element_description
-    )
+    patch_set_1 = add_geomdl_nurbs_to_mesh(mesh, element_type, surf_obj_1, material=mat)
 
     mesh.add(patch_set_1)
 
@@ -382,9 +390,7 @@ def test_integration_mesh_creation_functions_nurbs_couple_nurbs_meshes(
         0.65, 1.46, np.pi / 3, n_ele_u=3, n_ele_v=2
     )
 
-    patch_set_2 = add_geomdl_nurbs_to_mesh(
-        mesh, surf_obj_2, material=mat, data=element_description
-    )
+    patch_set_2 = add_geomdl_nurbs_to_mesh(mesh, element_type, surf_obj_2, material=mat)
 
     mesh.add(patch_set_2)
 
@@ -409,15 +415,15 @@ def test_integration_mesh_creation_functions_nurbs_sphere_surface(
     surf_obj = create_nurbs_sphere_surface(1, n_ele_u=3, n_ele_v=2)
 
     # Create first patch set
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
-
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=element_description,
     )
 
     mesh.add(patch_set)
@@ -442,11 +448,15 @@ def test_integration_mesh_creation_functions_nurbs_string_types(
     surf_obj = create_nurbs_flat_plate_2d(1, 3, n_ele_u=3, n_ele_v=2)
 
     # Create first patch set
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
+    )
     patch_set = add_geomdl_nurbs_to_mesh(
         mesh,
+        element_type,
         surf_obj,
         material=get_default_test_solid_material(material_type="st_venant_kirchhoff"),
-        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
 
     mesh.add(patch_set)
@@ -471,17 +481,18 @@ def test_integration_mesh_creation_functions_nurbs_hemisphere_surface(
 
     # Create first patch set
     mat = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
 
     # Add the patch sets of every surface section of the hemisphere to the input file
     for surf in surfs:
         patch_set = add_geomdl_nurbs_to_mesh(
             mesh,
+            element_type,
             surf,
             material=mat,
-            data=element_description,
         )
 
         mesh.add(patch_set)
@@ -506,17 +517,18 @@ def test_integration_mesh_creation_functions_nurbs_torus_surface(
 
     # Define element description
     mat = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-    element_description = get_default_test_solid_element_description(
-        element_type="2d_solid"
+    element_type = get_four_c_solid(
+        solid_type="nurbs_surface",
+        data=get_default_test_solid_element_description(element_type="2d_solid"),
     )
 
     # Add the patch sets of every surface section of the torus to the input file
     for surf in surfs:
         patch_set = add_geomdl_nurbs_to_mesh(
             mesh,
+            element_type,
             surf,
             material=mat,
-            data=element_description,
         )
 
         mesh.add(patch_set)
@@ -543,7 +555,8 @@ def test_integration_mesh_creation_functions_nurbs_empty_knot_spans(
     # Create mesh
     mesh = Mesh()
     mat = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-    patch_set = add_splinepy_nurbs_to_mesh(mesh, pipe, material=mat)
+    element_type = get_four_c_solid(solid_type="nurbs_volume")
+    patch_set = add_splinepy_nurbs_to_mesh(mesh, element_type, pipe, material=mat)
     mesh.add(patch_set)
     mesh.couple_nodes(reuse_matching_nodes=True)
 

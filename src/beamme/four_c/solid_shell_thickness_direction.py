@@ -198,9 +198,9 @@ def set_solid_shell_thickness_direction(
 
     for element in elements:
         if (
-            isinstance(element, _VolumeHEX8)
-            and isinstance(element.data, dict)
-            and element.data.get("TECH") == "shell_eas_ans"
+            issubclass(type(element), _VolumeHEX8)
+            and getattr(type(element), "four_c_element_data", {}).get("TECH")
+            == "shell_eas_ans"
         ):
             # Get the element center and the Jacobian at the center
             (

@@ -47,6 +47,38 @@ if _cubitpy_is_available():
     )
 
 
+def _make_dict_hashable(d):
+    """Python dictionaries are not directly hashable, so we convert them to a
+    hashable structure here (tuples with sorted keys/item pairs)."""
+    return tuple(
+        sorted(
+            (k, _make_dict_hashable(v) if isinstance(v, dict) else v)
+            for k, v in d.items()
+        )
+    )
+
+
+def create_solid_element_type(
+    base_type, data, imported_element_hash_to_solid_type
+) -> type:
+    """Check if an element type with the given element data already exists, if
+    not, create a new one.
+
+    Args:
+        base_type: The base type of the element (e.g., VolumeHEX8).
+        data: Element block specific data (e.g., EAS).
+        imported_element_hash_to_solid_type: A dictionary to store the mapping from element data to element types.
+
+    Returns: Element type for the given base type and element data.
+    """
+
+    imported_element_hash = hash((base_type, _make_dict_hashable(data)))
+    return imported_element_hash_to_solid_type.setdefault(
+        imported_element_hash,
+        type("FourCSolidElementType", (base_type,), {"four_c_element_data": data}),
+    )
+
+
 def import_cubitpy_model(
     cubit, convert_input_to_mesh: bool = False
 ) -> _Tuple[_InputFile, _Mesh]:
@@ -159,6 +191,7 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
     mesh.nodes = [_Node(node["COORD"]) for node in _pop_section("NODE COORDS")]
 
     # extract elements
+    imported_element_hash_to_solid_type: dict[str, type] = {}
     for input_element in _pop_section("STRUCTURE ELEMENTS"):
         if (
             input_element["cell"]["type"]
@@ -168,12 +201,17 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
                 f"Could not create a BeamMe element for `{input_element['data']['type']}` `{input_element['cell']['type']}`!"
             )
         nodes = [mesh.nodes[i - 1] for i in input_element["cell"]["connectivity"]]
-        element_class = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
+        base_type = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
             input_element["cell"]["type"]
         ]
-        element = element_class(nodes=nodes, data=input_element["data"])
-        if "MAT" in element.data:
-            element.material = material_id_map[element.data.pop("MAT")]
+        element_data = input_element["data"]
+        material_id = element_data.pop("MAT", None)
+        element_class = create_solid_element_type(
+            base_type, element_data, imported_element_hash_to_solid_type
+        )
+        element = element_class(nodes=nodes)
+        if material_id is not None:
+            element.material = material_id_map[material_id]
         mesh.elements.append(element)
 
     # extract geometry sets

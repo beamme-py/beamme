@@ -45,14 +45,18 @@ from beamme.core.element_volume import (
 )
 from beamme.core.nurbs_patch import NURBSSurface as _NURBSSurface
 from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
-from beamme.four_c.element_volume import SolidRigidSphere as _SolidRigidSphere
+from beamme.four_c.element_rigid_sphere import SolidRigidSphere as _SolidRigidSphere
 from beamme.four_c.four_c_types import BeamType as _BeamType
 
 INPUT_FILE_MAPPINGS: dict[str, _Any] = {}
-INPUT_FILE_MAPPINGS["beam_types"] = {
+INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"] = {
     _BeamType.reissner: "BEAM3R",
     _BeamType.kirchhoff: "BEAM3K",
     _BeamType.euler_bernoulli: "BEAM3EB",
+}
+INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"] = {
+    _NURBSSurface: "WALLNURBS",
+    _NURBSVolume: "SOLID",
 }
 INPUT_FILE_MAPPINGS["boundary_conditions"] = {
     (_bme.bc.dirichlet, _bme.geo.point): "DESIGN POINT DIRICH CONDITIONS",
@@ -113,18 +117,23 @@ INPUT_FILE_MAPPINGS["boundary_conditions"] = {
         _bme.geo.surface,
     ): "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",
 }
-INPUT_FILE_MAPPINGS["element_type_to_four_c_string"] = {
-    _VolumeHEX8: "HEX8",
-    _VolumeHEX20: "HEX20",
-    _VolumeHEX27: "HEX27",
-    _VolumeTET4: "TET4",
-    _VolumeTET10: "TET10",
-    _VolumeWEDGE6: "WEDGE6",
-    _SolidRigidSphere: "POINT1",
+INPUT_FILE_MAPPINGS["n_nodes_to_four_c_string"] = {
+    8: "HEX8",
+    20: "HEX20",
+    27: "HEX27",
+    4: "TET4",
+    10: "TET10",
+    6: "WEDGE6",
+    1: "POINT1",
 }
 INPUT_FILE_MAPPINGS["element_four_c_string_to_type"] = {
-    value: key
-    for key, value in INPUT_FILE_MAPPINGS["element_type_to_four_c_string"].items()
+    "HEX8": _VolumeHEX8,
+    "HEX20": _VolumeHEX20,
+    "HEX27": _VolumeHEX27,
+    "TET4": _VolumeTET4,
+    "TET10": _VolumeTET10,
+    "WEDGE6": _VolumeWEDGE6,
+    "POINT1": _SolidRigidSphere,
 }
 INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"] = {
     _bme.geo.point: "DNODE-NODE TOPOLOGY",
@@ -155,8 +164,4 @@ INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"] = {
     3: [0, 2, 1],
     4: [0, 3, 1, 2],
     5: [0, 4, 1, 2, 3],
-}
-INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"] = {
-    _NURBSSurface: "WALLNURBS",
-    _NURBSVolume: "SOLID",
 }
