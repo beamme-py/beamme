@@ -35,6 +35,12 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.four_c.input_file_dump_item import (
+    get_four_c_element_cell as _get_four_c_element_cell,
+)
+from beamme.four_c.input_file_dump_item import (
+    get_four_c_element_data as _get_four_c_element_data,
+)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -57,8 +63,14 @@ def dump_four_c_beam_to_list(self) -> dict:
     self._check_material()
 
     # Gather the element data for the input file.
-    element_data = type(self).four_c_element_data | self.data
-    element_data["MAT"] = self.material
+    element_data = _get_four_c_element_data(self)
+    cell_info = _get_four_c_element_cell(
+        "beam",
+        [
+            self.nodes[i]
+            for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][len(self.nodes)]
+        ],
+    )
     if type(self).four_c_triads:
         element_data["TRIADS"] = [
             item
@@ -68,15 +80,7 @@ def dump_four_c_beam_to_list(self) -> dict:
 
     return {
         "id": self.i_global + 1,
-        "cell": {
-            "type": _INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"][len(self.nodes)],
-            "connectivity": [
-                self.nodes[i]
-                for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][
-                    len(self.nodes)
-                ]
-            ],
-        },
+        "cell": cell_info,
         "data": element_data,
     }
 

@@ -117,14 +117,20 @@ INPUT_FILE_MAPPINGS["boundary_conditions"] = {
         _bme.geo.surface,
     ): "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",
 }
-INPUT_FILE_MAPPINGS["n_nodes_to_four_c_string"] = {
-    8: "HEX8",
-    20: "HEX20",
-    27: "HEX27",
-    4: "TET4",
-    10: "TET10",
-    6: "WEDGE6",
-    1: "POINT1",
+INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_string"] = {
+    ("solid", 8): "HEX8",
+    ("solid", 20): "HEX20",
+    ("solid", 27): "HEX27",
+    ("solid", 4): "TET4",
+    ("solid", 10): "TET10",
+    ("solid", 6): "WEDGE6",
+    ("solid", 1): "POINT1",
+    ("beam", 2): "LINE2",
+    ("beam", 3): "LINE3",
+    ("beam", 4): "LINE4",
+    ("beam", 5): "LINE5",
+    ("nurbs", 9): "NURBS9",
+    ("nurbs", 27): "NURBS27",
 }
 INPUT_FILE_MAPPINGS["element_four_c_string_to_type"] = {
     "HEX8": _VolumeHEX8,
@@ -152,12 +158,6 @@ INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {
     _bme.geo.line: "DLINE",
     _bme.geo.surface: "DSURFACE",
     _bme.geo.volume: "DVOL",
-}
-INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"] = {
-    2: "LINE2",
-    3: "LINE3",
-    4: "LINE4",
-    5: "LINE5",
 }
 INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"] = {
     2: [0, 1],

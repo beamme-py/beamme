@@ -27,9 +27,8 @@ from beamme.core.element_volume import VolumeElement
 from beamme.four_c.input_file_dump_item import dump_solid_element
 
 
-def test_beamme_four_c_input_file_material_in_element_data():
-    """Check that material information can not be included in solid element
-    data."""
+def test_beamme_four_c_input_file_element_data():
+    """Check that no additional data is allowed in elements."""
 
     element = VolumeElement(
         nodes=[0, 1, 2, 3],
@@ -37,7 +36,9 @@ def test_beamme_four_c_input_file_material_in_element_data():
     )
     with pytest.raises(
         ValueError,
-        match="Element None has a MAT entry in its data, this is not supported, "
-        "the materials have to be assigned via the material attribute of the element.",
+        match=(
+            "Element has data entries, this is not supported, the data has to "
+            "be assigned via the element type. Got data entries {'MAT': 1}"
+        ),
     ):
         dump_solid_element(element)

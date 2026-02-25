@@ -197,11 +197,12 @@ def set_solid_shell_thickness_direction(
         raise ValueError("Expected a non empty element list")
 
     for element in elements:
-        if (
-            issubclass(type(element), _VolumeHEX8)
-            and getattr(type(element), "four_c_element_data", {}).get("TECH")
+        is_hex_8 = issubclass(type(element), _VolumeHEX8)
+        is_shell = (
+            getattr(type(element), "four_c_element_data", {}).get("TECH", "")
             == "shell_eas_ans"
-        ):
+        )
+        if is_hex_8 and is_shell:
             # Get the element center and the Jacobian at the center
             (
                 reference_position_center,
