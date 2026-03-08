@@ -32,6 +32,7 @@ from beamme.core.geometry_set import GeometrySet
 from beamme.core.mesh import Mesh
 from beamme.core.rotation import Rotation
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
+from beamme.space_time.z import increase_coverage
 
 PYTEST_ABAQUS_NORMAL_DEFINITION_PARAMETRIZE = [
     ("normal_definition", "additional_identifier"),
@@ -50,7 +51,7 @@ def test_integration_abaqus_helix(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and check the created Abaqus input file."""
-
+    increase_coverage()
     # Helix parameters
     n_el = 10
     turns = 1.5
