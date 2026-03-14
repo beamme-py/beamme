@@ -22,7 +22,6 @@
 """Generic function used to create NURBS meshes."""
 
 import itertools as _itertools
-from typing import Type as _Type
 
 import numpy as _np
 
@@ -37,15 +36,18 @@ from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
 
 def add_splinepy_nurbs_to_mesh(
     mesh: _Mesh,
+    element_type: type,
     splinepy_obj,
     *,
     material=None,
-    data: dict | None = None,
+    data: dict
+    | None = None,  # TODO: Check if this is really needed! Or unify this with how solid element data is processed
 ) -> _GeometryName:
     """Add a splinepy NURBS to the mesh.
 
     Args:
         mesh: Mesh that the created NURBS geometry will be added to.
+        element_type: The type of element to be created.
         splinepy_obj (splinepy object): NURBS geometry created using splinepy.
         material (Material): Material for this geometry.
         data: General element data, e.g., material, formulation, ...
@@ -86,18 +88,7 @@ def add_splinepy_nurbs_to_mesh(
     ]
 
     # Fill element
-    manifold_dim = len(splinepy_obj.knot_vectors)
-    nurbs_object: _Type[_NURBSSurface] | _Type[_NURBSVolume]
-    if manifold_dim == 2:
-        nurbs_object = _NURBSSurface
-    elif manifold_dim == 3:
-        nurbs_object = _NURBSVolume
-    else:
-        raise NotImplementedError(
-            "Error, not implemented for a NURBS {}!".format(type(splinepy_obj))
-        )
-
-    element = nurbs_object(
+    element = element_type(
         [_np.asarray(knot_vector) for knot_vector in splinepy_obj.knot_vectors],
         _np.asarray(splinepy_obj.degrees),
         nodes=control_points,
@@ -117,15 +108,17 @@ def add_splinepy_nurbs_to_mesh(
 
 def add_geomdl_nurbs_to_mesh(
     mesh: _Mesh,
+    element_type: type,
     geomdl_obj,
     *,
     material=None,
-    data: dict | None = None,
+    data: dict | None = None,  # TODO: Decide what todo about this
 ) -> _GeometryName:
     """Add a geomdl NURBS to the mesh.
 
     Args:
         mesh: Mesh that the created NURBS geometry will be added to.
+        element_type: The type of element to be created.
         geomdl_obj (geomdl object): NURBS geometry created using geomdl.
         material (Material): Material for this geometry.
         data: General element data, e.g., material, formulation, ...
@@ -167,18 +160,7 @@ def add_geomdl_nurbs_to_mesh(
         )
 
     # Fill element
-    manifold_dim = len(geomdl_obj.knotvector)
-    nurbs_object: _Type[_NURBSSurface] | _Type[_NURBSVolume]
-    if manifold_dim == 2:
-        nurbs_object = _NURBSSurface
-    elif manifold_dim == 3:
-        nurbs_object = _NURBSVolume
-    else:
-        raise NotImplementedError(
-            "Error, not implemented for a NURBS {}!".format(type(geomdl_obj))
-        )
-
-    element = nurbs_object(
+    element = element_type(
         geomdl_obj.knotvector,
         geomdl_obj.degree,
         nodes=control_points,
