@@ -20,15 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """This module implements the class that will be used as the base for all items
-that are in a mesh."""
-
-from typing import Optional as _Optional
+that are in a mesh, except for nodes and elements."""
 
 
 class BaseMeshItem:
-    """Base class for all objects that are related to a mesh."""
+    """Base class for all objects that are related to a mesh, except for nodes
+    and elements."""
 
-    def __init__(self, data: _Optional[dict] = None):
+    def __init__(self, data: dict | None = None):
         """Create the base object.
 
         Args:

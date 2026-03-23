@@ -23,11 +23,10 @@
 
 import numpy as _np
 
-from beamme.core.base_mesh_item import BaseMeshItem as _BaseMeshItem
 from beamme.core.rotation import Rotation as _Rotation
 
 
-class Node(_BaseMeshItem):
+class Node:
     """This object represents one node in the mesh."""
 
     def __init__(self, coordinates, *, is_middle_node=False, **kwargs):
@@ -51,6 +50,9 @@ class Node(_BaseMeshItem):
 
         # If this node is replaced, store a link to the remaining node.
         self.master_node = None
+
+        # Global index of this item in a mesh.
+        self.i_global: None | int = None
 
     def get_master_node(self):
         """Return the master node of this node.
