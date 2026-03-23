@@ -19,14 +19,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file implements volume elements for 4C."""
-
-from beamme.core.element_volume import VolumeElement as _VolumeElement
+"""Helper functions for data structure related functionality."""
 
 
-class SolidRigidSphere(_VolumeElement):
-    """A rigid sphere solid element."""
+def dict_to_tuple_converter(dictionary: dict) -> tuple:
+    """Python dictionaries are not directly hashable, so we convert them to a
+    hashable structure here, i.e., tuples with sorted keys/item pairs.
 
-    def __init__(self, **kwargs):
-        """Initialize solid sphere object."""
-        _VolumeElement.__init__(self, **kwargs)
+    Args:
+        dictionary: A dictionary to convert to a hashable structure.
+
+    Returns:
+        A hashable structure representing the dictionary, data is not copied.
+    """
+    return tuple(
+        sorted(
+            (key, dict_to_tuple_converter(value) if isinstance(value, dict) else value)
+            for key, value in dictionary.items()
+        )
+    )

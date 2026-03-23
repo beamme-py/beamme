@@ -35,6 +35,12 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.four_c.input_file_dump_item import (
+    get_four_c_element_cell as _get_four_c_element_cell,
+)
+from beamme.four_c.input_file_dump_item import (
+    get_four_c_element_data as _get_four_c_element_data,
+)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -57,8 +63,14 @@ def dump_four_c_beam_to_list(self) -> dict:
     self._check_material()
 
     # Gather the element data for the input file.
-    element_data = type(self).four_c_element_data | self.data
-    element_data["MAT"] = self.material
+    element_data = _get_four_c_element_data(self)
+    cell_info = _get_four_c_element_cell(
+        "beam",
+        [
+            self.nodes[i]
+            for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][len(self.nodes)]
+        ],
+    )
     if type(self).four_c_triads:
         element_data["TRIADS"] = [
             item
@@ -68,15 +80,7 @@ def dump_four_c_beam_to_list(self) -> dict:
 
     return {
         "id": self.i_global + 1,
-        "cell": {
-            "type": _INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"][len(self.nodes)],
-            "connectivity": [
-                self.nodes[i]
-                for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][
-                    len(self.nodes)
-                ]
-            ],
-        },
+        "cell": cell_info,
         "data": element_data,
     }
 
@@ -85,7 +89,7 @@ def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[
     """Return a Simo-Reissner beam for 4C."""
 
     four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.reissner],
+        "type": _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.reissner],
         "HERMITE_CENTERLINE": is_hermite_centerline,
     }
     if is_hermite_centerline:
@@ -119,7 +123,7 @@ def get_four_c_kirchhoff_beam(
 
     # Set the parameters for this beam.
     four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.kirchhoff],
+        "type": _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.kirchhoff],
         "CONSTRAINT": constraint.name,
         "PARAMETRIZATION": parametrization.name,
         "USE_FAD": is_fad,
@@ -156,7 +160,9 @@ class BeamFourCEulerBernoulli(_generate_beam_class(2)):  # type: ignore[misc]
     four_c_beam_type = _BeamType.euler_bernoulli
     four_c_triads = False
     four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.euler_bernoulli]
+        "type": _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][
+            _BeamType.euler_bernoulli
+        ]
     }
 
     valid_materials = [_MaterialEulerBernoulli]

@@ -19,25 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""Unit tests for the 4C input file."""
+"""This file implements solid elements for 4C."""
 
-import pytest
-
-from beamme.core.element_volume import VolumeElement
-from beamme.four_c.input_file_dump_item import dump_solid_element
+from beamme.core.element_volume import VolumeElement as _VolumeElement
 
 
-def test_beamme_four_c_input_file_material_in_element_data():
-    """Check that material information can not be included in solid element
-    data."""
+class SolidRigidSphere(_VolumeElement):
+    """A rigid sphere solid element."""
 
-    element = VolumeElement(
-        nodes=[0, 1, 2, 3],
-        data={"MAT": 1},
-    )
-    with pytest.raises(
-        ValueError,
-        match="Element None has a MAT entry in its data, this is not supported, "
-        "the materials have to be assigned via the material attribute of the element.",
-    ):
-        dump_solid_element(element)
+    def __init__(self, **kwargs):
+        """Initialize solid sphere object."""
+        _VolumeElement.__init__(self, **kwargs)

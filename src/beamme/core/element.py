@@ -25,14 +25,8 @@
 class Element:
     """A base class for an FEM element in the mesh."""
 
-    def __init__(self, nodes=None, material=None, data=None, **kwargs):
+    def __init__(self, nodes=None, material=None, **kwargs):
         super().__init__(**kwargs)
-
-        # TODO: Temp fix but delete later.
-        if data is not None:
-            self.data = data
-        else:
-            self.data = {}
 
         # Global index of this item in a mesh.
         self.i_global: None | int = None
