@@ -39,15 +39,8 @@ class NURBSPatch(_Element):
     # A list of valid material types for this element
     valid_materials = [_MaterialSolidBase]
 
-    def __init__(
-        self,
-        knot_vectors,
-        polynomial_orders,
-        material=None,
-        nodes=None,
-        data=None,
-    ):
-        super().__init__(nodes=nodes, material=material, data=data)
+    def __init__(self, knot_vectors, polynomial_orders, material=None, nodes=None):
+        super().__init__(nodes=nodes, material=material)
 
         # Knot vectors
         self.knot_vectors = knot_vectors

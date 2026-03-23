@@ -39,6 +39,9 @@ from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
 from beamme.four_c.material import MaterialSolid as _MaterialSolid
+from beamme.utils.data_structures import (
+    dict_to_tuple_converter as _dict_to_tuple_converter,
+)
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 
 if _cubitpy_is_available():
@@ -159,6 +162,7 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
     mesh.nodes = [_Node(node["COORD"]) for node in _pop_section("NODE COORDS")]
 
     # extract elements
+    imported_element_hash_to_solid_type: dict[int, type] = {}
     for input_element in _pop_section("STRUCTURE ELEMENTS"):
         if (
             input_element["cell"]["type"]
@@ -168,12 +172,26 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
                 f"Could not create a BeamMe element for `{input_element['data']['type']}` `{input_element['cell']['type']}`!"
             )
         nodes = [mesh.nodes[i - 1] for i in input_element["cell"]["connectivity"]]
-        element_class = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
+        base_type = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
             input_element["cell"]["type"]
         ]
-        element = element_class(nodes=nodes, data=input_element["data"])
-        if "MAT" in element.data:
-            element.material = material_id_map[element.data.pop("MAT")]
+        element_data = input_element["data"]
+        material_id = element_data.pop("MAT", None)
+
+        imported_element_hash = hash(
+            (base_type, _dict_to_tuple_converter(element_data))
+        )
+        element_type = imported_element_hash_to_solid_type.setdefault(
+            imported_element_hash,
+            type(
+                "FourCSolidElementType",
+                (base_type,),
+                {"four_c_element_data": element_data},
+            ),
+        )
+        element = element_type(nodes=nodes)
+        if material_id is not None:
+            element.material = material_id_map[material_id]
         mesh.elements.append(element)
 
     # extract geometry sets

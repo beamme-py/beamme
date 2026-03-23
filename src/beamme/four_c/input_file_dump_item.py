@@ -26,9 +26,9 @@ from typing import Any as _Any
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
+from beamme.core.element import Element as _Element
 from beamme.core.element_volume import VolumeElement as _VolumeElement
-from beamme.core.geometry_set import GeometrySet as _GeometrySet
-from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
+from beamme.core.geometry_set import GeometrySetBase as _GeometrySetBase
 from beamme.core.node import ControlPoint as _ControlPoint
 from beamme.core.node import Node as _Node
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
@@ -39,6 +39,68 @@ from beamme.four_c.four_c_types import BeamType as _BeamType
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
+
+
+def get_four_c_element_type_data(element_type: type[_Element]) -> dict[str, _Any]:
+    """Get the dictionary specifying the element block data for a given element
+    type.
+
+    Args:
+        element_type: The type of the element for which the data should be returned.
+
+    Returns:
+        A dict with the data for the given element type, i.e., the element block data.
+    """
+    if not hasattr(element_type, "four_c_element_data"):
+        raise ValueError(
+            f"Element type {element_type} does not have a four_c_element_data attribute, "
+            "this is required to dump the element to the input file."
+        )
+    # We later on add information like material and triads to this dict, so we return
+    # a copy of the data to avoid that the original data is modified.
+    return element_type.four_c_element_data.copy()
+
+
+def get_four_c_element_data(element: _Element) -> dict[str, _Any]:
+    """Get the data dict for the given element.
+
+    Args:
+        element: The element for which the data should be returned.
+
+    Returns:
+        A dict with the data for the given element (including material entry).
+    """
+
+    element_data = get_four_c_element_type_data(type(element))
+
+    if element.material is None:
+        if element_data["type"] == "RIGIDSPHERE":
+            # Rigid spheres do not require a material
+            pass
+        else:
+            raise ValueError("Element has no material assigned, this is not supported.")
+    else:
+        element_data["MAT"] = element.material
+
+    return element_data
+
+
+def get_four_c_element_cell(element_type: str, connectivity: list) -> dict[str, _Any]:
+    """Get the data information for a given element type and connectivity.
+
+    Args:
+        element_type: The type of the element.
+        connectivity: The connectivity list for the element.
+
+    Returns:
+        A dict with the cell information for the given element.
+    """
+    return {
+        "type": _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_string"][
+            element_type, len(connectivity)
+        ],
+        "connectivity": connectivity,
+    }
 
 
 def dump_node(node):
@@ -63,27 +125,12 @@ def dump_node(node):
 def dump_solid_element(solid_element):
     """Return a dict with the items representing the given solid element."""
 
-    if "MAT" in solid_element.data:
-        raise ValueError(
-            f"Element {solid_element.i_global} has a MAT entry in its data, this "
-            "is not supported, the materials have to be assigned via the material "
-            "attribute of the element."
-        )
-
+    element_data = get_four_c_element_data(solid_element)
+    cell_info = get_four_c_element_cell("solid", solid_element.nodes)
     return {
         "id": solid_element.i_global + 1,
-        "cell": {
-            "type": _INPUT_FILE_MAPPINGS["element_type_to_four_c_string"][
-                type(solid_element)
-            ],
-            "connectivity": solid_element.nodes,
-        },
-        "data": solid_element.data
-        | (
-            {"MAT": solid_element.material}
-            if solid_element.material is not None
-            else {}
-        ),
+        "cell": cell_info,
+        "data": element_data,
     }
 
 
@@ -216,25 +263,16 @@ def dump_nurbs_patch_elements(nurbs_patch: _NURBSPatch) -> list[dict[str, _Any]]
     patch_elements = []
     j = 0
 
+    element_data = get_four_c_element_data(nurbs_patch)
     for knot_span in nurbs_patch.get_knot_span_iterator():
         element_cps_ids = nurbs_patch.get_ids_ctrlpts(*knot_span)
         connectivity = [nurbs_patch.nodes[i] for i in element_cps_ids]
-        num_cp = len(connectivity)
-
+        cell_info = get_four_c_element_cell("nurbs", connectivity)
         patch_elements.append(
             {
                 "id": nurbs_patch.i_global + j + 1,
-                "cell": {
-                    "type": f"NURBS{num_cp}",
-                    "connectivity": connectivity,
-                },
-                "data": {
-                    "type": _INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"][
-                        type(nurbs_patch)
-                    ],
-                    "MAT": nurbs_patch.material,
-                    **(nurbs_patch.data if nurbs_patch.data else {}),
-                },
+                "cell": cell_info,
+                "data": element_data,
             }
         )
         j += 1
@@ -250,7 +288,7 @@ def dump_item_to_list(dumped_list, item) -> None:
         dumped_list.append(dump_node(item))
     elif isinstance(item, _VolumeElement):
         dumped_list.append(dump_solid_element(item))
-    elif isinstance(item, _GeometrySet) or isinstance(item, _GeometrySetNodes):
+    elif isinstance(item, _GeometrySetBase):
         dumped_list.extend(dump_geometry_set(item))
     elif isinstance(item, _NURBSPatch):
         dumped_list.extend(dump_nurbs_patch_elements(item))
