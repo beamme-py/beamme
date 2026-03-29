@@ -150,6 +150,15 @@ INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"] = {
     4: "LINE4",
     5: "LINE5",
 }
+INPUT_FILE_MAPPINGS["n_nodes_to_cell_type_solid"] = {
+    8: "HEX8",
+    20: "HEX20",
+    27: "HEX27",
+    4: "TET4",
+    10: "TET10",
+    6: "WEDGE6",
+    1: "POINT1",
+}
 INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"] = {
     2: [0, 1],
     3: [0, 2, 1],

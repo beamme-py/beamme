@@ -23,6 +23,8 @@
 
 from typing import Any as _Any
 
+import numpy as _np
+
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
@@ -58,6 +60,77 @@ def dump_node(node):
         }
     else:
         raise TypeError(f"Got unexpected item of type {type(node)}")
+
+
+def dump_nodes(grid, start_index_nodes):
+    """Return the representation of a node in the 4C input file."""
+
+    coordinates = grid.points
+    dumped = []
+    for i, coordinate in enumerate(coordinates):
+        dumped.append(
+            {
+                "id": i + start_index_nodes + 1,
+                "COORD": coordinate.tolist(),
+                "data": {"type": "NODE"},
+            }
+        )
+    return dumped
+
+
+def dump_elements(
+    mesh,
+    grid,
+    cell_block_id_to_element_type_and_material,
+    start_index_elements,
+    start_index_nodes,
+):
+    """Return the representation of a node in the 4C input file."""
+
+    dumped = []
+
+    for cell_id in range(grid.n_cells):
+        cell = grid.get_cell(cell_id)
+        cell_block_id = grid.cell_data["cell_block_id"][cell_id]
+        element_type, material_id = cell_block_id_to_element_type_and_material[
+            cell_block_id
+        ]
+        connectivity = [id + start_index_nodes + 1 for id in cell.point_ids]
+
+        if issubclass(element_type, _VolumeElement):
+            four_c_type = _INPUT_FILE_MAPPINGS["n_nodes_to_cell_type_solid"][
+                len(connectivity)
+            ]
+            data = {"type": "SOLID", "KINEM": "nonlinear"}
+
+        else:
+            four_c_type = _INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"][
+                len(connectivity)
+            ]
+            node_ordering = _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][
+                len(connectivity)
+            ]
+            connectivity = [connectivity[i] for i in node_ordering]
+            data = element_type.four_c_element_data | {
+                "TRIADS": [
+                    item
+                    for i in node_ordering
+                    for item in grid.point_data["rotation_vector"][cell.point_ids[i]]
+                ]
+            }
+
+        dumped.append(
+            {
+                "id": cell_id + start_index_elements + 1,
+                "cell": {
+                    "type": four_c_type,
+                    "connectivity": connectivity,
+                },
+                "data": data | {"MAT": material_id + 1},
+            }
+        )
+
+    return dumped
 
 
 def dump_solid_element(solid_element):
@@ -148,6 +221,54 @@ def dump_geometry_set(geometry_set):
         }
         for node in nodes
     ]
+
+
+def dump_geometry_sets(
+    geometry_sets, grid, geometry_type, start_index_geometry_set, start_index_nodes
+):
+    """Return a list with the data describing this set."""
+
+    geometry_sets = {}
+    for key in grid.point_data.keys():
+        if key.startswith(f"geometry_set_{geometry_type.name}"):
+            split = key.split("_")
+            set_id = int(split[-1])
+            node_ids = _np.nonzero(grid.point_data[key])[0]
+            geometry_sets[set_id] = node_ids
+
+    for key in grid.cell_data.keys():
+        if key.startswith(f"geometry_set_{geometry_type.name}"):
+            split = key.split("_")
+            set_id = int(split[-1])
+            cell_ids = _np.nonzero(grid.cell_data[key])[0]
+            node_ids = set()
+            for cell_id in cell_ids:
+                cell = grid.get_cell(cell_id)
+                node_ids.update(cell.point_ids)
+            geometry_sets[set_id] = _np.array(list(node_ids))
+
+    keys_sorted = list(geometry_sets.keys())
+    keys_sorted.sort()
+    data = []
+    for geometry_set_id in keys_sorted:
+        node_ids = geometry_sets[geometry_set_id]
+        node_ids.sort()
+        geometry_sets[geometry_set_id] = node_ids + start_index_nodes
+        data.extend(
+            [
+                {
+                    "type": "NODE",
+                    "node_id": node_id + start_index_nodes + 1,
+                    "d_type": _INPUT_FILE_MAPPINGS[
+                        "geometry_sets_geometry_to_entry_name"
+                    ][geometry_type],
+                    "d_id": geometry_set_id + start_index_geometry_set + 1,
+                }
+                for node_id in node_ids
+            ]
+        )
+
+    return data
 
 
 def dump_nurbs_patch_knotvectors(input_file, nurbs_patch) -> None:
