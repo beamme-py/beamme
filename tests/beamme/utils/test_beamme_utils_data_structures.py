@@ -19,14 +19,25 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file implements volume elements for 4C."""
+"""This script is used to unit test the data structure utility functions."""
 
-from beamme.core.element_volume import VolumeElement as _VolumeElement
+import pytest
+
+from beamme.utils.data_structures import create_inverse_mapping
 
 
-class SolidRigidSphere(_VolumeElement):
-    """A rigid sphere solid element."""
+def test_beamme_utils_data_structures_create_inverse_mapping():
+    """Test the create_inverse_mapping function."""
 
-    def __init__(self, **kwargs):
-        """Initialize solid sphere object."""
-        _VolumeElement.__init__(self, **kwargs)
+    # Test with a simple mapping.
+    mapping = {1: "a", 2: "b", 3: "c"}
+    inverse_mapping = create_inverse_mapping(mapping)
+    assert inverse_mapping == {"a": 1, "b": 2, "c": 3}
+
+    # Test with a mapping that has duplicate values.
+    mapping = {1: "a", 2: "b", 3: "a"}
+    with pytest.raises(
+        ValueError,
+        match="The mapping is not invertible, values are not unique. Non-unique values: {'a'}",
+    ):
+        create_inverse_mapping(mapping)

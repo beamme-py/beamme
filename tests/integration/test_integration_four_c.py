@@ -36,6 +36,7 @@ from beamme.four_c.element_beam import (
     Beam3rHerm2Line3,
     get_four_c_reissner_beam,
 )
+from beamme.four_c.element_solid import get_four_c_solid
 from beamme.four_c.header_functions import (
     add_result_description,
     set_beam_to_solid_meshtying,
@@ -223,8 +224,13 @@ def test_integration_four_c_nurbs_import(
     volume_set = GeometrySetNodes(geometry_type=bme.geo.volume)
     fix_set = GeometrySetNodes(geometry_type=bme.geo.surface)
     for i in range(3):
+        element_type = get_four_c_solid(
+            solid_type_string="nurbs_3d",
+            n_nodes=27,
+            element_technology=element_description,
+        )
         patch_set = add_splinepy_nurbs_to_mesh(
-            mesh, extruded, material=mat, data=element_description
+            mesh, element_type, extruded, material=mat
         )
         volume_set = volume_set + patch_set["vol"]
         fix_set = fix_set + patch_set["surf_w_min"]

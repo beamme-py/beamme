@@ -25,34 +25,54 @@ files."""
 from typing import Any as _Any
 
 from beamme.core.conf import bme as _bme
-from beamme.core.element_volume import (
-    VolumeHEX8 as _VolumeHEX8,
-)
-from beamme.core.element_volume import (
-    VolumeHEX20 as _VolumeHEX20,
-)
-from beamme.core.element_volume import (
-    VolumeHEX27 as _VolumeHEX27,
-)
-from beamme.core.element_volume import (
-    VolumeTET4 as _VolumeTET4,
-)
-from beamme.core.element_volume import (
-    VolumeTET10 as _VolumeTET10,
-)
-from beamme.core.element_volume import (
-    VolumeWEDGE6 as _VolumeWEDGE6,
-)
-from beamme.core.nurbs_patch import NURBSSurface as _NURBSSurface
-from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
-from beamme.four_c.element_volume import SolidRigidSphere as _SolidRigidSphere
 from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.utils.data_structures import (
+    create_inverse_mapping as _create_inverse_mapping,
+)
 
 INPUT_FILE_MAPPINGS: dict[str, _Any] = {}
-INPUT_FILE_MAPPINGS["beam_types"] = {
+INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"] = {
     _BeamType.reissner: "BEAM3R",
     _BeamType.kirchhoff: "BEAM3K",
     _BeamType.euler_bernoulli: "BEAM3EB",
+}
+INPUT_FILE_MAPPINGS["solid_type_to_four_c_type"] = {
+    "nurbs_2d": "WALLNURBS",
+    "nurbs_3d": "SOLID",
+    "nurbs_shell": "SHELL_KIRCHHOFF_LOVE_NURBS",
+    "solid": "SOLID",
+    "rigid_sphere": "RIGIDSPHERE",
+}
+INPUT_FILE_MAPPINGS["four_c_type_to_solid_type"] = {
+    "SOLID": "solid",
+    "RIGIDSPHERE": "rigid_sphere",
+}
+INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"] = {
+    (_bme.element_type.beam, 2): "LINE2",
+    (_bme.element_type.beam, 3): "LINE3",
+    (_bme.element_type.beam, 4): "LINE4",
+    (_bme.element_type.beam, 5): "LINE5",
+    (_bme.element_type.nurbs, 9): "NURBS9",
+    (_bme.element_type.nurbs, 27): "NURBS27",
+    (_bme.element_type.solid, 8): "HEX8",
+    (_bme.element_type.solid, 20): "HEX20",
+    (_bme.element_type.solid, 27): "HEX27",
+    (_bme.element_type.solid, 4): "TET4",
+    (_bme.element_type.solid, 10): "TET10",
+    (_bme.element_type.solid, 6): "WEDGE6",
+    (_bme.element_type.solid, 1): "POINT1",
+}
+INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {
+    _bme.geo.point: "DNODE",
+    _bme.geo.line: "DLINE",
+    _bme.geo.surface: "DSURFACE",
+    _bme.geo.volume: "DVOL",
+}
+INPUT_FILE_MAPPINGS["beam_n_nodes_to_four_c_ordering"] = {
+    2: [0, 1],
+    3: [0, 2, 1],
+    4: [0, 3, 1, 2],
+    5: [0, 4, 1, 2, 3],
 }
 INPUT_FILE_MAPPINGS["boundary_conditions"] = {
     (_bme.bc.dirichlet, _bme.geo.point): "DESIGN POINT DIRICH CONDITIONS",
@@ -113,50 +133,14 @@ INPUT_FILE_MAPPINGS["boundary_conditions"] = {
         _bme.geo.surface,
     ): "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",
 }
-INPUT_FILE_MAPPINGS["element_type_to_four_c_string"] = {
-    _VolumeHEX8: "HEX8",
-    _VolumeHEX20: "HEX20",
-    _VolumeHEX27: "HEX27",
-    _VolumeTET4: "TET4",
-    _VolumeTET10: "TET10",
-    _VolumeWEDGE6: "WEDGE6",
-    _SolidRigidSphere: "POINT1",
-}
-INPUT_FILE_MAPPINGS["element_four_c_string_to_type"] = {
-    value: key
-    for key, value in INPUT_FILE_MAPPINGS["element_type_to_four_c_string"].items()
-}
 INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"] = {
     _bme.geo.point: "DNODE-NODE TOPOLOGY",
     _bme.geo.line: "DLINE-NODE TOPOLOGY",
     _bme.geo.surface: "DSURF-NODE TOPOLOGY",
     _bme.geo.volume: "DVOL-NODE TOPOLOGY",
 }
-INPUT_FILE_MAPPINGS["geometry_sets_condition_to_geometry_name"] = {
-    value: key
-    for key, value in INPUT_FILE_MAPPINGS[
-        "geometry_sets_geometry_to_condition_name"
-    ].items()
-}
-INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {
-    _bme.geo.point: "DNODE",
-    _bme.geo.line: "DLINE",
-    _bme.geo.surface: "DSURFACE",
-    _bme.geo.volume: "DVOL",
-}
-INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"] = {
-    2: "LINE2",
-    3: "LINE3",
-    4: "LINE4",
-    5: "LINE5",
-}
-INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"] = {
-    2: [0, 1],
-    3: [0, 2, 1],
-    4: [0, 3, 1, 2],
-    5: [0, 4, 1, 2, 3],
-}
-INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"] = {
-    _NURBSSurface: "WALLNURBS",
-    _NURBSVolume: "SOLID",
-}
+INPUT_FILE_MAPPINGS["geometry_sets_condition_to_geometry_name"] = (
+    _create_inverse_mapping(
+        INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"]
+    )
+)

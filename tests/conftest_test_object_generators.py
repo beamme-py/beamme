@@ -28,8 +28,10 @@ import numpy as np
 import pytest
 import splinepy
 
+from beamme.core.element import Element
 from beamme.core.material import MaterialBeamBase
 from beamme.cosserat_curve.cosserat_curve import CosseratCurve
+from beamme.four_c.element_solid import get_four_c_solid
 from beamme.four_c.material import (
     MaterialReissner,
     MaterialSolid,
@@ -167,45 +169,53 @@ def get_default_test_solid_material() -> Callable:
 
 
 @pytest.fixture(scope="function")
-def get_default_test_solid_element_description() -> Callable:
-    """Return a function to create a default solid element description for
-    testing purposes.
+def get_default_test_solid_element() -> Callable:
+    """Return a function to create a default solid element type for testing
+    purposes.
 
     Returns:
-        A function that creates a default solid element description.
+        A function that creates a default solid element type.
     """
 
-    def _get_default_test_solid_element_description(
-        element_type: str = "2d_solid",
-    ):
-        """Return a default solid element description for testing purposes.
+    def _get_default_test_solid_element(element_type: str) -> type[Element]:
+        """Return a default solid element type for testing purposes.
 
         Args:
             element_type: The type of solid element to return.
 
         Returns:
-            A dictionary containing the solid element description parameters.
+            A type defining a solid element for testing purposes.
         """
 
-        if element_type == "2d_solid":
-            return {
-                "KINEM": "nonlinear",
-                "EAS": "none",
-                "THICK": 1.0,
-                "STRESS_STRAIN": "plane_strain",
-                "GP": [3, 3],
-            }
+        if element_type == "nurbs_2d":
+            return get_four_c_solid(
+                element_type,
+                n_nodes=9,
+                element_technology={
+                    "KINEM": "nonlinear",
+                    "EAS": "none",
+                    "THICK": 1.0,
+                    "STRESS_STRAIN": "plane_strain",
+                    "GP": [3, 3],
+                },
+            )
 
-        elif element_type == "2d_shell":
-            return {"type": "SHELL_KIRCHHOFF_LOVE_NURBS", "GP": [3, 3]}
+        elif element_type == "nurbs_3d":
+            return get_four_c_solid(
+                element_type, n_nodes=27, element_technology={"KINEM": "nonlinear"}
+            )
 
-        elif element_type == "3d_solid":
-            return {"KINEM": "nonlinear"}
+        elif element_type == "nurbs_shell":
+            return get_four_c_solid(
+                element_type,
+                n_nodes=9,
+                element_technology={"GP": [3, 3]},
+            )
 
         else:
             raise ValueError(f"Unknown solid element type: {element_type}")
 
-    return _get_default_test_solid_element_description
+    return _get_default_test_solid_element
 
 
 @pytest.fixture(scope="function")
