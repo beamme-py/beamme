@@ -5,8 +5,8 @@ inputs:
     description: Additional flags to pass to pytest, i.e., markers
     required: false
     default: ""
-  cubit-root:
-    description: Path to the cubit installation
+  cubitpy_config_file:
+    description: Path to the cubitpy config file
     required: false
     default: ""
 runs:
@@ -18,7 +18,7 @@ runs:
         BEAMME_FOUR_C_EXE: /home/user/4C/bin/4C
         OMPI_MCA_rmaps_base_oversubscribe: 1
       run: |
-        export CUBIT_ROOT=${{ inputs.cubit-root }}
+        export CUBITPY_CONFIG_PATH=${{ inputs.cubitpy_config_file }}
         cd ${GITHUB_WORKSPACE}
         TEMP_DIR="${RUNNER_TEMP}/beamme_pytest"
         mkdir -p "$TEMP_DIR"
