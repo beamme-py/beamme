@@ -41,16 +41,15 @@ from beamme.core.function import Function as _Function
 from beamme.core.material import Material as _Material
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.node import Node as _Node
-from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
+from beamme.four_c.input_file_dump_item import dump_elements as _dump_elements
+from beamme.four_c.input_file_dump_item import dump_geometry_sets as _dump_geometry_sets
 from beamme.four_c.input_file_dump_item import dump_item_to_list as _dump_item_to_list
 from beamme.four_c.input_file_dump_item import (
     dump_item_to_section as _dump_item_to_section,
 )
+from beamme.four_c.input_file_dump_item import dump_nodes as _dump_nodes
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
-)
-from beamme.four_c.material import (
-    get_all_contained_materials as _get_all_contained_materials,
 )
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 from beamme.utils.environment import get_application_path as _get_application_path
@@ -296,51 +295,10 @@ class InputFile:
             default=0,
         )  # materials imported from YAML may have arbitrary numbering
 
-        # Add sets from couplings and boundary conditions to a temp container
-        mesh.unlink_nodes()
-        mesh_sets = mesh.get_unique_geometry_sets(
-            geometry_set_start_indices=start_indices_geometry_set
+        # Get the BeamMe mesh representation of the mesh
+        grid, mesh_sets, all_materials, cell_block_id_to_element_type_and_material = (
+            mesh.get_mesh_representation()
         )
-
-        # Assign global indices
-        #   Nodes
-        if len(mesh.nodes) != len(set(mesh.nodes)):
-            raise ValueError("Nodes are not unique!")
-        for i, node in enumerate(mesh.nodes, start=start_index_nodes):
-            node.i_global = i
-
-        #   Elements
-        if len(mesh.elements) != len(set(mesh.elements)):
-            raise ValueError("Elements are not unique!")
-        i = start_index_elements
-        nurbs_count = 0
-
-        for element in mesh.elements:
-            element.i_global = i
-            if isinstance(element, _NURBSPatch):
-                element.i_nurbs_patch = nurbs_count
-                i += element.get_number_of_elements()
-                nurbs_count += 1
-                continue
-            i += 1
-
-        #   Materials: Get a list of all materials in the mesh,
-        #   including nested sub-materials.
-        all_materials = [
-            material
-            for mesh_material in mesh.materials
-            for material in _get_all_contained_materials(mesh_material)
-        ]
-        if len(all_materials) != len(set(all_materials)):
-            raise ValueError("Materials are not unique!")
-        for i, material in enumerate(all_materials, start=start_index_materials):
-            material.i_global = i
-
-        #   Functions
-        if len(mesh.functions) != len(set(mesh.functions)):
-            raise ValueError("Functions are not unique!")
-        for i, function in enumerate(mesh.functions, start=start_index_functions):
-            function.i_global = i
 
         # Dump mesh to input file
         def _dump(section_name: str, items: _List) -> None:
@@ -398,19 +356,45 @@ class InputFile:
         for element in mesh.elements:
             _dump_item_to_section(self, element)
 
+        def dump_no_type_converter(
+            section_name,
+            items,
+        ):
+            """TODO."""
+            if section_name not in self.fourc_input.sections:
+                self.add({section_name: []})
+            self.fourc_input.sections[section_name].extend(items)
+
         #   Geometry sets
-        for geometry_key, items in mesh_sets.items():
-            _dump(
-                _INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"][
-                    geometry_key
-                ],
-                items,
+        for geometry_key, geometry_sets in mesh_sets.items():
+            dumped_geometry_sets = _dump_geometry_sets(
+                geometry_sets,
+                grid,
+                geometry_key,
+                start_indices_geometry_set[geometry_key],
+                start_index_nodes,
             )
+            if len(dumped_geometry_sets) > 0:
+                dump_no_type_converter(
+                    _INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"][
+                        geometry_key
+                    ],
+                    dumped_geometry_sets,
+                )
 
         #   Nodes
-        _dump("NODE COORDS", mesh.nodes)
+        dump_no_type_converter("NODE COORDS", _dump_nodes(grid, start_index_nodes))
         #   Elements
-        _dump("STRUCTURE ELEMENTS", mesh.elements)
+        dump_no_type_converter(
+            "STRUCTURE ELEMENTS",
+            _dump_elements(
+                mesh,
+                grid,
+                cell_block_id_to_element_type_and_material,
+                start_index_elements,
+                start_index_nodes,
+            ),
+        )
 
         # TODO: reset all links and counters set in this method.
 

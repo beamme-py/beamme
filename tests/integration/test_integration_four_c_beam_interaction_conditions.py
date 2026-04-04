@@ -139,6 +139,9 @@ def test_integration_four_c_beam_interaction_conditions_beam_to_solid(
 
     assert_results_close(get_corresponding_reference_file_path(), mesh)
 
+    a, _, _, _ = mesh.get_mesh_representation()
+    a.save("mesh.vtu")
+
     # If we try to add this the IDs won't match, because the next volume ID for
     # beam-to-surface coupling should be 0 (this one does not make sense, but
     # this is checked in a later test) and the next line ID for beam-to-surface
