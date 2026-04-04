@@ -22,11 +22,13 @@
 """This file implements beam elements for 4C."""
 
 import warnings as _warnings
+from typing import Any as _Any
 
 import numpy as _np
 
 from beamme.core.conf import bme as _bme
 from beamme.core.element_beam import Beam as _Beam
+from beamme.core.element_beam import Beam2 as _Beam2
 from beamme.core.element_beam import generate_beam_class as _generate_beam_class
 from beamme.four_c.four_c_types import (
     BeamKirchhoffConstraintType as _BeamKirchhoffConstraintType,
@@ -35,6 +37,9 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.four_c.input_file_dump_item import (
+    get_four_c_legacy_dict as _get_four_c_legacy_dict,
+)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -56,38 +61,35 @@ def dump_four_c_beam_to_list(self) -> dict:
     # Check the material.
     self._check_material()
 
-    # Gather the element data for the input file.
-    element_data = type(self).four_c_element_data | self.data
-    element_data["MAT"] = self.material
-    if type(self).four_c_triads:
-        element_data["TRIADS"] = [
+    # Get the legacy dictionary for FourCIPP.
+    node_ordering = _INPUT_FILE_MAPPINGS["beam_n_nodes_to_four_c_ordering"][
+        len(self.nodes)
+    ]
+    legacy_dict = _get_four_c_legacy_dict(self, node_ordering=node_ordering)
+    dump_triads = {
+        _BeamType.reissner: True,
+        _BeamType.kirchhoff: True,
+        _BeamType.euler_bernoulli: False,
+    }
+    if dump_triads[type(self).beam_type]:
+        legacy_dict["data"]["TRIADS"] = [
             item
-            for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][len(self.nodes)]
+            for i in node_ordering
             for item in self.nodes[i].rotation.get_rotation_vector()
         ]
 
-    return {
-        "id": self.i_global + 1,
-        "cell": {
-            "type": _INPUT_FILE_MAPPINGS["n_nodes_to_cell_type"][len(self.nodes)],
-            "connectivity": [
-                self.nodes[i]
-                for i in _INPUT_FILE_MAPPINGS["n_nodes_to_node_ordering"][
-                    len(self.nodes)
-                ]
-            ],
-        },
-        "data": element_data,
-    }
+    return legacy_dict
 
 
 def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[_Beam]:
     """Return a Simo-Reissner beam for 4C."""
 
-    four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.reissner],
-        "HERMITE_CENTERLINE": is_hermite_centerline,
-    }
+    four_c_type = _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.reissner]
+    four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
+        _bme.element_type.beam, n_nodes
+    ]
+    element_technology = {"HERMITE_CENTERLINE": is_hermite_centerline}
+
     if is_hermite_centerline:
         coupling_fix_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 1, 1, 1, 0, 0, 0]}
         coupling_joint_dict = {"NUMDOF": 9, "ONOFF": [1, 1, 1, 0, 0, 0, 0, 0, 0]}
@@ -99,9 +101,9 @@ def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[
         "BeamFourCSimoReissner",
         (_generate_beam_class(n_nodes),),
         {
-            "four_c_beam_type": _BeamType.reissner,
-            "four_c_triads": True,
-            "four_c_element_data": four_c_element_data,
+            "element_type": _bme.element_type.beam,
+            "beam_type": _BeamType.reissner,
+            "data": {four_c_type: {four_c_cell: element_technology}},
             "valid_materials": [_MaterialReissner, _MaterialReissnerElastoplastic],
             "coupling_fix_dict": coupling_fix_dict,
             "coupling_joint_dict": coupling_joint_dict,
@@ -117,14 +119,6 @@ def get_four_c_kirchhoff_beam(
 ) -> type[_Beam]:
     """Return a Kirchhoff-Love beam for 4C."""
 
-    # Set the parameters for this beam.
-    four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.kirchhoff],
-        "CONSTRAINT": constraint.name,
-        "PARAMETRIZATION": parametrization.name,
-        "USE_FAD": is_fad,
-    }
-
     # Show warning when not using rotvec.
     if not parametrization == _BeamKirchhoffParametrizationType.rot:
         _warnings.warn(
@@ -132,16 +126,29 @@ def get_four_c_kirchhoff_beam(
             " applying the boundary conditions and couplings."
         )
 
+    n_nodes = 3
+    four_c_type = _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.kirchhoff]
+    four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
+        _bme.element_type.beam, n_nodes
+    ]
+
+    element_technology = {
+        "CONSTRAINT": constraint.name,
+        "PARAMETRIZATION": parametrization.name,
+        "USE_FAD": is_fad,
+    }
+
     coupling_fix_dict = {"NUMDOF": 7, "ONOFF": [1, 1, 1, 1, 1, 1, 0]}
     coupling_joint_dict = {"NUMDOF": 7, "ONOFF": [1, 1, 1, 0, 0, 0, 0]}
 
     return type(
         "BeamFourCKirchhoffLove",
-        (_generate_beam_class(3),),
+        (_generate_beam_class(n_nodes),),
         {
-            "four_c_beam_type": _BeamType.kirchhoff,
-            "four_c_triads": True,
-            "four_c_element_data": four_c_element_data,
+            "element_type": _bme.element_type.beam,
+            "beam_type": _BeamType.kirchhoff,
+            "kirchhoff_parametrization": parametrization,
+            "data": {four_c_type: {four_c_cell: element_technology}},
             "valid_materials": [_MaterialKirchhoff],
             "coupling_fix_dict": coupling_fix_dict,
             "coupling_joint_dict": coupling_joint_dict,
@@ -150,13 +157,17 @@ def get_four_c_kirchhoff_beam(
     )
 
 
-class BeamFourCEulerBernoulli(_generate_beam_class(2)):  # type: ignore[misc]
+class BeamFourCEulerBernoulli(_Beam2):
     """Represents a Euler Bernoulli beam element."""
 
-    four_c_beam_type = _BeamType.euler_bernoulli
-    four_c_triads = False
-    four_c_element_data = {
-        "type": _INPUT_FILE_MAPPINGS["beam_types"][_BeamType.euler_bernoulli]
+    element_type = _bme.element_type.beam
+    beam_type = _BeamType.euler_bernoulli
+    data: dict[str, dict[str, _Any]] = {
+        _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.euler_bernoulli]: {
+            _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
+                _bme.element_type.beam, len(_Beam2.nodes_create)
+            ]: {}
+        }
     }
 
     valid_materials = [_MaterialEulerBernoulli]
@@ -171,8 +182,8 @@ class BeamFourCEulerBernoulli(_generate_beam_class(2)):  # type: ignore[misc]
         # the start point to the end point.
         if not self.nodes[0].rotation == self.nodes[1].rotation:
             raise ValueError(
-                "The two nodal rotations in Euler Bernoulli beams must be the same, i.e. the beam "
-                "has to be straight!"
+                "The two nodal rotations in Euler Bernoulli beams must be the same,"
+                "i.e., the beam has to be straight!"
             )
         direction = self.nodes[1].coordinates - self.nodes[0].coordinates
         t1 = self.nodes[0].rotation * [1, 0, 0]

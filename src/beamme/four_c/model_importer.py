@@ -34,11 +34,15 @@ from beamme.core.coupling import Coupling as _Coupling
 from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.node import Node as _Node
+from beamme.four_c.element_solid import get_four_c_solid as _get_four_c_solid
 from beamme.four_c.input_file import InputFile as _InputFile
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
 from beamme.four_c.material import MaterialSolid as _MaterialSolid
+from beamme.utils.data_structures import (
+    compare_nested_dicts_or_lists as _compare_nested_dicts_or_lists,
+)
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 
 if _cubitpy_is_available():
@@ -159,21 +163,35 @@ def _extract_mesh_sections(input_file: _InputFile) -> _Tuple[_InputFile, _Mesh]:
     mesh.nodes = [_Node(node["COORD"]) for node in _pop_section("NODE COORDS")]
 
     # extract elements
+    element_types: dict[type, dict] = {}
     for input_element in _pop_section("STRUCTURE ELEMENTS"):
-        if (
-            input_element["cell"]["type"]
-            not in _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"]
-        ):
-            raise TypeError(
-                f"Could not create a BeamMe element for `{input_element['data']['type']}` `{input_element['cell']['type']}`!"
+        # At this point `input_element` contains the full element data. We can not
+        # compare this directly with the other block data dictionaries, we first
+        # need to extract connectivity, cell ID and material information from
+        # `input_element`.
+        input_element.pop("id")
+        connectivity = input_element["cell"].pop("connectivity")
+        four_c_type = input_element["data"].pop("type")
+        material_id = input_element["data"].pop("MAT", None)
+
+        # Loop over already found block element types and check if the current
+        # element matches one of those. If not, create a new block element type
+        # for this element.
+        for element_type, type_data in element_types.items():
+            if _compare_nested_dicts_or_lists(type_data, input_element):
+                break
+        else:
+            element_type = _get_four_c_solid(
+                _INPUT_FILE_MAPPINGS["four_c_type_to_solid_type"][four_c_type],
+                n_nodes=len(connectivity),
+                element_technology=input_element["data"],
             )
-        nodes = [mesh.nodes[i - 1] for i in input_element["cell"]["connectivity"]]
-        element_class = _INPUT_FILE_MAPPINGS["element_four_c_string_to_type"][
-            input_element["cell"]["type"]
-        ]
-        element = element_class(nodes=nodes, data=input_element["data"])
-        if "MAT" in element.data:
-            element.material = material_id_map[element.data.pop("MAT")]
+            element_types[element_type] = input_element
+
+        nodes = [mesh.nodes[i - 1] for i in connectivity]
+        element = element_type(nodes=nodes)
+        if material_id is not None:
+            element.material = material_id_map[material_id]
         mesh.elements.append(element)
 
     # extract geometry sets

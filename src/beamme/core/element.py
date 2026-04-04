@@ -21,14 +21,13 @@
 # THE SOFTWARE.
 """This module implements the class that represents one element in the Mesh."""
 
-from beamme.core.base_mesh_item import BaseMeshItem as _BaseMeshItem
 
-
-class Element(_BaseMeshItem):
+class Element:
     """A base class for an FEM element in the mesh."""
 
-    def __init__(self, nodes=None, material=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, nodes=None, material=None):
+        # Global index of this item in a mesh.
+        self.i_global: None | int = None
 
         # List of nodes that are connected to the element.
         if nodes is None:

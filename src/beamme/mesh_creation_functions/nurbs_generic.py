@@ -22,7 +22,6 @@
 """Generic function used to create NURBS meshes."""
 
 import itertools as _itertools
-from typing import Type as _Type
 
 import numpy as _np
 
@@ -35,20 +34,38 @@ from beamme.core.nurbs_patch import NURBSSurface as _NURBSSurface
 from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
 
 
+def _check_nurbs_dimension_and_element_type(
+    nurbs_dimension: int, element_type: type
+) -> None:
+    """Check if the element type is compatible with the NURBS dimension.
+
+    Args:
+        nurbs_dimension: The dimension of the NURBS patch (2 for surface, 3 for volume).
+        element_type: The type of element to be created.
+
+    Raises:
+        ValueError: If the element type is not compatible with the NURBS dimension.
+    """
+    if nurbs_dimension == 2 and not issubclass(element_type, _NURBSSurface):
+        raise ValueError(
+            "Error, expected element type to be a NURBSSurface for a NURBS surface!"
+        )
+    elif nurbs_dimension == 3 and not issubclass(element_type, _NURBSVolume):
+        raise ValueError(
+            "Error, expected element type to be a NURBSVolume for a NURBS volume!"
+        )
+
+
 def add_splinepy_nurbs_to_mesh(
-    mesh: _Mesh,
-    splinepy_obj,
-    *,
-    material=None,
-    data: dict | None = None,
+    mesh: _Mesh, element_type: type, splinepy_obj, *, material=None
 ) -> _GeometryName:
     """Add a splinepy NURBS to the mesh.
 
     Args:
         mesh: Mesh that the created NURBS geometry will be added to.
+        element_type: The type of element to be created.
         splinepy_obj (splinepy object): NURBS geometry created using splinepy.
         material (Material): Material for this geometry.
-        data: General element data, e.g., material, formulation, ...
 
     Returns:
         GeometryName:
@@ -85,24 +102,16 @@ def add_splinepy_nurbs_to_mesh(
         )
     ]
 
-    # Fill element
-    manifold_dim = len(splinepy_obj.knot_vectors)
-    nurbs_object: _Type[_NURBSSurface] | _Type[_NURBSVolume]
-    if manifold_dim == 2:
-        nurbs_object = _NURBSSurface
-    elif manifold_dim == 3:
-        nurbs_object = _NURBSVolume
-    else:
-        raise NotImplementedError(
-            "Error, not implemented for a NURBS {}!".format(type(splinepy_obj))
-        )
+    # Create elements
+    _check_nurbs_dimension_and_element_type(
+        len(splinepy_obj.knot_vectors), element_type
+    )
 
-    element = nurbs_object(
+    element = element_type(
         [_np.asarray(knot_vector) for knot_vector in splinepy_obj.knot_vectors],
         _np.asarray(splinepy_obj.degrees),
         nodes=control_points,
         material=material,
-        data=data,
     )
 
     # Add element and control points to the mesh
@@ -116,19 +125,15 @@ def add_splinepy_nurbs_to_mesh(
 
 
 def add_geomdl_nurbs_to_mesh(
-    mesh: _Mesh,
-    geomdl_obj,
-    *,
-    material=None,
-    data: dict | None = None,
+    mesh: _Mesh, element_type: type, geomdl_obj, *, material=None
 ) -> _GeometryName:
     """Add a geomdl NURBS to the mesh.
 
     Args:
         mesh: Mesh that the created NURBS geometry will be added to.
+        element_type: The type of element to be created.
         geomdl_obj (geomdl object): NURBS geometry created using geomdl.
         material (Material): Material for this geometry.
-        data: General element data, e.g., material, formulation, ...
 
     Returns:
         GeometryName:
@@ -166,24 +171,13 @@ def add_geomdl_nurbs_to_mesh(
             )
         )
 
-    # Fill element
-    manifold_dim = len(geomdl_obj.knotvector)
-    nurbs_object: _Type[_NURBSSurface] | _Type[_NURBSVolume]
-    if manifold_dim == 2:
-        nurbs_object = _NURBSSurface
-    elif manifold_dim == 3:
-        nurbs_object = _NURBSVolume
-    else:
-        raise NotImplementedError(
-            "Error, not implemented for a NURBS {}!".format(type(geomdl_obj))
-        )
-
-    element = nurbs_object(
+    # Create elements
+    _check_nurbs_dimension_and_element_type(len(geomdl_obj.knotvector), element_type)
+    element = element_type(
         geomdl_obj.knotvector,
         geomdl_obj.degree,
         nodes=control_points,
         material=material,
-        data=data,
     )
 
     # Add element and control points to the mesh

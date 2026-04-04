@@ -81,6 +81,14 @@ class CouplingDofType(_Enum):
     joint = _auto()
 
 
+class ElementType(_Enum):
+    """Enum for element types."""
+
+    beam = _auto()
+    nurbs = _auto()
+    solid = _auto()
+
+
 class DoubleNodes(_Enum):
     """Enum for handing double nodes in Neumann conditions."""
 
@@ -93,17 +101,10 @@ class BeamMe(object):
 
     def __init__(self):
         self.set_default_values()
-
-        # Geometry types.
         self.geo = Geometry
-
-        # Boundary conditions types.
         self.bc = BoundaryCondition
-
-        # Coupling types.
         self.coupling_dof = CouplingDofType
-
-        # Handling of multiple nodes in Neumann bcs.
+        self.element_type = ElementType
         self.double_nodes = DoubleNodes
 
     def set_default_values(self):

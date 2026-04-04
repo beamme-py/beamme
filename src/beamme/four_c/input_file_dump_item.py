@@ -26,9 +26,9 @@ from typing import Any as _Any
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
+from beamme.core.element import Element as _Element
 from beamme.core.element_volume import VolumeElement as _VolumeElement
-from beamme.core.geometry_set import GeometrySet as _GeometrySet
-from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
+from beamme.core.geometry_set import GeometrySetBase as _GeometrySetBase
 from beamme.core.node import ControlPoint as _ControlPoint
 from beamme.core.node import Node as _Node
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
@@ -39,6 +39,51 @@ from beamme.four_c.four_c_types import BeamType as _BeamType
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
+
+
+def get_four_c_legacy_dict(
+    element: _Element, *, node_ordering: list[int] | None = None
+) -> dict[str, _Any]:
+    """Get the 4C legacy data dict for the given element.
+
+    Args:
+        element: The element for which the legacy data dict should be returned.
+        node_ordering: The ordering of nodes for the element in 4C.
+
+    Returns:
+        A dict with the 4C legacy data for the given element (including material entry).
+    """
+
+    element_type_data = getattr(type(element), "data", {})
+    if len(element_type_data) == 1:
+        four_c_type, four_c_cell_dict = next(iter(element_type_data.items()))
+    else:
+        raise ValueError("Expected exactly one entry in type dictionary")
+    if len(four_c_cell_dict) == 1:
+        four_c_cell, four_c_data = next(iter(four_c_cell_dict.items()))
+    else:
+        raise ValueError("Expected exactly one entry in cell dictionary")
+
+    if node_ordering is None:
+        connectivity = element.nodes
+    else:
+        connectivity = [element.nodes[i] for i in node_ordering]
+
+    if element.material is None:
+        material_dict = {}
+    else:
+        material_dict = {"MAT": element.material}
+
+    if element.i_global is not None:
+        four_c_id = element.i_global + 1
+    else:
+        four_c_id = None
+
+    return {
+        "id": four_c_id,
+        "cell": {"type": four_c_cell, "connectivity": connectivity},
+        "data": {"type": four_c_type, **material_dict, **four_c_data},
+    }
 
 
 def dump_node(node):
@@ -62,29 +107,7 @@ def dump_node(node):
 
 def dump_solid_element(solid_element):
     """Return a dict with the items representing the given solid element."""
-
-    if "MAT" in solid_element.data:
-        raise ValueError(
-            f"Element {solid_element.i_global} has a MAT entry in its data, this "
-            "is not supported, the materials have to be assigned via the material "
-            "attribute of the element."
-        )
-
-    return {
-        "id": solid_element.i_global + 1,
-        "cell": {
-            "type": _INPUT_FILE_MAPPINGS["element_type_to_four_c_string"][
-                type(solid_element)
-            ],
-            "connectivity": solid_element.nodes,
-        },
-        "data": solid_element.data
-        | (
-            {"MAT": solid_element.material}
-            if solid_element.material is not None
-            else {}
-        ),
-    }
+    return get_four_c_legacy_dict(solid_element)
 
 
 def dump_coupling(coupling):
@@ -106,11 +129,9 @@ def dump_coupling(coupling):
                 f"Expected a single connected type of beam elements, got {element_types}"
             )
         element_type = element_types.pop()
-        if element_type.four_c_beam_type is _BeamType.kirchhoff:
+        if element_type.beam_type is _BeamType.kirchhoff:
             unique_parametrization_flags = {
-                _BeamKirchhoffParametrizationType[
-                    type(element).four_c_element_data["PARAMETRIZATION"]
-                ]
+                type(element).kirchhoff_parametrization
                 for element in connected_elements
             }
             if (
@@ -205,10 +226,12 @@ def dump_nurbs_patch_elements(nurbs_patch: _NURBSPatch) -> list[dict[str, _Any]]
     """Return a list with all the element definitions contained in this
     patch."""
 
-    if nurbs_patch.i_global is None:
+    if nurbs_patch.i_global is not None:
         raise ValueError(
-            "i_global is not set, make sure that the NURBS patch is added to the mesh"
+            f"For NURBS patches, i_global shall not be set, got {nurbs_patch.i_global}."
         )
+    if nurbs_patch.i_nurbs_patch is None:
+        raise ValueError("Expected i_nurbs_patch to be set for NURBS patch.")
 
     # Check the material
     nurbs_patch._check_material()
@@ -218,25 +241,10 @@ def dump_nurbs_patch_elements(nurbs_patch: _NURBSPatch) -> list[dict[str, _Any]]
 
     for knot_span in nurbs_patch.get_knot_span_iterator():
         element_cps_ids = nurbs_patch.get_ids_ctrlpts(*knot_span)
-        connectivity = [nurbs_patch.nodes[i] for i in element_cps_ids]
-        num_cp = len(connectivity)
-
-        patch_elements.append(
-            {
-                "id": nurbs_patch.i_global + j + 1,
-                "cell": {
-                    "type": f"NURBS{num_cp}",
-                    "connectivity": connectivity,
-                },
-                "data": {
-                    "type": _INPUT_FILE_MAPPINGS["nurbs_type_to_default_four_c_type"][
-                        type(nurbs_patch)
-                    ],
-                    "MAT": nurbs_patch.material,
-                    **(nurbs_patch.data if nurbs_patch.data else {}),
-                },
-            }
-        )
+        legacy_dict = get_four_c_legacy_dict(nurbs_patch, node_ordering=element_cps_ids)
+        # We need to overwrite the element ID here, as one patch contains multiple elements.
+        legacy_dict["id"] = nurbs_patch.i_global_start + j + 1
+        patch_elements.append(legacy_dict)
         j += 1
 
     return patch_elements
@@ -250,7 +258,7 @@ def dump_item_to_list(dumped_list, item) -> None:
         dumped_list.append(dump_node(item))
     elif isinstance(item, _VolumeElement):
         dumped_list.append(dump_solid_element(item))
-    elif isinstance(item, _GeometrySet) or isinstance(item, _GeometrySetNodes):
+    elif isinstance(item, _GeometrySetBase):
         dumped_list.extend(dump_geometry_set(item))
     elif isinstance(item, _NURBSPatch):
         dumped_list.extend(dump_nurbs_patch_elements(item))

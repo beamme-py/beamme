@@ -23,15 +23,15 @@
 
 import numpy as _np
 
-from beamme.core.base_mesh_item import BaseMeshItem as _BaseMeshItem
 from beamme.core.rotation import Rotation as _Rotation
 
 
-class Node(_BaseMeshItem):
+class Node:
     """This object represents one node in the mesh."""
 
-    def __init__(self, coordinates, *, is_middle_node=False, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, coordinates, *, is_middle_node=False):
+        # Global index of this item in a mesh.
+        self.i_global: None | int = None
 
         # Coordinates of this node.
         self.coordinates = _np.array(coordinates, dtype=float)

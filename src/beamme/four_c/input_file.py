@@ -316,12 +316,14 @@ class InputFile:
         nurbs_count = 0
 
         for element in mesh.elements:
-            element.i_global = i
             if isinstance(element, _NURBSPatch):
+                element.i_global_start = i
                 element.i_nurbs_patch = nurbs_count
                 i += element.get_number_of_elements()
                 nurbs_count += 1
                 continue
+            else:
+                element.i_global = i
             i += 1
 
         #   Materials: Get a list of all materials in the mesh,
