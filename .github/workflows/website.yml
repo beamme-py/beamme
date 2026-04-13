@@ -24,7 +24,7 @@ jobs:
       - name: Setup python environment
         uses: ./.github/actions/setup_python_environment
         with:
-          python-version: '3.13'
+          python-version: '3.14'
       - name: Install dependencies
         run: |
           pip install -r website/requirements.txt
