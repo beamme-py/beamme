@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/source_distribution_build
 
   build-test-wheels:
-    name: build-test-wheel python 3.13 on ${{ matrix.os }}
+    name: build-test-wheel python 3.14 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -34,10 +34,10 @@ jobs:
       - name: Build wheels
         uses: ./.github/actions/wheel_build
         with:
-          python-version: "3.13"
-          wheel-name: wheels-${{ matrix.os }}-py3.13
+          python-version: "3.14"
+          wheel-name: wheels-${{ matrix.os }}-py3.14
       - name: Test wheels
         uses: ./.github/actions/wheel_test
         with:
-          python-version: "3.13"
-          wheel-name: wheels-${{ matrix.os }}-py3.13
+          python-version: "3.14"
+          wheel-name: wheels-${{ matrix.os }}-py3.14

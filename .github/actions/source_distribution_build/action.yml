@@ -7,7 +7,7 @@ runs:
     - name: Setup python environment
       uses: ./.github/actions/setup_python_environment
       with:
-        python-version: "3.13"
+        python-version: "3.14"
         env_type: venv
 
     - name: Install build tool
