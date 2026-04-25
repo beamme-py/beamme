@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Set up Miniconda
       if: inputs.env_type == 'conda'
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
         activate-environment: beamme
         python-version: ${{ inputs.python-version }}
