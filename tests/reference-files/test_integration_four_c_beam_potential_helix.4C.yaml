@@ -4,7 +4,7 @@ beam_potential:
   potential_law_exponents: [6.0, 12.0]
   potential_law_prefactors: [-0.001, 1.245e-07]
   automatic_differentiation: false
-  choice_master_slave: "smaller_eleGID_is_slave"
+  choice_source_target: "smaller_eleGID_is_source"
   cutoff_radius: 10.0
   n_gauss_points: 50
   n_integration_segments: 2
