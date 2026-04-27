@@ -25,6 +25,7 @@ from abc import abstractmethod as _abstractmethod
 from typing import Iterator as _Iterator
 
 import numpy as _np
+import pyvista as _pv
 
 from beamme.core.conf import bme as _bme
 from beamme.core.element import Element as _Element
@@ -35,6 +36,9 @@ from beamme.core.material import (
 
 class NURBSPatch(_Element):
     """A base class for a NURBS patch."""
+
+    # Generic VTK cell type for NURBS elements - this will not show the correct topology in vtk.
+    vtk_cell_type = _pv.CellType.POLYGON
 
     # A list of valid material types for this element
     valid_materials = [_MaterialSolidBase]
@@ -47,10 +51,6 @@ class NURBSPatch(_Element):
 
         # Polynomial degrees
         self.polynomial_orders = polynomial_orders
-
-        # Global indices
-        self.i_global_start = None
-        self.i_nurbs_patch = None
 
     def get_nurbs_dimension(self) -> int:
         """Determine the number of dimensions of the NURBS structure.

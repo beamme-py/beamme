@@ -180,7 +180,7 @@ class MaterialReissner(_MaterialBeamBase):
         if self.interaction_radius is not None:
             data["INTERACTIONRADIUS"] = self.interaction_radius
 
-        return {"MAT": self.i_global + 1, self.material_string: data}
+        return {"MAT": self, self.material_string: data}
 
 
 class MaterialReissnerElastoplastic(MaterialReissner):
@@ -267,7 +267,7 @@ class MaterialKirchhoff(_MaterialBeamBase):
         }
         if self.interaction_radius is not None:
             data["INTERACTIONRADIUS"] = self.interaction_radius
-        return {"MAT": self.i_global + 1, self.material_string: data}
+        return {"MAT": self, self.material_string: data}
 
 
 class MaterialEulerBernoulli(_MaterialBeamBase):
@@ -304,7 +304,7 @@ class MaterialEulerBernoulli(_MaterialBeamBase):
             "CROSSAREA": area,
             "MOMIN": mom2,
         }
-        return {"MAT": self.i_global + 1, self.material_string: data}
+        return {"MAT": self, self.material_string: data}
 
 
 class MaterialSolid(_MaterialSolidBase):
@@ -318,7 +318,7 @@ class MaterialSolid(_MaterialSolidBase):
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
 
-        return {"MAT": self.i_global + 1, self.material_string: self.data}
+        return {"MAT": self, self.material_string: self.data}
 
 
 class MaterialStVenantKirchhoff(MaterialSolid):

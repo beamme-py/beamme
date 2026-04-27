@@ -25,10 +25,10 @@ import copy as _copy
 
 from beamme.core.conf import ElementType as _ElementType
 from beamme.core.element import Element as _Element
-from beamme.core.element_volume import VolumeElement as _VolumeElement
 from beamme.core.element_volume import VolumeHEX8 as _VolumeHEX8
 from beamme.core.element_volume import VolumeHEX20 as _VolumeHEX20
 from beamme.core.element_volume import VolumeHEX27 as _VolumeHEX27
+from beamme.core.element_volume import VolumePoint as _VolumePoint
 from beamme.core.element_volume import VolumeTET4 as _VolumeTET4
 from beamme.core.element_volume import VolumeTET10 as _VolumeTET10
 from beamme.core.element_volume import VolumeWEDGE6 as _VolumeWEDGE6
@@ -37,6 +37,7 @@ from beamme.core.nurbs_patch import NURBSVolume as _NURBSVolume
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
+from beamme.four_c.material import MaterialSolid as _MaterialSolid
 
 
 def get_four_c_solid(
@@ -81,7 +82,7 @@ def get_four_c_solid(
         case _ElementType.solid:
             match n_nodes:
                 case 1:
-                    base_type = _VolumeElement
+                    base_type = _VolumePoint
                 case 8:
                     base_type = _VolumeHEX8
                 case 20:
@@ -104,11 +105,14 @@ def get_four_c_solid(
     four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
         solid_type, n_nodes
     ]
+    # All elements, except for the point element (i.e., rigid sphere), require a solid material.
+    valid_materials = [_MaterialSolid] if base_type is not _VolumePoint else None
     return type(
         "FourCSolidElementType",
         (base_type,),
         {
             "element_type": solid_type,
             "data": {four_c_type: {four_c_cell: element_technology}},
+            "valid_materials": valid_materials,
         },
     )

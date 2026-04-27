@@ -30,6 +30,9 @@ class Function(_BaseMeshItem):
     def __init__(self, function_data):
         super().__init__(data=function_data)
 
+        # Global index of this function in a mesh.
+        self.i_global: None | int = None
+
     def __deepcopy__(self, memo):
         """When deepcopy is called on a mesh, we do not want the same functions
         to be copied, as this will result in multiple equal functions in the

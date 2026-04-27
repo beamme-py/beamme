@@ -35,6 +35,9 @@ from vistools.vtk.compare_grids import compare_grids
 
 from beamme.core.mesh import Mesh
 from beamme.four_c.input_file import InputFile
+from beamme.four_c.input_file_dump_item import (
+    dump_mesh_representation_to_input_file_legacy,
+)
 from beamme.utils.data_structures import compare_nested_dicts_or_lists
 
 # GLOBAL DEFAULT TEST TOLERANCES
@@ -183,7 +186,12 @@ def convert_to_primitive_type(
         obj = input_file
 
     if isinstance(obj, InputFile):
-        return obj.sections
+        # Create a copy of the FourCIPP input file and dump the mesh representation to it.
+        fourc_input_file = obj.fourc_input.copy()
+        dump_mesh_representation_to_input_file_legacy(
+            fourc_input_file, obj.mesh_representation, obj.element_type_id_to_data
+        )
+        return fourc_input_file.sections
 
     if isinstance(obj, str):
         # Comparison for string based Abaqus input files

@@ -36,10 +36,15 @@ from beamme.utils.data_structures import (
 )
 
 INPUT_FILE_MAPPINGS: dict[str, _Any] = {}
-INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"] = {
+INPUT_FILE_MAPPINGS["four_c_type_to_four_c_type"] = {
     _BeamType.reissner: "BEAM3R",
     _BeamType.kirchhoff: "BEAM3K",
     _BeamType.euler_bernoulli: "BEAM3EB",
+}
+INPUT_FILE_MAPPINGS["four_c_type_to_requires_triads"] = {
+    "BEAM3R": True,
+    "BEAM3K": True,
+    "BEAM3EB": False,
 }
 INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"] = {
     (_bme.element_type.beam, 2): "LINE2",
@@ -61,7 +66,7 @@ INPUT_FILE_MAPPINGS["four_c_cell_to_element_type_and_n_nodes"] = (
         INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"]
     )
 )
-INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type"] = {
+INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type_legacy"] = {
     "POINT1": _pv.CellType.VERTEX,
     "HEX8": _pv.CellType.HEXAHEDRON,
     "TET4": _pv.CellType.TETRA,
@@ -70,13 +75,6 @@ INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type"] = {
     "HEX27": _pv.CellType.TRIQUADRATIC_HEXAHEDRON,
     "WEDGE6": _pv.CellType.WEDGE,
 }
-# TODO: This can be removed once we have fully switched to mesh representation
-INPUT_FILE_MAPPINGS["beam_n_nodes_to_four_c_ordering"] = {
-    2: [0, 1],
-    3: [0, 2, 1],
-    4: [0, 3, 1, 2],
-    5: [0, 4, 1, 2, 3],
-}
 INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_connectivity_mapping"] = {
     # Only list the non-standard mappings
     "HEX20": _MESH_REPRESENTATION_MAPPINGS[
@@ -84,6 +82,18 @@ INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_connectivity_mapping"] = {
     ][(_bme.element_type.solid, 20)],
     "HEX27": _MESH_REPRESENTATION_MAPPINGS[
         "element_type_and_n_nodes_to_connectivity_mapping_vtk_to_beamme"
+    ][(_bme.element_type.solid, 27)],
+}
+INPUT_FILE_MAPPINGS["four_c_cell_to_connectivity_mapping_from_vtk"] = {
+    # Only list the non-standard mappings
+    "LINE3": [0, 2, 1],
+    "LINE4": [0, 3, 1, 2],
+    "LINE5": [0, 4, 1, 2, 3],
+    "HEX20": _MESH_REPRESENTATION_MAPPINGS[
+        "element_type_and_n_nodes_to_connectivity_mapping_beamme_to_vtk"
+    ][(_bme.element_type.solid, 20)],
+    "HEX27": _MESH_REPRESENTATION_MAPPINGS[
+        "element_type_and_n_nodes_to_connectivity_mapping_beamme_to_vtk"
     ][(_bme.element_type.solid, 27)],
 }
 INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {

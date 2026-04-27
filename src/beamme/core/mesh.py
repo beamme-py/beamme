@@ -26,6 +26,7 @@ import copy as _copy
 import os as _os
 import warnings as _warnings
 from typing import List as _List
+from typing import cast as _cast
 
 import numpy as _np
 import pyvista as _pv
@@ -44,15 +45,25 @@ from beamme.core.element import Element as _Element
 from beamme.core.element_beam import Beam as _Beam
 from beamme.core.function import Function as _Function
 from beamme.core.geometry_set import GeometryName as _GeometryName
+from beamme.core.geometry_set import GeometrySet as _GeometrySet
 from beamme.core.geometry_set import GeometrySetBase as _GeometrySetBase
 from beamme.core.geometry_set import GeometrySetContainer as _GeometrySetContainer
 from beamme.core.material import Material as _Material
+from beamme.core.mesh_representation import (
+    MESH_REPRESENTATION_MAPPINGS as _MESH_REPRESENTATION_MAPPINGS,
+)
+from beamme.core.mesh_representation import GeometrySetInfo as _GeometrySetInfo
+from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
 from beamme.core.node import Node as _Node
 from beamme.core.node import NodeCosserat as _NodeCosserat
+from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
 from beamme.core.rotation import Rotation as _Rotation
 from beamme.core.rotation import add_rotations as _add_rotations
 from beamme.core.rotation import rotate_coordinates as _rotate_coordinates
 from beamme.core.vtk_writer import VTKWriter as _VTKWriter
+from beamme.four_c.material import (
+    get_all_contained_materials as _get_all_contained_materials,
+)
 from beamme.geometric_search.find_close_points import (
     find_close_points as _find_close_points,
 )
@@ -266,9 +277,8 @@ class Mesh:
         self,
         *,
         coupling_sets: bool = True,
+        # TODO: Check if we need all of the following options.
         link_to_nodes: str = "no_link",
-        # TODO: remove this parameter once we use a common mesh representation
-        geometry_set_start_index: int = 0,
     ) -> _GeometrySetContainer:
         """Return a geometry set container that contains geometry sets
         explicitly added to the mesh, as well as sets for boundary conditions.
@@ -287,8 +297,6 @@ class Mesh:
                     A link will be set for all nodes that are part of the geometry set, i.e., also
                     nodes connected to elements of an element set. This is mainly used for vtk
                     output so we can color the nodes which are part of element sets.
-            geometry_set_start_index:
-                Starting index for the geometry set IDs, defaults to 0.
         """
 
         is_link_nodes = not link_to_nodes == "no_link"
@@ -315,14 +323,10 @@ class Mesh:
                     if bc.geometry_set not in mesh_sets[geom_key]:
                         mesh_sets[geom_key].append(bc.geometry_set)
 
-        i_global = geometry_set_start_index
-        for key in mesh_sets.keys():
-            for geometry_set in mesh_sets[key]:
-                # Add global indices to the geometry set.
-                geometry_set.i_global = i_global
-                if is_link_nodes:
+        if is_link_nodes:
+            for key in mesh_sets.keys():
+                for geometry_set in mesh_sets[key]:
                     geometry_set.link_to_nodes(link_to_nodes=link_to_nodes)
-                i_global += 1
 
         return mesh_sets
 
@@ -700,6 +704,9 @@ class Mesh:
                         for node in combine_list[1:]:
                             node.replace_with(master_node)
 
+            # Remove the node links again.
+            self.unlink_nodes()
+
         else:
             # Connect close nodes with a coupling.
             for node_list in partner_nodes:
@@ -713,6 +720,227 @@ class Mesh:
     def get_nodes_by_function(self, *args, **kwargs):
         """Return all nodes for which the function evaluates to true."""
         return _get_nodes_by_function(self.nodes, *args, **kwargs)
+
+    def get_mesh_representation(
+        self,
+    ) -> tuple[
+        _MeshRepresentation,
+        dict[int, dict],
+        dict[_GeometrySetBase, int],
+        dict[_Material, int],
+        dict[_NURBSPatch, int],
+    ]:
+        """Create a mesh representation for this mesh.
+
+        This function does not alter the mesh object. It assigns internal IDs to the mesh object and returns mappings between the objects and the IDs.
+
+        Returns:
+            mesh_representation: `MeshRepresentation` object for this mesh.
+            element_type_id_to_data: A dictionary that maps the element type id to the data of the element type.
+            geometry_sets_to_i_global: A dictionary that maps geometry sets to their global index in the mesh representation.
+            material_to_i_global: A dictionary that maps materials to their global index in the mesh representation.
+            nurbs_patch_to_i_global: A dictionary that maps each NURBS patch to the global ID of that patch.
+        """
+
+        # Get a list of all materials in the mesh, including nested sub-materials
+        # and create he global ID mapping.
+        all_materials = [
+            material
+            for mesh_material in self.materials
+            for material in _get_all_contained_materials(mesh_material)
+        ]
+        material_to_i_global: dict[_Material, int] = {}
+        for material in all_materials:
+            material_to_i_global[material] = len(material_to_i_global)
+        if len(all_materials) != len(material_to_i_global):
+            raise ValueError("Materials are not unique!")
+
+        # Get the global id mappings for geometry sets.
+        mesh_sets = self.get_unique_geometry_sets()
+        geometry_sets_to_i_global: dict[_GeometrySetBase, int] = {}
+        for geometry_type, geometry_list in mesh_sets.items():
+            for geometry_set in geometry_list:
+                geometry_sets_to_i_global[geometry_set] = len(geometry_sets_to_i_global)
+
+        # Extract nodes for the mesh representation and assign global IDs. We also extract
+        # other required information like the node type, the nodal rotation vector and
+        # control point weights information here. The weights are optional, so the array
+        # might be `None`.
+        n_nodes = len(self.nodes)
+        if n_nodes != len(set(self.nodes)):
+            raise ValueError("Nodes are not unique!")
+        points = _np.zeros((n_nodes, 3))
+        point_types = _np.full(n_nodes, -1)
+        control_point_weights = None
+        for i_node, node in enumerate(self.nodes):
+            node.i_global = i_node
+            node_type = type(node).node_type
+            point_types[i_node] = node_type.value
+            points[i_node] = node.coordinates
+            if node_type == _bme.node_type.control_point:
+                if control_point_weights is None:
+                    control_point_weights = _np.full(n_nodes, -1.0)
+                control_point_weights[i_node] = node.weight
+        # We don't get the rotation vectors in the loop, that would be very slow, instead
+        # we get the global quaternion array and convert that directly using the numpy
+        # quaternion library.
+        nodal_quaternions = _quaternion.from_float_array(
+            _get_nodal_quaternions(self.nodes)
+        )
+        nodal_rotation_vectors = _quaternion.as_rotation_vector(nodal_quaternions)
+
+        # Extract elements for the mesh representation
+        if len(self.elements) != len(set(self.elements)):
+            raise ValueError("Elements are not unique!")
+
+        #   We first have to loop over all elements, so we get the total
+        #   number of elements, as NURBS patches can contain multiple elements.
+        #   This is needed to initialize the numpy arrays with the correct size.
+        i_element = 0
+        nurbs_count = 0
+        nurbs_patch_to_i_global = {}
+        for element in self.elements:
+            # Perform consistency checks for the element.
+            element.check()
+            element.i_global = i_element
+            if isinstance(element, _NURBSPatch):
+                nurbs_patch_to_i_global[element] = nurbs_count
+                nurbs_count += 1
+                i_element += element.get_number_of_elements()
+            else:
+                i_element += 1
+        n_elements = i_element
+
+        #   Now that we know the expected size, we can allocate the data arrays and
+        #   actually gather the element data.
+        element_type_to_id: dict[type, int] = {}
+        element_type_id_to_data: dict[int, dict] = {}
+        cell_connectivity = []
+        cell_types = _np.full(n_elements, -1)
+        cell_element_type_ids = _np.full(n_elements, -1)
+        cell_material_ids = _np.full(n_elements, -1)
+        cell_beamme_element_ids = _np.full(n_elements, -1)
+        for i_element_beamme, element in enumerate(self.elements):
+            # Get the element type id for this element.
+            if type(element) not in element_type_to_id:
+                element_type_id = len(element_type_to_id)
+                element_type_to_id[type(element)] = element_type_id
+                element_type_id_to_data[element_type_id] = _copy.deepcopy(
+                    type(element).data
+                )
+            else:
+                element_type_id = element_type_to_id[type(element)]
+
+            # Some elements don't require a material, in this case we set the material id to -1.
+            material_id = material_to_i_global.get(element.material, -1)
+
+            if isinstance(element, _NURBSPatch):
+                n_patch_elements = element.get_number_of_elements()
+                # We can to a cast here, since we know that we have set i_global previously
+                # for all elements.
+                element_i_global = _cast(int, element.i_global)
+                data_assignment_slice = slice(
+                    element_i_global, element_i_global + n_patch_elements
+                )
+
+                for knot_span in element.get_knot_span_iterator():
+                    element_cps_ids = element.get_ids_ctrlpts(*knot_span)
+                    connectivity = [
+                        element.nodes[index].i_global for index in element_cps_ids
+                    ]
+                    cell_connectivity.extend([len(connectivity), *connectivity])
+
+            else:
+                data_assignment_slice = element.i_global
+
+                reorder_indices = _MESH_REPRESENTATION_MAPPINGS[
+                    "element_type_and_n_nodes_to_connectivity_mapping_beamme_to_vtk"
+                ].get((type(element).element_type, len(element.nodes)), None)
+                if reorder_indices is not None:
+                    connectivity = [
+                        element.nodes[index].i_global for index in reorder_indices
+                    ]
+                else:
+                    connectivity = [node.i_global for node in element.nodes]
+
+                cell_connectivity.extend([len(connectivity), *connectivity])
+
+            cell_material_ids[data_assignment_slice] = material_id
+            cell_element_type_ids[data_assignment_slice] = element_type_id
+            cell_types[data_assignment_slice] = type(element).vtk_cell_type
+            cell_beamme_element_ids[data_assignment_slice] = i_element_beamme
+
+        # Extract geometry sets.
+        geometry_sets = []
+        for geometry_type, geometry_list in mesh_sets.items():
+            for geometry_set in geometry_list:
+                node_set_flag = _np.zeros(n_nodes, dtype=int)
+                node_set_flag[
+                    [node.i_global for node in geometry_set.get_all_nodes()]
+                ] = 1
+                if isinstance(geometry_set, _GeometrySet) and (
+                    geometry_type == _bme.geo.line
+                    or geometry_type == _bme.geo.surface
+                    or geometry_type == _bme.geo.volume
+                ):
+                    element_set_flag = _np.zeros(n_elements, dtype=int)
+                    element_set_indices: list[int] = []
+                    for element in geometry_set.get_geometry_objects():
+                        if isinstance(element, _NURBSPatch):
+                            # For NURBS, we have to set the flag for all elements that are part of the patch.
+                            element_i_global = _cast(int, element.i_global)
+                            element_set_indices.extend(
+                                range(
+                                    element_i_global,
+                                    element_i_global + element.get_number_of_elements(),
+                                )
+                            )
+                        else:
+                            element_set_indices.append(element.i_global)
+                    element_set_flag[element_set_indices] = 1
+
+                else:
+                    element_set_flag = None
+                geometry_set_wrapper = _GeometrySetInfo(
+                    geometry_type=geometry_type,
+                    i_global=geometry_sets_to_i_global[geometry_set],
+                    point_flag_vector=node_set_flag,
+                    cell_flag_vector=element_set_flag,
+                )
+                geometry_sets.append(geometry_set_wrapper)
+
+        # Reset the previously set indices.
+        for i, node in enumerate(self.nodes):
+            node.i_global = None
+        for element in self.elements:
+            element.i_global = None
+
+        # TODO: Let's sort the cells by their block ID here - in most solvers, the
+        # the elements are internally sorted by their block IDs anyway.
+        mesh_representation = _MeshRepresentation(
+            cell_connectivity=cell_connectivity,
+            cell_types=cell_types,
+            points=points,
+            geometry_sets=geometry_sets,
+            cell_data={
+                "element_type_id": cell_element_type_ids,
+                "material_id": cell_material_ids,
+                "beamme_id": cell_beamme_element_ids,
+            },
+            point_data={
+                "point_type": point_types,
+                "control_point_weight": control_point_weights,
+                "rotation_vector": nodal_rotation_vectors,
+            },
+        )
+
+        return (
+            mesh_representation,
+            element_type_id_to_data,
+            geometry_sets_to_i_global,
+            material_to_i_global,
+            nurbs_patch_to_i_global,
+        )
 
     def get_vtk_representation(self, *, coupling_sets=False, **kwargs):
         """Return a vtk representation of the beams and solid in this mesh.

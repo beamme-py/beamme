@@ -356,8 +356,10 @@ def create_single_solid_element_brick(input_file_path, get_default_test_solid_ma
         cubit, 1, 2, 3, mesh_interval=[1, 1, 1], element_type=cupy.element_type.hex8
     )
     material = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-    material.i_global = 0
-    cubit.fourc_input["MATERIALS"] = [material.dump_to_list()]
+    dumped_material_dict = material.dump_to_list()
+    dumped_material_dict["MAT"] = 1
+    cubit.fourc_input["MATERIALS"] = [dumped_material_dict]
+
     cubit.dump(input_file_path)
 
 
@@ -377,8 +379,9 @@ def create_solid_brick(input_file_path, get_default_test_solid_material):
     cubit.cmd(f"move volume {brick.id()} x 0 y 0 z 7.5 include_merged")
     brick.mesh()
     material = get_default_test_solid_material(material_type="st_venant_kirchhoff")
-    material.i_global = 0
-    cubit.fourc_input["MATERIALS"] = [material.dump_to_list()]
+    dumped_material_dict = material.dump_to_list()
+    dumped_material_dict["MAT"] = 1
+    cubit.fourc_input["MATERIALS"] = [dumped_material_dict]
     cubit.dump(input_file_path)
 
 

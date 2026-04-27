@@ -251,7 +251,7 @@ def _extract_mesh_representation(
         cell_connectivity.extend([len(connectivity), *connectivity.tolist()])
 
         try:
-            vtk_cell_type = _INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type"][
+            vtk_cell_type = _INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type_legacy"][
                 four_c_cell_type
             ]
         except KeyError:

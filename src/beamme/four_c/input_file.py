@@ -29,28 +29,19 @@ from datetime import datetime as _datetime
 from pathlib import Path as _Path
 from typing import Any as _Any
 from typing import Callable as _Callable
-from typing import List as _List
 
 from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
 from fourcipp.utils.not_set import NOT_SET as _NOT_SET
 
 from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
-from beamme.core.conf import bme as _bme
-from beamme.core.function import Function as _Function
-from beamme.core.material import Material as _Material
 from beamme.core.mesh import Mesh as _Mesh
-from beamme.core.node import Node as _Node
-from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
-from beamme.four_c.input_file_dump_item import dump_item_to_list as _dump_item_to_list
+from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
 from beamme.four_c.input_file_dump_item import (
-    dump_item_to_section as _dump_item_to_section,
+    dump_mesh_representation_to_input_file_legacy as _dump_mesh_representation_to_input_file_legacy,
 )
-from beamme.four_c.input_file_mappings import (
-    INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
-)
-from beamme.four_c.material import (
-    get_all_contained_materials as _get_all_contained_materials,
+from beamme.four_c.input_file_dump_item import (
+    dump_mesh_to_input_file as _dump_mesh_to_input_file,
 )
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 from beamme.utils.environment import get_application_path as _get_application_path
@@ -68,15 +59,16 @@ class InputFile:
 
         self.fourc_input = _FourCInput()
 
-        # Contents of NOX xml file.
-        self.nox_xml_contents = ""
-
         # Register converters to directly convert non-primitive types
         # to native Python types via the FourCIPP type converter.
         self.fourc_input.type_converter.register_numpy_types()
-        self.fourc_input.type_converter.register_type(
-            (_Function, _Material, _Node), lambda converter, obj: obj.i_global + 1
-        )
+
+        # Contents of NOX xml file.
+        self.nox_xml_contents = ""
+
+        # Mesh representation for this input file.
+        self.mesh_representation = _MeshRepresentation()
+        self.element_type_id_to_data = {}
 
     def __contains__(self, key: str) -> bool:
         """Contains function.
@@ -165,7 +157,7 @@ class InputFile:
         """
 
         if isinstance(object_to_add, _Mesh):
-            self.add_mesh_to_input_file(mesh=object_to_add, **kwargs)
+            _dump_mesh_to_input_file(self, mesh=object_to_add, **kwargs)
 
         else:
             self.fourc_input.combine_sections(object_to_add)
@@ -215,21 +207,32 @@ class InputFile:
         # Make sure the given input file is a Path instance.
         input_file_path = _Path(input_file_path)
 
+        # Create a deep copy of the existing input sections - this function does not alter
+        # the present instance of InputFile
+        fourc_input = self.fourc_input.copy()
+
         if self.nox_xml_contents:
             if nox_xml_file is None:
                 nox_xml_file = input_file_path.name.split(".")[0] + ".nox.xml"
 
-            self["STRUCT NOX/Status Test"] = {"XML File": nox_xml_file}
+            fourc_input["STRUCT NOX/Status Test"] = {"XML File": nox_xml_file}
 
             # Write the xml file to the disc.
             with open(input_file_path.parent / nox_xml_file, "w") as xml_file:
                 xml_file.write(self.nox_xml_contents)
 
+        # Dump the mesh representation.
+        _dump_mesh_representation_to_input_file_legacy(
+            fourc_input,
+            self.mesh_representation,
+            self.element_type_id_to_data,
+        )
+
         # Add information header to the input file
         if add_header_information:
-            self.add({"TITLE": self._get_header()})
+            fourc_input.combine_sections({"TITLE": self._get_header()})
 
-        self.fourc_input.dump(
+        fourc_input.dump(
             input_file_path=input_file_path,
             validate=validate,
             validate_sections_only=validate_sections_only,
@@ -252,170 +255,6 @@ class InputFile:
 
                 with open(input_file_path, "w") as input_file:
                     input_file.writelines(lines)
-
-    def add_mesh_to_input_file(self, mesh: _Mesh) -> None:
-        """Add a mesh to the input file.
-
-        Args:
-            mesh: The mesh to be added to the input file.
-        """
-
-        # Compute geometry-set starting indices
-        start_index_geometry_set = max(
-            (
-                entry["d_id"]
-                for section_name in _INPUT_FILE_MAPPINGS[
-                    "geometry_sets_geometry_to_condition_name"
-                ].values()
-                for entry in self.sections.get(section_name, [])
-            ),
-            default=0,
-        )
-
-        # Determine global start indices
-        start_index_nodes = len(self.sections.get("NODE COORDS", []))
-
-        start_index_elements = sum(
-            len(self.sections.get(section, []))
-            for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
-        )
-
-        start_index_nurbs_patches = len(
-            self.sections.get("STRUCTURE KNOTVECTORS", {}).get("PATCHES", [])
-        )
-
-        start_index_functions = max(
-            (
-                int(section.split("FUNCT")[-1])
-                for section in self.sections
-                if section.startswith("FUNCT")
-            ),
-            default=0,
-        )
-
-        start_index_materials = max(
-            (material["MAT"] for material in self.sections.get("MATERIALS", [])),
-            default=0,
-        )  # materials imported from YAML may have arbitrary numbering
-
-        # Add sets from couplings and boundary conditions to a temp container
-        mesh.unlink_nodes()
-        mesh_sets = mesh.get_unique_geometry_sets(
-            geometry_set_start_index=start_index_geometry_set
-        )
-
-        # Assign global indices
-        #   Nodes
-        if len(mesh.nodes) != len(set(mesh.nodes)):
-            raise ValueError("Nodes are not unique!")
-        for i, node in enumerate(mesh.nodes, start=start_index_nodes):
-            node.i_global = i
-
-        #   Elements
-        if len(mesh.elements) != len(set(mesh.elements)):
-            raise ValueError("Elements are not unique!")
-        i = start_index_elements
-        nurbs_count = start_index_nurbs_patches
-        for element in mesh.elements:
-            if isinstance(element, _NURBSPatch):
-                element.i_global_start = i
-                element.i_nurbs_patch = nurbs_count
-                i += element.get_number_of_elements()
-                nurbs_count += 1
-                continue
-            else:
-                element.i_global = i
-            i += 1
-
-        #   Materials: Get a list of all materials in the mesh,
-        #   including nested sub-materials.
-        all_materials = [
-            material
-            for mesh_material in mesh.materials
-            for material in _get_all_contained_materials(mesh_material)
-        ]
-        if len(all_materials) != len(set(all_materials)):
-            raise ValueError("Materials are not unique!")
-        for i, material in enumerate(all_materials, start=start_index_materials):
-            material.i_global = i
-
-        #   Functions
-        if len(mesh.functions) != len(set(mesh.functions)):
-            raise ValueError("Functions are not unique!")
-        for i, function in enumerate(mesh.functions, start=start_index_functions):
-            function.i_global = i
-
-        # Dump mesh to input file
-        def _dump(section_name: str, items: _List) -> None:
-            """Dump list of items to a section in the input file.
-
-            Args:
-                section_name: Name of the section
-                items: List of items to be dumped
-            """
-            if not items:  # do not write empty sections
-                return
-            dumped: list[_Any] = []
-            for item in items:
-                _dump_item_to_list(dumped, item)
-
-            # Go through FourCIPP to convert to native types
-            # TODO this can be simplified/removed by using an internal type converter
-            if section_name in self.sections:
-                existing = self.pop(section_name)
-                existing.extend(dumped)
-                dumped = existing
-
-            self.add({section_name: dumped})
-
-        #   Materials
-        _dump("MATERIALS", all_materials)
-
-        #   Functions
-        for function in mesh.functions:
-            self.add({f"FUNCT{function.i_global + 1}": function.data})
-
-        #   Couplings
-        #     If there are couplings in the mesh, set the link between the nodes
-        #     and elements, so the couplings can decide which DOFs they couple,
-        #     depending on the type of the connected beam element.
-        if any(
-            mesh.boundary_conditions.get((key, _bme.geo.point), [])
-            for key in (_bme.bc.point_coupling, _bme.bc.point_coupling_penalty)
-        ):
-            mesh.set_node_links()
-
-        #   Boundary conditions
-        for (bc_key, geometry_key), bc_list in mesh.boundary_conditions.items():
-            if bc_list:
-                section = (
-                    bc_key
-                    if isinstance(bc_key, str)
-                    else _INPUT_FILE_MAPPINGS["boundary_conditions"][
-                        (bc_key, geometry_key)
-                    ]
-                )
-                _dump(section, bc_list)
-
-        #   Additional element sections (NURBS etc.)
-        for element in mesh.elements:
-            _dump_item_to_section(self, element)
-
-        #   Geometry sets
-        for geometry_key, items in mesh_sets.items():
-            _dump(
-                _INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"][
-                    geometry_key
-                ],
-                items,
-            )
-
-        #   Nodes
-        _dump("NODE COORDS", mesh.nodes)
-        #   Elements
-        _dump("STRUCTURE ELEMENTS", mesh.elements)
-
-        # TODO: reset all links and counters set in this method.
 
     def _get_header(self) -> dict:
         """Return the information header for the current BeamMe run.

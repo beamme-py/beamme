@@ -21,12 +21,17 @@
 # THE SOFTWARE.
 """This module implements the class that represents one element in the Mesh."""
 
+from beamme.core.material import Material as _Material
+
 
 class Element:
     """A base class for an FEM element in the mesh."""
 
+    # A list of valid material types for this element.
+    valid_materials: list[type[_Material]] | None = None
+
     def __init__(self, nodes=None, material=None):
-        # Global index of this item in a mesh.
+        # Global index of this element in a mesh.
         self.i_global: None | int = None
 
         # List of nodes that are connected to the element.
@@ -61,6 +66,30 @@ class Element:
         else:
             raise ValueError(
                 "The node that should be replaced is not in the current element"
+            )
+
+    def check(self) -> None:
+        """Perform consistency checks for the element.
+
+        Per default, we check that the material is the correct one.
+        """
+        self._check_material()
+
+    def _check_material(self) -> None:
+        """Check if the linked material is valid for this type of element."""
+
+        valid_materials = type(self).valid_materials
+
+        # The check is only performed if valid_materials is set for this class.
+        if valid_materials is None:
+            return
+
+        for material_type in valid_materials:
+            if isinstance(self.material, material_type):
+                break
+        else:
+            raise TypeError(
+                f"Element of type {type(self)} can not have a material of type {type(self.material)}!"
             )
 
     def get_vtk(self, vtk_writer_beam, vtk_writer_solid, **kwargs):
