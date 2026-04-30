@@ -35,7 +35,7 @@ version_scheme = "post-release"
 local_scheme = "no-local-version"
 
 [project.optional-dependencies]
-cubitpy = ["cubitpy"]
+cubitpy = ["cubitpy @ git+https://github.com/isteinbrecher/cubitpy.git@fix-exo-cell-type"]
 fourc = ["fourcipp"]
 dev = [
   "coverage",

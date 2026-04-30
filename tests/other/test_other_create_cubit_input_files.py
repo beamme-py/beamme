@@ -125,5 +125,6 @@ def test_other_create_cubit_input_files_multiple_solid_bricks(
     result_path = tmp_path / reference_file.name
 
     cubit = create_multiple_solid_bricks()
-    cubit.dump(result_path)
-    assert_results_close(result_path, reference_file)
+    cubit.dump(str(result_path), mesh_in_exo=True)
+    assert False
+    # assert_results_close(result_path, reference_file)
