@@ -752,8 +752,6 @@ class Mesh:
         material_to_i_global: dict[_Material, int] = {}
         for material in all_materials:
             material_to_i_global[material] = len(material_to_i_global)
-        if len(all_materials) != len(material_to_i_global):
-            raise ValueError("Materials are not unique!")
 
         # Get the global id mappings for geometry sets.
         mesh_sets = self.get_unique_geometry_sets()
