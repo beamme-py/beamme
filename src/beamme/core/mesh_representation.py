@@ -337,15 +337,15 @@ def merge_mesh_representations(
     elif _is_empty(mesh_representation_b):
         return mesh_representation_a
 
-    # Create merged data entries
-    #   Points
+    # Merge the points
     merged_points = _np.vstack(
         (mesh_representation_a.points, mesh_representation_b.points)
     )
 
-    #   Connectivity - before the connectivity can be merged, the IDs of the second mesh have
-    #   to be increased by the size of the first mesh.
-    #   First, we create a mask to identify the entries that have to be incremented.
+    # Merge the connectivity
+    # Before the connectivity can be merged, the IDs of the second mesh have
+    # to be increased by the size of the first mesh. To do so, we create a
+    # mask to identify the entries that have to be incremented.
     cell_connectivity_a = mesh_representation_a.cell_connectivity
     cell_connectivity_b = mesh_representation_b.cell_connectivity
     offsets_b = mesh_representation_b.cell_connectivity_offsets
@@ -365,7 +365,7 @@ def merge_mesh_representations(
     ]
     merged_cell_connectivity_view_part_b[mask] += mesh_representation_a.n_points
 
-    #   The cell types can simply be merged.
+    # Merge the cell types.
     merged_cell_types = _np.concatenate(
         (
             mesh_representation_a.cell_types,
@@ -373,7 +373,7 @@ def merge_mesh_representations(
         )
     )
 
-    #   Contained data
+    # Merge the contained data dictionaries.
     def _merge_data_dicts(
         dict_a: dict[str, _NDArray],
         size_a: int,

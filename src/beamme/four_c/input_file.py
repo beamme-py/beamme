@@ -207,7 +207,7 @@ class InputFile:
         # Make sure the given input file is a Path instance.
         input_file_path = _Path(input_file_path)
 
-        # Create a deep copy of the existing input sections - this function does not alter
+        # Create a deep copy of the existing input sections - this function should not alter
         # the present instance of InputFile
         fourc_input = self.fourc_input.copy()
 

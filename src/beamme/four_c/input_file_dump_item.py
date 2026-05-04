@@ -164,17 +164,16 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         mesh: The mesh to be added to the input file.
     """
 
-    # Compute starting indices
-    #   Element types
+    # Compute starting index for element types
     start_index_element_types = len(input_file.element_type_id_to_data)
 
-    #   NURBS patches
+    # Compute starting index for NURBS patches
     nurbs_patches = input_file.sections.get("STRUCTURE KNOTVECTORS", {}).get(
         "PATCHES", []
     )
     start_index_nurbs_patches = len(nurbs_patches)
 
-    #   Geometry sets
+    # Compute starting index for geometry sets
     start_index_geometry_set = max(
         (
             entry["d_id"]  # We don't need a + 1 here, as this index is index-1 based.
@@ -190,7 +189,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         if info is not None:
             start_index_geometry_set = max(start_index_geometry_set, info.i_global + 1)
 
-    #   Functions
+    # Compute starting index for functions
     start_index_functions = max(
         (
             int(section.split("FUNCT")[-1])
@@ -200,7 +199,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         default=0,
     )
 
-    #   Materials
+    # Compute starting index for materials
     start_index_materials = max(
         (material["MAT"] for material in input_file.sections.get("MATERIALS", [])),
         default=0,
@@ -289,9 +288,9 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     _dump("MATERIALS", material_to_i_global.keys())
 
     # Dump couplings
-    #   If there are couplings in the mesh, set the link between the nodes
-    #   and elements, so the couplings can decide which DOFs they couple,
-    #   depending on the type of the connected beam element.
+    # If there are couplings in the mesh, set the link between the nodes
+    # and elements, so the couplings can decide which DOFs they couple,
+    # depending on the type of the connected beam element.
     if any(
         mesh.boundary_conditions.get((key, _bme.geo.point), [])
         for key in (_bme.bc.point_coupling, _bme.bc.point_coupling_penalty)
@@ -301,7 +300,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     else:
         is_linked_nodes = False
 
-    #   Boundary conditions
+    # Dump boundary conditions
     for (bc_key, geometry_key), bc_list in mesh.boundary_conditions.items():
         if bc_list:
             section = (
@@ -311,7 +310,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
             )
             _dump(section, bc_list)
 
-    #   If we have previously set the node links, we unlink them here.
+    # If we have previously set the node links, we unlink them here.
     if is_linked_nodes:
         mesh.unlink_nodes()
 
@@ -342,7 +341,6 @@ def dump_mesh_representation_to_input_file_legacy(
         for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
     )
 
-    # Dump the geometry information from the mesh representation to the input file.
     def _dump(section_name: str, dictionary_list: _List):
         """Append the given list of dictionaries to the section in the input
         file."""
@@ -350,7 +348,7 @@ def dump_mesh_representation_to_input_file_legacy(
         full_item_list.extend(dictionary_list)
         fourc_input.combine_sections({section_name: full_item_list})
 
-    #   Dump nodes
+    # Dump node information to the input file.
     node_data_list = []
     for i_node, (point, point_type, cp_weight) in enumerate(
         zip(
@@ -385,7 +383,7 @@ def dump_mesh_representation_to_input_file_legacy(
             raise ValueError(f"Unknown node type {node_type} for node {i_node + 1}")
     _dump("NODE COORDS", node_data_list)
 
-    #   Dump elements
+    # Dump element information to the input file.
     element_list = []
     for i_element, (
         connectivity,
@@ -460,10 +458,10 @@ def dump_mesh_representation_to_input_file_legacy(
         )
     _dump("STRUCTURE ELEMENTS", element_list)
 
-    # Geometry sets
-    #   We first create a mapping from the geometry type to a dictionary which maps
-    #   the global geometry set ID to the name of the corresponding data array in the
-    #   mesh representation. This is required for the sorting later on.
+    # Dump geometry sets to the input file.
+    # We first create a mapping from the geometry type to a dictionary which maps
+    # the global geometry set ID to the name of the corresponding data array in the
+    # mesh representation. This is required for the sorting later on.
     geometry_type_to_geometry_sets: dict[_Geometry, dict[int, str]] = _defaultdict(dict)
     for name in mesh_representation.point_data.keys():
         info = _string_to_geometry_set_info(name)

@@ -365,8 +365,7 @@ def _create_mesh_from_mesh_representation(
                 f"Mesh conversion for node type {_bme.node_type(node_type).name} is not implemented!"
             )
 
-    # extract elements
-    #   first create the element types
+    # extract element types
     element_type_id_to_element_type: dict[int, type] = {}
     for (
         element_type_id,
@@ -389,7 +388,7 @@ def _create_mesh_from_mesh_representation(
             element_technology=element_data["data"],
         )
 
-    #   Loop over the elements and create the mesh elements with the correct type, connectivity and material.
+    # loop over the elements and create the mesh elements with the correct type, connectivity and material.
     for connectivity, cell_element_type_id_, material_id in zip(
         mesh_representation.connectivity_iterator(),
         mesh_representation.cell_data["element_type_id"],

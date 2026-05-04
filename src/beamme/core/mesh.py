@@ -787,13 +787,13 @@ class Mesh:
         )
         nodal_rotation_vectors = _quaternion.as_rotation_vector(nodal_quaternions)
 
-        # Extract elements for the mesh representation
+        # Check that element are unique.
         if len(self.elements) != len(set(self.elements)):
             raise ValueError("Elements are not unique!")
 
-        #   We first have to loop over all elements, so we get the total
-        #   number of elements, as NURBS patches can contain multiple elements.
-        #   This is needed to initialize the numpy arrays with the correct size.
+        # For the elements, we first have to loop over all elements, so we get the total
+        # number of elements, as NURBS patches can contain multiple elements.
+        # This is needed to initialize the numpy arrays with the correct size.
         i_element = 0
         nurbs_count = 0
         nurbs_patch_to_i_global = {}
@@ -809,8 +809,8 @@ class Mesh:
                 i_element += 1
         n_elements = i_element
 
-        #   Now that we know the expected size, we can allocate the data arrays and
-        #   actually gather the element data.
+        # Now that we know the expected size, we can allocate the data arrays and
+        # actually gather the element data.
         element_type_to_id: dict[type, int] = {}
         element_type_id_to_data: dict[int, dict] = {}
         cell_connectivity = []
