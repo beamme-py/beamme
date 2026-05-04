@@ -255,7 +255,7 @@ def test_integration_four_c_nurbs_import(
 
     # We need this because we get "double" CP from the splinepy object.
     mesh.couple_nodes(reuse_matching_nodes=True)
-    # We need this to math the "old" result description
+    # We need this to match the "old" result description
     mesh.rotate(Rotation([0, 0, 1], np.pi * 0.5))
     nurbs_input_file = InputFile()
     nurbs_input_file.add(mesh)

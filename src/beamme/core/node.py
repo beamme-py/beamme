@@ -23,14 +23,17 @@
 
 import numpy as _np
 
+from beamme.core.conf import bme as _bme
 from beamme.core.rotation import Rotation as _Rotation
 
 
 class Node:
     """This object represents one node in the mesh."""
 
+    node_type = _bme.node_type.node
+
     def __init__(self, coordinates, *, is_middle_node=False):
-        # Global index of this item in a mesh.
+        # Global index of this node in a mesh.
         self.i_global: None | int = None
 
         # Coordinates of this node.
@@ -98,6 +101,8 @@ class NodeCosserat(Node):
     """This object represents a Cosserat node in the mesh, i.e., it contains
     three positions and three rotations."""
 
+    node_type = _bme.node_type.cosserat
+
     def __init__(
         self,
         coordinates,
@@ -136,6 +141,8 @@ class NodeCosserat(Node):
 
 class ControlPoint(Node):
     """This object represents a control point with a weight in the mesh."""
+
+    node_type = _bme.node_type.control_point
 
     def __init__(self, coordinates, weight, **kwargs):
         super().__init__(coordinates, **kwargs)

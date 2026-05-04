@@ -21,11 +21,8 @@
 # THE SOFTWARE.
 """Integration tests for materials in 4C."""
 
-import pytest
-
 from beamme.core.mesh import Mesh
 from beamme.four_c.input_file import InputFile
-from beamme.four_c.material import MaterialSolid
 
 
 def test_integration_four_c_sub_materials(
@@ -44,32 +41,6 @@ def test_integration_four_c_sub_materials(
     # Add the material again and check that the result is the same.
     mesh.add(material)
     assert_results_close(get_corresponding_reference_file_path(), mesh)
-
-
-def test_integration_four_c_sub_materials_error():
-    """Check the error for incorrectly added sub-materials."""
-
-    mesh = Mesh()
-    material_sub = MaterialSolid(
-        material_string="ELAST_CoupSVK", data={"YOUNG": 1.0, "NUE": 0.0}
-    )
-    mesh.add(material_sub)
-    material = MaterialSolid(
-        material_string="MAT_ElastHyper",
-        data={
-            "NUMMAT": 1,
-            "MATIDS": [material_sub],
-            "DENS": 1.0,
-        },
-    )
-    mesh.add(material)
-    input_file = InputFile()
-
-    with pytest.raises(
-        ValueError,
-        match="Materials are not unique!",
-    ):
-        input_file.add(mesh)
 
 
 def test_integration_four_c_sub_materials_material_numbering(

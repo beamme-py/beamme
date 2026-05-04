@@ -37,56 +37,15 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.four_c_types import BeamType as _BeamType
-from beamme.four_c.input_file_dump_item import (
-    get_four_c_text_based_input_dict as _get_four_c_text_based_input_dict,
-)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
-from beamme.four_c.material import MaterialEulerBernoulli as _MaterialEulerBernoulli
-from beamme.four_c.material import MaterialKirchhoff as _MaterialKirchhoff
-from beamme.four_c.material import MaterialReissner as _MaterialReissner
-from beamme.four_c.material import (
-    MaterialReissnerElastoplastic as _MaterialReissnerElastoplastic,
-)
-
-
-def dump_four_c_beam_to_list(self) -> dict:
-    """Return the dictionary representing this beam element in 4C.
-
-    Args:
-        self: The beam element to be dumped.
-    """
-
-    # Check the material.
-    self._check_material()
-
-    # Get the text based input dictionary for FourCIPP.
-    node_ordering = _INPUT_FILE_MAPPINGS["beam_n_nodes_to_four_c_ordering"][
-        len(self.nodes)
-    ]
-    text_based_input_dict = _get_four_c_text_based_input_dict(
-        self, node_ordering=node_ordering
-    )
-    dump_triads = {
-        _BeamType.reissner: True,
-        _BeamType.kirchhoff: True,
-        _BeamType.euler_bernoulli: False,
-    }
-    if dump_triads[type(self).beam_type]:
-        text_based_input_dict["data"]["TRIADS"] = [
-            item
-            for i in node_ordering
-            for item in self.nodes[i].rotation.get_rotation_vector()
-        ]
-
-    return text_based_input_dict
 
 
 def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[_Beam]:
     """Return a Simo-Reissner beam for 4C."""
 
-    four_c_type = _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.reissner]
+    four_c_type = _INPUT_FILE_MAPPINGS["four_c_type_to_four_c_type"][_BeamType.reissner]
     four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
         _bme.element_type.beam, n_nodes
     ]
@@ -106,10 +65,8 @@ def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[
             "element_type": _bme.element_type.beam,
             "beam_type": _BeamType.reissner,
             "data": {four_c_type: {four_c_cell: element_technology}},
-            "valid_materials": [_MaterialReissner, _MaterialReissnerElastoplastic],
             "coupling_fix_dict": coupling_fix_dict,
             "coupling_joint_dict": coupling_joint_dict,
-            "dump_to_list": dump_four_c_beam_to_list,
         },
     )
 
@@ -129,7 +86,9 @@ def get_four_c_kirchhoff_beam(
         )
 
     n_nodes = 3
-    four_c_type = _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.kirchhoff]
+    four_c_type = _INPUT_FILE_MAPPINGS["four_c_type_to_four_c_type"][
+        _BeamType.kirchhoff
+    ]
     four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
         _bme.element_type.beam, n_nodes
     ]
@@ -151,10 +110,8 @@ def get_four_c_kirchhoff_beam(
             "beam_type": _BeamType.kirchhoff,
             "kirchhoff_parametrization": parametrization,
             "data": {four_c_type: {four_c_cell: element_technology}},
-            "valid_materials": [_MaterialKirchhoff],
             "coupling_fix_dict": coupling_fix_dict,
             "coupling_joint_dict": coupling_joint_dict,
-            "dump_to_list": dump_four_c_beam_to_list,
         },
     )
 
@@ -165,20 +122,19 @@ class BeamFourCEulerBernoulli(_Beam2):
     element_type = _bme.element_type.beam
     beam_type = _BeamType.euler_bernoulli
     data: dict[str, dict[str, _Any]] = {
-        _INPUT_FILE_MAPPINGS["beam_type_to_four_c_type"][_BeamType.euler_bernoulli]: {
+        _INPUT_FILE_MAPPINGS["four_c_type_to_four_c_type"][_BeamType.euler_bernoulli]: {
             _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
                 _bme.element_type.beam, len(_Beam2.nodes_create)
             ]: {}
         }
     }
 
-    valid_materials = [_MaterialEulerBernoulli]
+    def check(self) -> None:
+        """Check that the beam is straight and that the two rotations are the
+        same."""
 
-    def dump_to_list(self):
-        """Return a list with the (single) item representing this element."""
-
-        # Check the material.
-        self._check_material()
+        # Perform checks from the parent class.
+        super().check()
 
         # The two rotations must be the same and the x1 vector must point from
         # the start point to the end point.
@@ -193,8 +149,6 @@ class BeamFourCEulerBernoulli(_Beam2):
             raise ValueError(
                 "The rotations do not match the direction of the Euler Bernoulli beam!"
             )
-
-        return dump_four_c_beam_to_list(self)
 
 
 def get_four_c_beam(

@@ -24,6 +24,7 @@
 from typing import Any as _Any
 
 import numpy as _np
+import pyvista as _pv
 import vtk as _vtk
 
 from beamme.core.conf import bme as _bme
@@ -34,12 +35,12 @@ from beamme.core.vtk_writer import add_point_data_node_sets as _add_point_data_n
 class Beam(_Element):
     """A base class for a beam element."""
 
+    # Cell type for representing this element in vtk.
+    vtk_cell_type = _pv.CellType.POLY_LINE
+
     # An array that defines the parameter positions of the element nodes,
     # in ascending order.
     nodes_create: _Any = []
-
-    # A list of valid material types for this element.
-    valid_materials: _Any = []
 
     def __init__(self, material=None, nodes=None):
         super().__init__(nodes=nodes, material=material)
@@ -68,17 +69,6 @@ class Beam(_Element):
         This is usually used when reflected.
         """
         self.nodes = [self.nodes[-1 - i] for i in range(len(self.nodes))]
-
-    def _check_material(self):
-        """Check if the linked material is valid for this type of beam
-        element."""
-        for material_type in type(self).valid_materials:
-            if isinstance(self.material, material_type):
-                break
-        else:
-            raise TypeError(
-                f"Beam of type {type(self)} can not have a material of type {type(self.material)}!"
-            )
 
     def get_vtk(
         self,

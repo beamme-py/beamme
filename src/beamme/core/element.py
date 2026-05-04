@@ -26,7 +26,7 @@ class Element:
     """A base class for an FEM element in the mesh."""
 
     def __init__(self, nodes=None, material=None):
-        # Global index of this item in a mesh.
+        # Global index of this element in a mesh.
         self.i_global: None | int = None
 
         # List of nodes that are connected to the element.
@@ -62,6 +62,13 @@ class Element:
             raise ValueError(
                 "The node that should be replaced is not in the current element"
             )
+
+    def check(self) -> None:
+        """Perform consistency checks for the element.
+
+        This can be overwritten in the derived classes.
+        """
+        pass
 
     def get_vtk(self, vtk_writer_beam, vtk_writer_solid, **kwargs):
         """Add representation of this element to the vtk_writers for solid and

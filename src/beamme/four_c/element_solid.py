@@ -25,10 +25,10 @@ import copy as _copy
 
 from beamme.core.conf import ElementType as _ElementType
 from beamme.core.element import Element as _Element
-from beamme.core.element_volume import VolumeElement as _VolumeElement
 from beamme.core.element_volume import VolumeHEX8 as _VolumeHEX8
 from beamme.core.element_volume import VolumeHEX20 as _VolumeHEX20
 from beamme.core.element_volume import VolumeHEX27 as _VolumeHEX27
+from beamme.core.element_volume import VolumePoint as _VolumePoint
 from beamme.core.element_volume import VolumeTET4 as _VolumeTET4
 from beamme.core.element_volume import VolumeTET10 as _VolumeTET10
 from beamme.core.element_volume import VolumeWEDGE6 as _VolumeWEDGE6
@@ -81,7 +81,7 @@ def get_four_c_solid(
         case _ElementType.solid:
             match n_nodes:
                 case 1:
-                    base_type = _VolumeElement
+                    base_type = _VolumePoint
                 case 8:
                     base_type = _VolumeHEX8
                 case 20:

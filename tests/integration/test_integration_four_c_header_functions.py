@@ -22,6 +22,7 @@
 """This script is used to test the header functions for 4C."""
 
 import pytest
+from fourcipp.fourc_input import FourCInput
 
 from beamme.core.conf import bme
 from beamme.four_c.header_functions import (
@@ -223,8 +224,9 @@ def test_integration_four_c_header_functions_nonlinear_solver_parameters(
         max_iter=25,
         create_nox_file=create_nox_file,
     )
+    temp_input_file_path = tmp_path / "nonlinear_solver_parameters.4C.yaml"
     input_file.dump(
-        tmp_path / "nonlinear_solver_parameters.4C.yaml",
+        temp_input_file_path,
         nox_xml_file=nox_xml_file_kwarg,
         add_header_default=False,
         add_header_information=False,
@@ -232,8 +234,12 @@ def test_integration_four_c_header_functions_nonlinear_solver_parameters(
     )
 
     if create_nox_file:
-        # Check the xml path in the input file
-        assert input_file["STRUCT NOX/Status Test"]["XML File"] == xml_relative_path
+        # Load the written input file and check the xml path in the input file
+        written_input_file = FourCInput.from_4C_yaml(temp_input_file_path)
+        assert (
+            written_input_file["STRUCT NOX/Status Test"]["XML File"]
+            == xml_relative_path
+        )
 
         # Check the created xml
         assert_results_close(

@@ -22,6 +22,7 @@
 """This module defines the mesh representation data structure."""
 
 from dataclasses import dataclass as _dataclass
+from itertools import repeat as _repeat
 from typing import Any as _Any
 from typing import Iterable as _Iterable
 
@@ -151,8 +152,8 @@ class MeshRepresentation:
         )
         self.points = _convert_argument_numpy(points, default_shape=(0, 3), dtype=float)
 
-        self.cell_data = _filter_none_entries(cell_data, len(self.cell_types))
-        self.point_data = _filter_none_entries(point_data, len(self.points))
+        self.cell_data = _filter_none_entries(cell_data, self.n_cells)
+        self.point_data = _filter_none_entries(point_data, self.n_points)
 
         def _store_geometry_set_data(
             data_field: str,
@@ -176,19 +177,19 @@ class MeshRepresentation:
                     "point_data",
                     geometry_set_name,
                     geometry_set.point_flag_vector,
-                    len(self.points),
+                    self.n_points,
                 )
                 _store_geometry_set_data(
                     "cell_data",
                     geometry_set_name,
                     geometry_set.cell_flag_vector,
-                    len(self.cell_types),
+                    self.n_cells,
                 )
 
         # Get the offset array so we can iterate over the connectivity in a
         # performant manner.
-        self.cell_connectivity_offsets = _np.zeros(len(self.cell_types) + 1, dtype=int)
-        for i_cell in range(len(self.cell_types)):
+        self.cell_connectivity_offsets = _np.zeros(self.n_cells + 1, dtype=int)
+        for i_cell in range(self.n_cells):
             last_offset = self.cell_connectivity_offsets[i_cell]
             if last_offset >= len(self.cell_connectivity):
                 raise ValueError(
@@ -203,13 +204,225 @@ class MeshRepresentation:
         if self.cell_connectivity_offsets[-1] != len(self.cell_connectivity):
             raise ValueError("Invalid cell connectivity offsets.")
 
+    @property
+    def n_cells(self) -> int:
+        """Return the number of cells in this mesh representation.
+
+        Returns:
+            Number of cells in this mesh representation.
+        """
+        return len(self.cell_types)
+
+    @property
+    def n_points(self) -> int:
+        """Return the number of points in this mesh representation.
+
+        Returns:
+            Number of points in this mesh representation.
+        """
+        return len(self.points)
+
     def connectivity_iterator(self) -> _Iterable:
         """Return an iterator over the cell connectivity.
 
         Returns:
             An iterator that returns the connectivity array for each cell.
         """
-        for i in range(len(self.cell_types)):
+        for i in range(self.n_cells):
             start = self.cell_connectivity_offsets[i] + 1
             end = self.cell_connectivity_offsets[i + 1]
             yield self.cell_connectivity[start:end]
+
+    def data_iterator(self, data_field: str, data_name: str) -> _Iterable:
+        """This method returns an iterator for the given data field and data
+        name.
+
+        This is useful, when looping over the data, as accessing the data field in each
+        loop iteration can be expensive. If the data field is not present, a iterator
+        is returned that will always return `None`.
+
+        Args:
+            data_field: The data field to get the iterator for. This can be either
+                "point_data" or "cell_data".
+            data_name: The name of the data to get the iterator for.
+
+        Returns:
+            An iterator to iterate through the data. If the data field is not present,
+            a iterator is returned that will always return `None`.
+        """
+        data_dict = getattr(self, data_field)
+        if data_name in data_dict:
+            return data_dict[data_name]
+        else:
+            match data_field:
+                case "point_data":
+                    size = self.n_points
+                case "cell_data":
+                    size = self.n_cells
+                case _:
+                    raise ValueError(f"Invalid data field: {data_field}")
+            return _repeat(None, size)
+
+    def offset_indices(
+        self,
+        element_type_id_offset: int | None = None,
+        material_offset: int | None = None,
+        geometry_set_offset: int | None = None,
+    ) -> None:
+        """Add offsets to the internal indices of this mesh representation.
+
+        This is required when merging multiple mesh representations together,
+        to ensure that there are no index conflicts.
+
+        Args:
+            element_type_id_offset: The offset to add to the element type IDs.
+            material_offset: The offset to add to the material IDs.
+            geometry_set_offset: The offset to add to the geometry set IDs.
+        """
+
+        if element_type_id_offset is not None:
+            if "element_type_id" in self.cell_data:
+                self.cell_data["element_type_id"] += element_type_id_offset
+
+        if material_offset is not None:
+            if "material_id" in self.cell_data:
+                # Add the offset to all material entries that are not -1. We use
+                # -1 to indicate no assigned material and those values should not change.
+                self.cell_data["material_id"][self.cell_data["material_id"] >= 0] += (
+                    material_offset
+                )
+
+        if geometry_set_offset is not None:
+            for field_type in ("point_data", "cell_data"):
+                new_dict = {}
+                data_field = getattr(self, field_type)
+                # We change the keys in the loop, so we iterate over a copy of them.
+                for name in list(data_field.keys()):
+                    info = string_to_geometry_set_info(name)
+                    if info is not None:
+                        new_name = str(
+                            GeometrySetInfo(
+                                geometry_type=info.geometry_type,
+                                i_global=info.i_global + geometry_set_offset,
+                                name=info.name,
+                            )
+                        )
+                        new_dict[new_name] = data_field.pop(name)
+                # Add the renamed geometry sets back to the data field.
+                setattr(self, field_type, {**data_field, **new_dict})
+
+
+def merge_mesh_representations(
+    mesh_representation_a: MeshRepresentation, mesh_representation_b: MeshRepresentation
+) -> MeshRepresentation:
+    """Merge two mesh representations.
+
+    Args:
+        mesh_representation_a: First mesh representation.
+        mesh_representation_b: Second mesh representation.
+
+    Returns:
+        A merged mesh representation. Depending on the input data, this might
+        be a reference to one of the input mesh representations.
+    """
+
+    def _is_empty(mesh_representation: MeshRepresentation) -> bool:
+        """Check if the mesh representation contains any points or cells."""
+        return mesh_representation.n_points == 0 and mesh_representation.n_cells == 0
+
+    # If one of the two mesh representations is empty, we can simply return the other (which
+    # could be empty as well).
+    if _is_empty(mesh_representation_a):
+        return mesh_representation_b
+    elif _is_empty(mesh_representation_b):
+        return mesh_representation_a
+
+    # Merge the points
+    merged_points = _np.vstack(
+        (mesh_representation_a.points, mesh_representation_b.points)
+    )
+
+    # Merge the connectivity
+    # Before the connectivity can be merged, the IDs of the second mesh have
+    # to be increased by the size of the first mesh. To do so, we create a
+    # mask to identify the entries that have to be incremented.
+    cell_connectivity_a = mesh_representation_a.cell_connectivity
+    cell_connectivity_b = mesh_representation_b.cell_connectivity
+    offsets_b = mesh_representation_b.cell_connectivity_offsets
+
+    merged_cell_connectivity = _np.empty(
+        cell_connectivity_a.size + cell_connectivity_b.size,
+        dtype=cell_connectivity_a.dtype,
+    )
+    merged_cell_connectivity[: cell_connectivity_a.size] = cell_connectivity_a
+    merged_cell_connectivity[cell_connectivity_a.size :] = cell_connectivity_b
+
+    mask = _np.ones(cell_connectivity_b.size, dtype=bool)
+    mask[offsets_b[:-1]] = False
+
+    merged_cell_connectivity_view_part_b = merged_cell_connectivity[
+        cell_connectivity_a.size :
+    ]
+    merged_cell_connectivity_view_part_b[mask] += mesh_representation_a.n_points
+
+    # Merge the cell types.
+    merged_cell_types = _np.concatenate(
+        (
+            mesh_representation_a.cell_types,
+            mesh_representation_b.cell_types,
+        )
+    )
+
+    # Merge the contained data dictionaries.
+    def _merge_data_dicts(
+        dict_a: dict[str, _NDArray],
+        size_a: int,
+        dict_b: dict[str, _NDArray],
+        size_b: int,
+    ) -> dict[str, _NDArray]:
+        """Merge the given data dictionaries and fill in non-existing data."""
+
+        def _ensure_array_size(size: int, reference_array: _NDArray) -> _NDArray:
+            """Create an empty array that matches the columns of the reference
+            array and has the given size, i.e., number of rows."""
+            new_shape = reference_array.shape
+            if len(new_shape) == 1:
+                new_shape = (size,)
+            elif len(new_shape) == 2:
+                new_shape = (size, new_shape[1])
+            else:
+                raise ValueError(f"Got unexpected array shape {new_shape}.")
+            return _np.zeros(new_shape, dtype=reference_array.dtype)
+
+        all_keys = set(dict_a.keys()) | set(dict_b.keys())
+        merged_data = {}
+        for key in all_keys:
+            data_a = dict_a.get(key, None)
+            data_b = dict_b.get(key, None)
+            if data_a is None:
+                data_a = _ensure_array_size(size_a, data_b)
+            elif data_b is None:
+                data_b = _ensure_array_size(size_b, data_a)
+            merged_data[key] = _np.concatenate((data_a, data_b))
+        return merged_data
+
+    merged_cell_data = _merge_data_dicts(
+        mesh_representation_a.cell_data,
+        mesh_representation_a.n_cells,
+        mesh_representation_b.cell_data,
+        mesh_representation_b.n_cells,
+    )
+    merged_point_data = _merge_data_dicts(
+        mesh_representation_a.point_data,
+        mesh_representation_a.n_points,
+        mesh_representation_b.point_data,
+        mesh_representation_b.n_points,
+    )
+
+    return MeshRepresentation(
+        cell_connectivity=merged_cell_connectivity,
+        cell_types=merged_cell_types,
+        points=merged_points,
+        cell_data=merged_cell_data,
+        point_data=merged_point_data,
+    )

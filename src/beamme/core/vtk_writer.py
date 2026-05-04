@@ -77,11 +77,11 @@ def add_point_data_node_sets(point_data, nodes, *, extra_points=0):
         geometry_set_list.extend(node.node_sets_link)
 
     # Remove double entries of list.
-    geometry_set_list = list(set(geometry_set_list))
+    geometry_set_list = list(dict.fromkeys(geometry_set_list))
 
     # Loop over the geometry sets.
     n_nodes = len(nodes)
-    for geometry_set in geometry_set_list:
+    for i_geometry_set, geometry_set in enumerate(geometry_set_list):
         # Check which nodes are connected to a geometry set.
         data_vector = _np.zeros(n_nodes + extra_points)
         for i, node in enumerate(nodes):
@@ -107,7 +107,9 @@ def add_point_data_node_sets(point_data, nodes, *, extra_points=0):
             raise TypeError("The geometry type is wrong!")
 
         # Add the data vector.
-        set_name = f"{geometry_name}_set_{_bme.vtk_node_set_format.format(geometry_set.i_global + 1)}"
+        set_name = (
+            f"{geometry_name}_set_{_bme.vtk_node_set_format.format(i_geometry_set + 1)}"
+        )
         point_data[set_name] = (data_vector, VTKType.int)
 
 

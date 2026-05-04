@@ -22,6 +22,7 @@
 """This file defines the base volume element."""
 
 import numpy as _np
+import pyvista as _pv
 import vtk as _vtk
 
 from beamme.core.element import Element as _Element
@@ -34,6 +35,7 @@ class VolumeElement(_Element):
     # This class variables stores the information about the element shape in
     # vtk. And the connectivity to the nodes.
     vtk_cell_type = None
+    vtk_cell_type_legacy = None
     vtk_topology: list = []
 
     def __init__(self, nodes=None, data={}, **kwargs):
@@ -45,8 +47,8 @@ class VolumeElement(_Element):
         quad."""
 
         # Check that the element has a valid vtk cell type.
-        if self.vtk_cell_type is None:
-            raise TypeError(f"vtk_cell_type for {type(self)} not set!")
+        if self.vtk_cell_type_legacy is None:
+            raise TypeError(f"vtk_cell_type_legacy for {type(self)} not set!")
 
         # Dictionary with cell data.
         cell_data = {}
@@ -65,42 +67,53 @@ class VolumeElement(_Element):
         # Add cell to writer.
         indices = vtk_writer_solid.add_points(coordinates, point_data=point_data)
         vtk_writer_solid.add_cell(
-            self.vtk_cell_type, indices[self.vtk_topology], cell_data=cell_data
+            self.vtk_cell_type_legacy, indices[self.vtk_topology], cell_data=cell_data
         )
+
+
+class VolumePoint(VolumeElement):
+    """A point volume element, e.g., for spheres."""
+
+    vtk_cell_type = _pv.CellType.VERTEX
 
 
 class VolumeWEDGE6(VolumeElement):
     """A WEDGE6 volume element."""
 
-    vtk_cell_type = _vtk.vtkWedge
+    vtk_cell_type_legacy = _vtk.vtkWedge
+    vtk_cell_type = _pv.CellType.WEDGE
     vtk_topology = list(range(6))
 
 
 class VolumeHEX8(VolumeElement):
     """A HEX8 volume element."""
 
-    vtk_cell_type = _vtk.vtkHexahedron
+    vtk_cell_type_legacy = _vtk.vtkHexahedron
+    vtk_cell_type = _pv.CellType.HEXAHEDRON
     vtk_topology = list(range(8))
 
 
 class VolumeTET4(VolumeElement):
     """A TET4 volume element."""
 
-    vtk_cell_type = _vtk.vtkTetra
+    vtk_cell_type_legacy = _vtk.vtkTetra
+    vtk_cell_type = _pv.CellType.TETRA
     vtk_topology = list(range(4))
 
 
 class VolumeTET10(VolumeElement):
     """A TET10 volume element."""
 
-    vtk_cell_type = _vtk.vtkQuadraticTetra
+    vtk_cell_type_legacy = _vtk.vtkQuadraticTetra
+    vtk_cell_type = _pv.CellType.QUADRATIC_TETRA
     vtk_topology = list(range(10))
 
 
 class VolumeHEX20(VolumeElement):
     """A HEX20 volume element."""
 
-    vtk_cell_type = _vtk.vtkQuadraticHexahedron
+    vtk_cell_type_legacy = _vtk.vtkQuadraticHexahedron
+    vtk_cell_type = _pv.CellType.QUADRATIC_HEXAHEDRON
     vtk_topology = [
         0,
         1,
@@ -128,7 +141,8 @@ class VolumeHEX20(VolumeElement):
 class VolumeHEX27(VolumeElement):
     """A HEX27 volume element."""
 
-    vtk_cell_type = _vtk.vtkTriQuadraticHexahedron
+    vtk_cell_type_legacy = _vtk.vtkTriQuadraticHexahedron
+    vtk_cell_type = _pv.CellType.TRIQUADRATIC_HEXAHEDRON
     vtk_topology = [
         0,
         1,

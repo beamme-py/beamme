@@ -25,19 +25,17 @@ from abc import abstractmethod as _abstractmethod
 from typing import Iterator as _Iterator
 
 import numpy as _np
+import pyvista as _pv
 
 from beamme.core.conf import bme as _bme
 from beamme.core.element import Element as _Element
-from beamme.core.material import (
-    MaterialSolidBase as _MaterialSolidBase,
-)
 
 
 class NURBSPatch(_Element):
     """A base class for a NURBS patch."""
 
-    # A list of valid material types for this element
-    valid_materials = [_MaterialSolidBase]
+    # Generic VTK cell type for NURBS elements - this will not show the correct topology in vtk.
+    vtk_cell_type = _pv.CellType.POLYGON
 
     def __init__(self, knot_vectors, polynomial_orders, material=None, nodes=None):
         super().__init__(nodes=nodes, material=material)
@@ -47,10 +45,6 @@ class NURBSPatch(_Element):
 
         # Polynomial degrees
         self.polynomial_orders = polynomial_orders
-
-        # Global indices
-        self.i_global_start = None
-        self.i_nurbs_patch = None
 
     def get_nurbs_dimension(self) -> int:
         """Determine the number of dimensions of the NURBS structure.
@@ -119,17 +113,6 @@ class NURBSPatch(_Element):
         num_elements_dir = [len(indices) for indices in non_empty_knot_spans_indices]
         total_num_elements = _np.prod(num_elements_dir)
         return total_num_elements
-
-    def _check_material(self) -> None:
-        """Check if the linked material is valid for this type of NURBS solid
-        element."""
-        for material_type in type(self).valid_materials:
-            if isinstance(self.material, material_type):
-                return
-        raise TypeError(
-            f"NURBS solid of type {type(self)} can not have a material of"
-            f" type {type(self.material)}!"
-        )
 
     @_abstractmethod
     def get_knot_span_iterator(self) -> _Iterator[tuple[int, ...]]:

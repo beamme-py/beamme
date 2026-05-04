@@ -30,6 +30,7 @@ from typing import Union as _Union
 from typing import cast as _cast
 
 import numpy as _np
+import pyvista as _pv
 import vtk as _vtk
 
 from beamme.core.conf import bme as _bme
@@ -52,6 +53,8 @@ class NodeCosseratSpaceTime(_NodeCosserat):
     We add the 4th dimension time as a class variable.
     """
 
+    node_type = _bme.node_type.space_time_cosserat
+
     def __init__(self, coordinates, rotation, time, **kwargs):
         super().__init__(coordinates, rotation, **kwargs)
         self.time = time
@@ -67,14 +70,16 @@ class SpaceTimeElement(_VolumeElement):
 class SpaceTimeElementQuad4(SpaceTimeElement):
     """A space-time element with 4 nodes."""
 
-    vtk_cell_type = _vtk.vtkQuad
+    vtk_cell_type = _pv.CellType.QUAD
+    vtk_cell_type_legacy = _vtk.vtkQuad
     vtk_topology = list(range(4))
 
 
 class SpaceTimeElementQuad9(SpaceTimeElement):
     """A space-time element with 9 nodes."""
 
-    vtk_cell_type = _vtk.vtkQuadraticQuad
+    vtk_cell_type = _pv.CellType.BIQUADRATIC_QUAD
+    vtk_cell_type_legacy = _vtk.vtkQuadraticQuad
     vtk_topology = list(range(9))
 
 
