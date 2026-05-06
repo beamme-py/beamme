@@ -58,12 +58,12 @@ jobs:
         uses: ./.github/actions/run_tests
         with:
           additional-pytest-flags: "--4C --ArborX --CubitPy --check-for-unused-reference-files --cov-fail-under=93"
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
+          cubitpy_config_file: ${{ steps.cubit.outputs.cubitpy_config_file }}
       - name: Free cubit license
         if: ${{ always() }}
         uses: ./.github/actions/cubit_finalize
         with:
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
+          cubitpy_config_file: ${{ steps.cubit.outputs.cubitpy_config_file }}
       - name: Coverage badge and report
         uses: ./.github/actions/coverage
 
