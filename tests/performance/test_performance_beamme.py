@@ -487,45 +487,6 @@ def test_performance_beamme_dump_input_file(
 
 
 @pytest.mark.performance
-def test_performance_beamme_write_vtk(evaluate_execution_time, tmp_path):
-    """Test the performance of writing a beam mesh to VTK format."""
-
-    # use a smaller mesh for testing vtk output performance
-    mesh = create_beam_mesh(n_x=20, n_y=20, n_z=10, n_el=2)
-
-    evaluate_execution_time(
-        "BeamMe: Write beam mesh to VTK",
-        mesh.write_vtk,
-        kwargs={
-            "output_name": "performance_testing_beam",
-            "output_directory": tmp_path,
-            "beam_centerline_visualization_segments": 1,
-        },
-        expected_time=4.0,
-    )
-
-
-@pytest.mark.performance
-def test_performance_beamme_write_vtk_smooth(evaluate_execution_time, tmp_path):
-    """Test the performance of writing a beam mesh to VTK format with more
-    segments."""
-
-    # use a smaller mesh for testing vtk output performance
-    mesh = create_beam_mesh(n_x=20, n_y=20, n_z=10, n_el=2)
-
-    evaluate_execution_time(
-        "BeamMe: Write beam mesh to VTK with more segments",
-        mesh.write_vtk,
-        kwargs={
-            "output_name": "performance_testing_beam",
-            "output_directory": tmp_path,
-            "beam_centerline_visualization_segments": 5,
-        },
-        expected_time=8.1,
-    )
-
-
-@pytest.mark.performance
 def test_performance_beamme_write_vtu(
     large_beam_mesh, evaluate_execution_time, tmp_path
 ):
