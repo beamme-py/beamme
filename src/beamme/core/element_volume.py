@@ -25,6 +25,7 @@ import numpy as _np
 import pyvista as _pv
 import vtk as _vtk
 
+from beamme.core.conf import bme as _bme
 from beamme.core.element import Element as _Element
 from beamme.core.vtk_writer import add_point_data_node_sets as _add_point_data_node_sets
 
@@ -37,6 +38,9 @@ class VolumeElement(_Element):
     vtk_cell_type = None
     vtk_cell_type_legacy = None
     vtk_topology: list = []
+
+    # Type of this element.
+    element_type = _bme.element_type.solid
 
     def __init__(self, nodes=None, data={}, **kwargs):
         super().__init__(nodes=nodes, **kwargs)

@@ -523,3 +523,17 @@ def test_performance_beamme_write_vtk_smooth(evaluate_execution_time, tmp_path):
         },
         expected_time=8.1,
     )
+
+
+@pytest.mark.performance
+def test_performance_beamme_write_vtu(
+    large_beam_mesh, evaluate_execution_time, tmp_path
+):
+    """Test the performance of writing a beam mesh to VTU format."""
+
+    evaluate_execution_time(
+        "BeamMe: Write beam mesh to VTU",
+        large_beam_mesh.write_vtu,
+        args=[tmp_path / "performance_testing_beam.vtu"],
+        expected_time=1.0,
+    )

@@ -38,6 +38,9 @@ class Beam(_Element):
     # Cell type for representing this element in vtk.
     vtk_cell_type = _pv.CellType.POLY_LINE
 
+    # Type of this element.
+    element_type = _bme.element_type.beam
+
     # An array that defines the parameter positions of the element nodes,
     # in ascending order.
     nodes_create: _Any = []
@@ -220,7 +223,7 @@ def generate_beam_class(n_nodes: int):
     nodes_create = _np.linspace(-1, 1, num=n_nodes)
 
     # Create the beam class which inherits from the base beam class.
-    return type(f"Beam{n_nodes}", (Beam,), {"nodes_create": nodes_create})
+    return type(f"Beam{n_nodes}", (Beam,), {"nodes_create": nodes_create, "data": None})
 
 
 Beam2 = generate_beam_class(2)

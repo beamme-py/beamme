@@ -138,7 +138,7 @@ create_beam_mesh_helix(
 mesh.display_pyvista()
 
 # Alternatively, write the mesh to a VTK file that can be opened in ParaView.
-mesh.write_vtk("getting_started", ".")
+mesh.write_vtu("getting_started.vtu")
 ```
 This will open the following window, displaying the created beam structure:
 <td align="center">
