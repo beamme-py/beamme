@@ -27,7 +27,7 @@ runs:
 
     - name: Install wheel under test
       shell: bash
-      run: pip install "$(echo wheelhouse/*cp${PYTAG}*.whl)[dev,fourc]"
+      run: pip install "$(echo wheelhouse/*cp${PYTAG}*.whl)[cubitpy,dev,fourc]"
 
     - name: Run test suite and upload results on failure
       uses: ./.github/actions/run_tests

@@ -135,3 +135,32 @@ def four_c_element_data_from_yaml_dict(
     )
 
     return data, element_id, connectivity, material_id
+
+
+def four_c_element_data_from_exo_dict(exo_dict: dict) -> tuple[FourCElementData, int]:
+    """Extract the 4C element data from a exodus element definition in the
+    input file.
+
+    Args:
+        exo_dict: The exodus element definition in the input file, will be modified in
+            place.
+
+    Returns:
+        A tuple containing the 4C element data and the material ID.
+    """
+
+    # First, we have to remove the ID entry
+    exo_dict.pop("ID")
+
+    four_c_type = list(exo_dict.keys())[0]
+    four_c_cell = list(exo_dict[four_c_type].keys())[0]
+    element_technology = exo_dict[four_c_type][four_c_cell]
+    material_id = element_technology.pop("MAT", 0) - 1
+
+    data = FourCElementData(
+        four_c_type=four_c_type,
+        four_c_cell=four_c_cell,
+        element_technology=element_technology,
+    )
+
+    return data, material_id

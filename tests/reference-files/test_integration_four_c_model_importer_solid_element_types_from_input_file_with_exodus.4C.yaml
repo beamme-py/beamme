@@ -1,0 +1,40 @@
+STRUCTURE GEOMETRY:
+  FILE: "test_integration_four_c_model_importer_solid_element_types_from_input_file_with_exodus.exo"
+  SHOW_INFO: "detailed_summary"
+  ELEMENT_BLOCKS:
+    - ID: 1
+      SOLID:
+        HEX8:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 2
+      SOLID:
+        HEX20:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 3
+      SOLID:
+        HEX27:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 4
+      SOLID:
+        WEDGE6:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 5
+      SOLID:
+        TET4:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 6
+      SOLID:
+        TET10:
+          MAT: 1
+          KINEM: "nonlinear"
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2

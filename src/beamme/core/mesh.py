@@ -334,6 +334,26 @@ class Mesh:
 
         return mesh_sets
 
+    def get_named_geometry_sets(self) -> dict[str, _GeometrySetBase]:
+        """Return a dictionary with the named geometry sets in this mesh.
+
+        Returns:
+            A dictionary that maps the name of a geometry set to the geometry set
+            object. Only geometry sets with a given name are returned. This function
+            throws an error if there are multiple geometry sets with the same name.
+        """
+
+        named_geometry_sets = {}
+        for geometry_set_list in self.get_unique_geometry_sets().values():
+            for geometry_set in geometry_set_list:
+                if geometry_set.name is not None:
+                    if geometry_set.name in named_geometry_sets:
+                        raise ValueError(
+                            f"Geometry set name {geometry_set.name} is not unique."
+                        )
+                    named_geometry_sets[geometry_set.name] = geometry_set
+        return named_geometry_sets
+
     def set_node_links(self):
         """Create a link of all elements to the nodes connected to them."""
         for element in self.elements:

@@ -370,11 +370,19 @@ class InputFile:
 
         return application_script_lines
 
-    def contains_external_mesh_based_geometry(self) -> bool:
-        """Check if the input file contains external mesh-based geometry.
+    def contains_mesh_based_geometry_exodus(self) -> bool:
+        """Check if the input file contains exodus mesh-based geometry.
 
         Returns:
-            True if the input file contains external mesh-based geometry, False otherwise.
+            True if the input file contains exodus mesh-based geometry, False otherwise.
         """
-
+        structure_geometry_section = self.fourc_input.sections.get(
+            "STRUCTURE GEOMETRY", None
+        )
+        if structure_geometry_section is not None:
+            file_name = structure_geometry_section.get("FILE", None)
+            if file_name is not None:
+                exodus_file_name = _Path(file_name)
+                if exodus_file_name.suffix.lower() in [".exo", ".e"]:
+                    return True
         return False
