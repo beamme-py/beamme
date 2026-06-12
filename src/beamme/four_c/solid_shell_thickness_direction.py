@@ -27,9 +27,11 @@ from typing import List as _List
 import numpy as _np
 import pyvista as _pv
 
+from beamme.core.conf import bme as _bme
 from beamme.core.element import Element as _Element
 from beamme.core.element_volume import VolumeElement as _VolumeElement
 from beamme.core.element_volume import VolumeHEX8 as _VolumeHEX8
+from beamme.core.mesh import Mesh as _Mesh
 from beamme.utils.nodes import get_nodal_coordinates as _get_nodal_coordinates
 
 
@@ -253,12 +255,14 @@ def set_solid_shell_thickness_direction(
                 element.nodes = [element.nodes[local_index] for local_index in mapping]
 
 
-def get_visualization_third_parameter_direction_hex8(mesh):
+def get_visualization_third_parameter_direction_hex8(mesh: _Mesh):
     """Return a pyvista mesh with cell data for the third parameter direction
     for hex8 elements."""
 
-    vtk_solid = mesh.get_vtk_representation()[1].grid
-    pv_solid = _pv.UnstructuredGrid(vtk_solid)
+    grid = mesh.get_vtu_representation()
+    grid_solid = grid.extract_cells(
+        grid.cell_data["element_type"] == _bme.element_type.solid.value
+    )
 
     cell_thickness_direction = []
     for element in mesh.elements:
@@ -268,18 +272,18 @@ def get_visualization_third_parameter_direction_hex8(mesh):
         elif isinstance(element, _VolumeElement):
             cell_thickness_direction.append([0, 0, 0])
 
-    if not len(cell_thickness_direction) == pv_solid.number_of_cells:
+    if not len(cell_thickness_direction) == grid_solid.number_of_cells:
         raise ValueError(
             "Expected the same number of cells from the mesh and from the "
             f"pyvista object. Got {len(cell_thickness_direction)} form the "
-            f"mesh and {pv_solid.number_of_cells} form pyvista"
+            f"mesh and {grid_solid.number_of_cells} form pyvista"
         )
 
-    pv_solid.cell_data["thickness_direction"] = cell_thickness_direction
-    return pv_solid
+    grid_solid.cell_data["thickness_direction"] = cell_thickness_direction
+    return grid_solid
 
 
-def visualize_third_parameter_direction_hex8(mesh):
+def visualize_third_parameter_direction_hex8(mesh: _Mesh):
     """Visualize the third parameter direction for hex8 elements.
 
     This can be used to check the correct definition of the shell

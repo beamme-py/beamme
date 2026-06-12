@@ -23,8 +23,8 @@
 elements, sets, ...) for a meshed geometry."""
 
 import copy as _copy
-import os as _os
 import warnings as _warnings
+from pathlib import Path as _Path
 from typing import Any as _Any
 from typing import List as _List
 from typing import cast as _cast
@@ -55,13 +55,15 @@ from beamme.core.mesh_representation import (
 )
 from beamme.core.mesh_representation import GeometrySetInfo as _GeometrySetInfo
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
+from beamme.core.mesh_representation import (
+    string_to_geometry_set_info as _string_to_geometry_set_info,
+)
 from beamme.core.node import Node as _Node
 from beamme.core.node import NodeCosserat as _NodeCosserat
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
 from beamme.core.rotation import Rotation as _Rotation
 from beamme.core.rotation import add_rotations as _add_rotations
 from beamme.core.rotation import rotate_coordinates as _rotate_coordinates
-from beamme.core.vtk_writer import VTKWriter as _VTKWriter
 from beamme.geometric_search.find_close_points import (
     find_close_points as _find_close_points,
 )
@@ -716,7 +718,7 @@ class Mesh:
         return _get_nodes_by_function(self.nodes, *args, **kwargs)
 
     def get_mesh_representation(
-        self, material_to_i_global: dict[_Material, int]
+        self, material_to_i_global: dict[_Material, int] | None = None
     ) -> tuple[
         _MeshRepresentation,
         dict[int, _Any],
@@ -741,6 +743,9 @@ class Mesh:
             nurbs_patch_to_i_global: A dictionary that maps each NURBS patch to the
                 global ID of that patch.
         """
+
+        if material_to_i_global is None:
+            material_to_i_global = {}
 
         # Get the global id mappings for geometry sets.
         mesh_sets = self.get_unique_geometry_sets()
@@ -929,76 +934,78 @@ class Mesh:
             nurbs_patch_to_i_global,
         )
 
-    def get_vtk_representation(self, *, coupling_sets=False, **kwargs):
-        """Return a vtk representation of the beams and solid in this mesh.
+    def get_vtu_representation(self) -> _pv.UnstructuredGrid:
+        """Return a vtu representation of this mesh.
 
-        Args
-        ----
-        coupling_sets: bool
-            If coupling sets should also be displayed.
+        Returns:
+            A pyvista UnstructuredGrid object that represents this mesh.
         """
 
-        # Object to store VKT data (and write it to file)
-        vtk_writer_beam = _VTKWriter()
-        vtk_writer_solid = _VTKWriter()
+        # Get mesh representation.
+        mesh_representation, _, _, _ = self.get_mesh_representation()
 
-        # Get the set numbers of the mesh
-        mesh_sets = self.get_unique_geometry_sets(coupling_sets=coupling_sets)
+        # Get data arrays for visualization, i.e., element type and the cross-section radius for beams.
+        element_types = _np.empty(mesh_representation.n_cells, dtype=int)
+        cross_section_radii = _np.zeros(mesh_representation.n_cells)
+        for i_cell, beamm_id in enumerate(
+            mesh_representation.data_iterator("cell_data", "beamme_id")
+        ):
+            element = self.elements[beamm_id]
+            element_type = type(element).element_type
+            element_types[i_cell] = element_type.value
+            if element_type == _bme.element_type.beam:
+                cross_section_radii[i_cell] = element.material.radius
+        node_value = _np.zeros(mesh_representation.n_points)
+        for i_node, node in enumerate(self.nodes):
+            if isinstance(node, _NodeCosserat):
+                if node.is_middle_node:
+                    node_value[i_node] = 0.5
+                else:
+                    node_value[i_node] = 1.0
 
-        # Set the global value for digits in the VTK output.
-        # Get highest number of node_sets.
-        max_sets = max(len(geometry_list) for geometry_list in mesh_sets.values())
+        # Create a pyvista grid.
+        grid = _pv.UnstructuredGrid(
+            mesh_representation.cell_connectivity,
+            mesh_representation.cell_types,
+            mesh_representation.points,
+        )
 
-        # Set the bme value.
-        digits = len(str(max_sets))
-        _bme.vtk_node_set_format = "{:0" + str(digits) + "}"
+        # Add all data arrays required from the mesh representation
+        data_names_for_visualization = {
+            "cell_data": ["element_type_id", "beamme_id"],
+            "point_data": ["point_type", "rotation_vector"],
+        }
+        for field_name in ["cell_data", "point_data"]:
+            for name, data in getattr(mesh_representation, field_name).items():
+                geometry_set_info = _string_to_geometry_set_info(name)
+                if (
+                    name in data_names_for_visualization[field_name]
+                    or geometry_set_info is not None
+                ):
+                    getattr(grid, field_name)[name] = data
 
-        # Get representation of elements.
-        for element in self.elements:
-            element.get_vtk(vtk_writer_beam, vtk_writer_solid, **kwargs)
+        # Add the data arrays created here.
+        grid.cell_data["element_type"] = element_types
+        grid.cell_data["cross_section_radius"] = cross_section_radii
+        grid.point_data["node_value"] = node_value
 
-        # Finish and return the writers
-        vtk_writer_beam.complete_data()
-        vtk_writer_solid.complete_data()
-        return vtk_writer_beam, vtk_writer_solid
+        return grid
 
-    def write_vtk(
-        self, output_name="beamme", output_directory="", binary=True, **kwargs
-    ):
+    def write_vtu(self, file_name: _Path | str, binary=True):
         """Write the contents of this mesh to VTK files.
 
         Args
         ----
-        output_name: str
-            Base name of the output file. There will be a {}_beam.vtu and
-            {}_solid.vtu file.
-        output_directory: path
-            Directory where the output files will be written.
-        binary: bool
-            If the data should be written encoded in binary or in human readable text
-
-        **kwargs
-            For all of them look into:
-                Mesh().get_vtk_representation
-                Beam().get_vtk
-                VolumeElement().get_vtk
-        ----
-        beam_centerline_visualization_segments: int
-            Number of segments to be used for visualization of beam centerline between successive
-            nodes. Default is 1, which means a straight line is drawn between the beam nodes. For
-            Values greater than 1, a Hermite interpolation of the centerline is assumed for
-            visualization purposes.
+        file_name: The path or filename of the vtu file.
+        binary: If the data should be written encoded in binary or in human readable text
         """
-
-        vtk_writer_beam, vtk_writer_solid = self.get_vtk_representation(**kwargs)
-
-        # Write to file, only if there is at least one point in the writer.
-        if vtk_writer_beam.points.GetNumberOfPoints() > 0:
-            filepath = _os.path.join(output_directory, output_name + "_beam.vtu")
-            vtk_writer_beam.write_vtk(filepath, binary=binary)
-        if vtk_writer_solid.points.GetNumberOfPoints() > 0:
-            filepath = _os.path.join(output_directory, output_name + "_solid.vtu")
-            vtk_writer_solid.write_vtk(filepath, binary=binary)
+        path = _Path(file_name)
+        if path.suffix == "":
+            path = path.with_suffix(".vtu")
+        elif path.suffix != ".vtu":
+            raise ValueError(f"Expected file extension '.vtu', got '{path.suffix}'")
+        grid = self.get_vtu_representation()
+        grid.save(path, binary=binary)
 
     def display_pyvista(
         self,
@@ -1006,10 +1013,8 @@ class Mesh:
         beam_nodes=True,
         beam_tube=True,
         beam_cross_section_directors=True,
-        beam_radius_for_display=None,
         resolution=20,
         parallel_projection=False,
-        **kwargs,
     ):
         """Display the mesh in pyvista.
 
@@ -1026,28 +1031,14 @@ class Mesh:
             If the beam should be rendered as a tube
         beam_cross_section_directors: bool
             If the cross section directors should be displayed (at each node)
-        beam_radius_for_display: float
-            If not all beams have an explicitly given radius (in the material
-            definition) this value will be used to approximate the beams radius
-            for visualization
         resolution: int
             Indicates how many triangulations will be performed to visualize arrows,
             tubes and spheres.
         parallel_projection: bool
             Flag to change camera view to parallel projection.
-
-        **kwargs
-            For all of them look into:
-                Mesh().get_vtk_representation
-                Beam().get_vtk
-                VolumeElement().get_vtk
-        ----
-        beam_centerline_visualization_segments: int
-            Number of segments to be used for visualization of beam centerline between successive
-            nodes. Default is 1, which means a straight line is drawn between the beam nodes. For
-            Values greater than 1, a Hermite interpolation of the centerline is assumed for
-            visualization purposes.
         """
+
+        grid = self.get_vtu_representation()
 
         plotter = _pv.Plotter()
         plotter.renderer.add_axes()
@@ -1055,33 +1046,12 @@ class Mesh:
         if parallel_projection:
             plotter.enable_parallel_projection()
 
-        vtk_writer_beam, vtk_writer_solid = self.get_vtk_representation(**kwargs)
-
-        if vtk_writer_beam.points.GetNumberOfPoints() > 0:
-            beam_grid = _pv.UnstructuredGrid(vtk_writer_beam.grid)
-
-            # Check if all beams have a given cross-section radius, if not set the given input
-            # value
-            all_beams_have_cross_section_radius = (
-                min(beam_grid.cell_data["cross_section_radius"]) > 0
-            )
-            if not all_beams_have_cross_section_radius:
-                if beam_radius_for_display is None:
-                    raise ValueError(
-                        "Not all beams have a radius, you need to set "
-                        "beam_radius_for_display to allow a display of the beams."
-                    )
-                beam_grid.cell_data["cross_section_radius"] = beam_radius_for_display
-
-            # Grid with beam polyline
-            beam_grid = beam_grid.cell_data_to_point_data()
-
-            # Poly data for nodes
-            finite_element_nodes = beam_grid.cast_to_poly_points().threshold(
-                scalars="node_value", value=(0.4, 1.1)
-            )
+        beam_mask = grid.cell_data["element_type"] == _bme.element_type.beam.value
+        if _np.any(beam_mask):
+            beam_grid = grid.extract_cells(beam_mask).cell_data_to_point_data()
 
             # Plot the nodes
+            beam_finite_element_nodes = beam_grid.cast_to_poly_points()
             node_radius_scaling_factor = 1.5
             if beam_nodes:
                 sphere = _pv.Sphere(
@@ -1089,7 +1059,7 @@ class Mesh:
                     theta_resolution=resolution,
                     phi_resolution=resolution,
                 )
-                nodes_glyph = finite_element_nodes.glyph(
+                nodes_glyph = beam_finite_element_nodes.glyph(
                     geom=sphere,
                     scale="cross_section_radius",
                     factor=node_radius_scaling_factor,
@@ -1108,29 +1078,34 @@ class Mesh:
             # Plot the beams
             beam_color = [0.5, 0.5, 0.5]
             if beam_tube:
-                surface = beam_grid.extract_surface()
-                if all_beams_have_cross_section_radius:
-                    tube = surface.tube(
-                        scalars="cross_section_radius",
-                        absolute=True,
-                        n_sides=resolution,
-                    )
-                else:
-                    tube = surface.tube(
-                        radius=beam_radius_for_display, n_sides=resolution
-                    )
-                plotter.add_mesh(tube, color=beam_color)
+                beam_tube_grid = beam_grid.extract_surface()
+                beam_tube_grid = beam_tube_grid.tube(
+                    scalars="cross_section_radius",
+                    absolute=True,
+                    n_sides=resolution,
+                )
+                plotter.add_mesh(beam_tube_grid, color=beam_color)
             else:
                 plotter.add_mesh(beam_grid, color=beam_color, line_width=4)
 
             # Plot the directors of the beam cross-section
-            director_radius_scaling_factor = 3.5
             if beam_cross_section_directors:
+                # First, we need to set the cross section basis vectors as point data vectors.
+                quaternions = _quaternion.from_rotation_vector(
+                    beam_finite_element_nodes["rotation_vector"]
+                )
+                rotation_matrices = _quaternion.as_rotation_matrix(quaternions)
+                for i in range(3):
+                    beam_finite_element_nodes[f"base_vector_{i + 1}"] = (
+                        rotation_matrices[:, :, i]
+                    )
+
+                director_radius_scaling_factor = 3.5
                 arrow = _pv.Arrow(
                     tip_resolution=resolution, shaft_resolution=resolution
                 )
                 directors = [
-                    finite_element_nodes.glyph(
+                    beam_finite_element_nodes.glyph(
                         geom=arrow,
                         orient=f"base_vector_{i + 1}",
                         scale="cross_section_radius",
@@ -1142,8 +1117,9 @@ class Mesh:
                 for i, arrow in enumerate(directors):
                     plotter.add_mesh(arrow, color=colors[i])
 
-        if vtk_writer_solid.points.GetNumberOfPoints() > 0:
-            solid_grid = _pv.UnstructuredGrid(vtk_writer_solid.grid).clean()
+        solid_mask = grid.cell_data["element_type"] == _bme.element_type.beam.solid
+        if _np.any(solid_mask):
+            solid_grid = grid.extract_cells(solid_mask)
             plotter.add_mesh(solid_grid, color="white", show_edges=True, opacity=0.5)
 
         if not _is_testing():

@@ -476,8 +476,8 @@ class CosseratCurve(object):
         return _optimize.newton(f, t0, fprime=fp)
 
     def get_pyvista_polyline(self, *, factor: float = 1.0) -> _pv.PolyData:
-        """Create a pyvista (vtk) representation of the curve with the
-        evaluated triad basis vectors.
+        """Create a pyvista representation of the curve with the evaluated
+        triad basis vectors.
 
         Args:
             factor: Factor to scale the curvature along the curve (see

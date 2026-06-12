@@ -88,9 +88,7 @@ def test_other_readme_getting_started(
     assert "mesh" in globals
     assert isinstance(globals["mesh"], Mesh)
 
-    # What we can do, is to check the created vtk output.
-    ref_file = get_corresponding_reference_file_path(
-        additional_identifier="beam", extension="vtu"
-    )
-    vtk_file = tmp_path / "getting_started_beam.vtu"
+    # What we can do, is to check the created vtu output.
+    ref_file = get_corresponding_reference_file_path(extension="vtu")
+    vtk_file = tmp_path / "getting_started.vtu"
     assert_results_close(ref_file, vtk_file)

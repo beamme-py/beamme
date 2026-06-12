@@ -210,6 +210,9 @@ def convert_to_primitive_type(
             for fragment in line.split(",")
         ]
 
+    if isinstance(obj, pv.UnstructuredGrid):
+        return obj
+
     raise TypeError(f"The comparison for {type(obj)} is not yet implemented!")
 
 
