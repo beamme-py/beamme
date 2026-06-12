@@ -68,6 +68,6 @@ addopts = "-p pytest_cov --cov-report=term --cov-report=html --cov-report=xml --
 markers = [
   "fourc: tests in combination with 4C",
   "arborx: tests in combination with ArborX",
-  "cubitpy: tests in combination with CubitPy",
+  "coreform: tests in combination with Coreform Cubit",
   "performance: performance tests"
 ]

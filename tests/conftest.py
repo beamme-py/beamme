@@ -65,10 +65,10 @@ def pytest_addoption(parser: Parser) -> None:
     )
 
     parser.addoption(
-        "--CubitPy",
+        "--Coreform",
         action="store_true",
         default=False,
-        help="Execute standard and CubitPy based tests.",
+        help="Execute standard and Coreform based tests.",
     )
 
     parser.addoption(
@@ -129,7 +129,7 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
         `pytest`: Execute standard tests with no markers
         `pytest --4C`: Execute standard tests and tests with the `fourc` marker
         `pytest --ArborX`: Execute standard tests and tests with the `arborx` marker
-        `pytest --CubitPy`: Execute standard tests and tests with the `cubitpy` marker
+        `pytest --Coreform`: Execute standard tests and tests with the `coreform` marker
         `pytest --performance-tests`: Execute standard tests and tests with the `performance` marker
         `pytest --exclude-standard-tests`: Execute tests with any other marker and exclude the standard unmarked tests
         `pytest --check-for-unused-reference-files`: Check for unused reference files in the reference file directory
@@ -142,8 +142,8 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
     # Get all active markers for this pytest run
     active_markers = set()
     for flag, marker in zip(
-        ["--4C", "--ArborX", "--CubitPy", "--performance-tests"],
-        ["fourc", "arborx", "cubitpy", "performance"],
+        ["--4C", "--ArborX", "--Coreform", "--performance-tests"],
+        ["fourc", "arborx", "coreform", "performance"],
     ):
         if config.getoption(flag):
             active_markers.add(marker)
@@ -154,7 +154,7 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
     for item in items:
         _check_naming_convention(item)
 
-        # Get all set markers for current test (e.g. `4C`, `ArborX`, `CubitPy`, ...)
+        # Get all set markers for current test (e.g. `4C`, `ArborX`, `Coreform`, ...)
         # We don't care about the "parametrize" marker here
         markers = set(
             marker.name

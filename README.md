@@ -365,17 +365,17 @@ BeamMe provides a flexible testing system where additional tests can be enabled 
  - `--exclude-standard-tests`: Disables the default test suite
  - `--4C`: Runs tests related to 4C integration
  - `--ArborX`: Enables tests for ArborX-related functionality
- - `--CubitPy`: Runs tests for CubitPy integration
+ - `--Coreform`: Runs tests that require Coreform Cubit
  - `--performance-tests`: Includes performance tests
 
-These flags can be combined arbitrarily; for example, to run the 4C, CubitPy, and ArborX tests but exclude the default test suite, use:
+These flags can be combined arbitrarily; for example, to run the 4C, Coreform Cubit, and ArborX tests but exclude the default test suite, use:
 ```bash
 # 4C Tests require a path to a 4C executable
 export BEAMME_FOUR_C_EXE=<path_to_4C>
-# CubitPy Tests require a path to a Cubit/Coreform installation
+# Coreform Tests require a path to a Coreform Cubit installation
 export CUBIT_ROOT=<path_to_Cubit_or_Coreform>
 
-pytest --4C --ArborX --CubitPy --exclude-standard-tests
+pytest --4C --ArborX --Coreform --exclude-standard-tests
 ```
 
 ### Cython geometric search

@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "utils"))
 from logo import create_beamme_logo
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_logo(tmp_path):
     """Simply test that the logo function does not throw an error."""
     create_beamme_logo(tmp_path, create_cubit=True)

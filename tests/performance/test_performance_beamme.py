@@ -198,7 +198,7 @@ def medium_solid_block(shared_tmp_path, evaluate_execution_time):
     return input_file_path
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 @pytest.mark.performance
 def test_performance_beamme_cubitpy_create_solid(medium_solid_block):
     """Test the performance of creating a solid block using CubitPy.
@@ -234,7 +234,7 @@ def large_solid_block(evaluate_execution_time, medium_solid_block, shared_tmp_pa
     )
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 @pytest.mark.performance
 def test_performance_beamme_double_solid_block(large_solid_block):
     """Test the performance of doubling a solid block from an input file.
@@ -245,7 +245,7 @@ def test_performance_beamme_double_solid_block(large_solid_block):
     pass
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 @pytest.mark.parametrize(
     ("log_name", "full_import", "expected_time"),
     [
