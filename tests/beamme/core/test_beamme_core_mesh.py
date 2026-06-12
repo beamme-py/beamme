@@ -28,14 +28,13 @@ from beamme.core.conf import bme
 from beamme.core.coupling import Coupling
 from beamme.core.element_beam import Beam, Beam3
 from beamme.core.geometry_set import GeometrySet
+from beamme.core.material import MaterialBeamBase
 from beamme.core.mesh import Mesh
 from beamme.core.node import Node
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
 
-def test_beamme_core_mesh_get_nodes_by_function(
-    get_default_test_beam_material, assert_results_close
-):
+def test_beamme_core_mesh_get_nodes_by_function(assert_results_close):
     """Check if the get_nodes_by_function method of Mesh works properly."""
 
     def get_nodes_at_x(node, x_value):
@@ -45,7 +44,7 @@ def test_beamme_core_mesh_get_nodes_by_function(
         else:
             return False
 
-    mat = get_default_test_beam_material(material_type="base")
+    mat = MaterialBeamBase()
 
     mesh = Mesh()
     create_beam_mesh_line(mesh, Beam3, mat, [0, 0, 0], [5, 0, 0], n_el=5)
@@ -93,14 +92,13 @@ def test_beamme_core_mesh_add_checks():
         mesh.add(geometry_set)
 
 
-def test_beamme_core_mesh_multiple_couple_nodes(get_default_test_beam_material):
+def test_beamme_core_mesh_multiple_couple_nodes():
     """The current implementation can handle more than one coupling on a node
     correctly, therefore we check this here."""
 
     # Create mesh object
     mesh = Mesh()
-    mat = get_default_test_beam_material(material_type="reissner")
-    mesh.add(mat)
+    mat = MaterialBeamBase()
 
     # Add two beams to create an elbow structure. The beams each have a
     # node at the intersection
@@ -121,3 +119,52 @@ def test_beamme_core_mesh_multiple_couple_nodes(get_default_test_beam_material):
         assert len(coupling_nodes) == 2
         assert beam_set_1["end"].get_points()[0] in coupling_nodes
         assert beam_set_2["start"].get_points()[0] in coupling_nodes
+
+
+def test_beamme_core_mesh_get_named_geometry_sets():
+    """Test the `get_named_geometry_sets` method."""
+
+    mesh = Mesh()
+    mat = MaterialBeamBase()
+    beam_set_1 = create_beam_mesh_line(mesh, Beam3, mat, [0, 0, 0], [1, 0, 0])
+    beam_set_2 = create_beam_mesh_line(mesh, Beam3, mat, [1, 0, 0], [1, 1, 0])
+
+    # Name some of the geometry sets
+    beam_set_1["start"].name = "beam_1_start"
+    beam_set_2["start"].name = "beam_2_start"
+    beam_set_2["line"].name = "beam_2_line"
+
+    mesh.add(beam_set_1, beam_set_2)
+
+    # Check that the correct geometry sets are returned
+    named_geometry_sets = mesh.get_named_geometry_sets()
+    assert len(named_geometry_sets) == 3
+    assert (
+        set(["beam_1_start", "beam_2_start", "beam_2_line"])
+        == named_geometry_sets.keys()
+    )
+    for name, node_indices in zip(
+        ["beam_1_start", "beam_2_start", "beam_2_line"], [[0], [3], [3, 4, 5]]
+    ):
+        nodes = named_geometry_sets[name].get_all_nodes()
+        assert len(node_indices) == len(nodes)
+        for node_index, node in zip(node_indices, nodes):
+            assert mesh.nodes[node_index] is node
+
+
+def test_beamme_core_mesh_get_named_geometry_sets_error():
+    """Test that the `get_named_geometry_sets` method raises an error when
+    geometry sets have duplicate names."""
+
+    mesh = Mesh()
+    mat = MaterialBeamBase()
+    beam_set = create_beam_mesh_line(mesh, Beam3, mat, [0, 0, 0], [1, 0, 0])
+
+    # Name two geometry sets with the same name
+    beam_set["start"].name = "node_set"
+    beam_set["end"].name = "node_set"
+
+    mesh.add(beam_set)
+
+    with pytest.raises(ValueError, match=r"Geometry set name node_set is not unique."):
+        mesh.get_named_geometry_sets()
