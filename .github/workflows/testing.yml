@@ -36,7 +36,7 @@ jobs:
           # non-editable installation and turn off coverage, because the coverage
           # only works in editable mode.
           install-command: >-
-            ${{ matrix.python-version == '3.10' && '-e .[dev,fourc]' || '.[dev,fourc]'}}
+            ${{ matrix.python-version == '3.10' && '-e .[cubitpy,dev,fourc]' || '.[cubitpy,dev,fourc]'}}
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:

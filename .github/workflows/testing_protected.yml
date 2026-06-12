@@ -45,8 +45,6 @@ jobs:
         uses: ./.github/actions/build_arborx_geometric_search
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
-        with:
-          install-command: "-e .[cubitpy,dev,fourc]"
       - name: Setup cubit
         id: cubit
         uses: ./.github/actions/cubit_setup
@@ -100,8 +98,6 @@ jobs:
           env_type: "conda"
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
-        with:
-          install-command: ".[cubitpy,dev,fourc]"
       - name: Setup cubit
         id: cubit
         uses: ./.github/actions/cubit_setup
