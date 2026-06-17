@@ -38,7 +38,7 @@ from tests.create_test_models import create_multiple_solid_bricks, create_tube_c
 
 
 @pytest.mark.parametrize("full_import", (False, True))
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_integration_four_c_model_importer_import_cubitpy_model(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
@@ -60,7 +60,7 @@ def test_integration_four_c_model_importer_import_cubitpy_model(
 
 
 @pytest.mark.parametrize("full_import", (False, True))
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_integration_four_c_model_importer_solid_element_types_from_cubitpy(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):

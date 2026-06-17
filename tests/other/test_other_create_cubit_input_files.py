@@ -33,7 +33,7 @@ from tests.create_test_models import (
 )
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_tube(
     tmp_path,
     get_corresponding_reference_file_path,
@@ -46,7 +46,7 @@ def test_other_create_cubit_input_files_tube(
     assert_results_close(result_path, get_corresponding_reference_file_path())
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_block(
     tmp_path,
     get_corresponding_reference_file_path,
@@ -59,7 +59,7 @@ def test_other_create_cubit_input_files_block(
     assert_results_close(result_path, get_corresponding_reference_file_path())
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_solid_shell(
     tmp_path,
     get_corresponding_reference_file_path,
@@ -81,7 +81,7 @@ def test_other_create_cubit_input_files_solid_shell(
     assert_results_close(result_path_dome, reference_path_dome)
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_single_solid_element_brick(
     tmp_path,
     get_corresponding_reference_file_path,
@@ -99,7 +99,7 @@ def test_other_create_cubit_input_files_single_solid_element_brick(
     assert_results_close(result_path, reference_file)
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_solid_brick(
     tmp_path,
     get_corresponding_reference_file_path,
@@ -115,7 +115,7 @@ def test_other_create_cubit_input_files_solid_brick(
     assert_results_close(result_path, reference_file)
 
 
-@pytest.mark.cubitpy
+@pytest.mark.coreform
 def test_other_create_cubit_input_files_multiple_solid_bricks(
     tmp_path, get_corresponding_reference_file_path, assert_results_close
 ):
