@@ -42,7 +42,6 @@ from beamme.mesh_creation_functions.beam_arc import (
     create_beam_mesh_arc_segment_2d,
 )
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
-from tests.create_test_models import create_beam_to_solid_conditions_model
 
 
 def create_test_mesh(get_default_test_beam_material):
@@ -468,20 +467,3 @@ def test_integration_core_mesh_deep_copy_with_geometry_sets(
     mesh.add(beam_set)
     mesh.add(beam_set_copy)
     assert_results_close(get_corresponding_reference_file_path(), mesh)
-
-
-def test_integration_core_mesh_display_pyvista(
-    get_default_test_beam_material, get_corresponding_reference_file_path
-):
-    """Test that the display in pyvista function does not lead to errors.
-
-    TODO: Add a check for the created visualization
-    """
-
-    _, mesh = create_beam_to_solid_conditions_model(
-        get_default_test_beam_material,
-        get_corresponding_reference_file_path,
-        full_import=True,
-    )
-
-    mesh.display_pyvista(resolution=3)

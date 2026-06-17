@@ -30,7 +30,6 @@ from typing import cast as _cast
 
 import numpy as _np
 import pyvista as _pv
-import vtk as _vtk
 
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
@@ -70,16 +69,12 @@ class SpaceTimeElementQuad4(SpaceTimeElement):
     """A space-time element with 4 nodes."""
 
     vtk_cell_type = _pv.CellType.QUAD
-    vtk_cell_type_legacy = _vtk.vtkQuad
-    vtk_topology = list(range(4))
 
 
 class SpaceTimeElementQuad9(SpaceTimeElement):
     """A space-time element with 9 nodes."""
 
     vtk_cell_type = _pv.CellType.BIQUADRATIC_QUAD
-    vtk_cell_type_legacy = _vtk.vtkQuadraticQuad
-    vtk_topology = list(range(9))
 
 
 def beam_to_space_time(

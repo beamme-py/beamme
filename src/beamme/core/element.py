@@ -21,8 +21,6 @@
 # THE SOFTWARE.
 """This module implements the class that represents one element in the Mesh."""
 
-from typing import Any as _Any
-
 from beamme.core.material import Material as _Material
 
 
@@ -41,9 +39,6 @@ class Element:
 
         # Material of this element.
         self.material = material
-
-        # VTK cell data for this element.
-        self.vtk_cell_data: _Any = {}
 
     def flip(self):
         """Reverse the nodes of this element.
@@ -73,8 +68,3 @@ class Element:
         This can be overwritten in the derived classes.
         """
         pass
-
-    def get_vtk(self, vtk_writer_beam, vtk_writer_solid, **kwargs):
-        """Add representation of this element to the vtk_writers for solid and
-        beam."""
-        raise NotImplementedError("VTK output has to be implemented in the class!")

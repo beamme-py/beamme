@@ -37,6 +37,9 @@ class NURBSPatch(_Element):
     # Generic VTK cell type for NURBS elements - this will not show the correct topology in vtk.
     vtk_cell_type = _pv.CellType.POLYGON
 
+    # Type of this element.
+    element_type = _bme.element_type.nurbs
+
     def __init__(self, knot_vectors, polynomial_orders, material=None, nodes=None):
         super().__init__(nodes=nodes, material=material)
 

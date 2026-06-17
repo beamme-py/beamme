@@ -293,7 +293,6 @@ def create_beam_mesh_generic(
     start_node: _NodeCosserat | _GeometrySet | None = None,
     end_node: _NodeCosserat | _GeometrySet | None = None,
     close_beam: bool = False,
-    vtk_cell_data: dict[str, tuple] | None = None,
 ) -> _GeometryName:
     """Generic beam creation function.
 
@@ -367,10 +366,6 @@ def create_beam_mesh_generic(
         close_beam:
             If it is True the created beam is closed within itself (mutually
             exclusive with end_node).
-        vtk_cell_data:
-            With this argument, a vtk cell data can be set for the elements
-            created within this function. This can be used to check which
-            elements are created by which function.
 
     Returns:
         Geometry sets with the 'start' and 'end' node of the curve. Also a 'line' set
@@ -510,16 +505,6 @@ def create_beam_mesh_generic(
             ],
         )
         elements.append(beam)
-
-    # Set vtk cell data on created elements.
-    if vtk_cell_data is not None:
-        for data_name, data_value in vtk_cell_data.items():
-            for element in elements:
-                if data_name in element.vtk_cell_data.keys():
-                    raise KeyError(
-                        'The cell data "{}" already exists!'.format(data_name)
-                    )
-                element.vtk_cell_data[data_name] = data_value
 
     # Add items to the mesh
     mesh.elements.extend(elements)
