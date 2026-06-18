@@ -1,0 +1,25 @@
+name: cubitpy_config
+description: Setup a CubitPy config file
+inputs:
+  cubit-root:
+    description: Path to the cubit installation
+    required: true
+outputs:
+  cubitpy_config_path:
+    description: "Path to the CubitPy config file"
+    value: ${{ steps.cubitpy_config.outputs.cubitpy_config_path }}
+runs:
+  using: composite
+  steps:
+    - name: Create the CubitPy config file
+      id: cubitpy_config
+      shell: bash
+      run: |
+        CUBITPY_CONFIG_PATH="${RUNNER_TEMP:-$HOME}/cubitpy_config_local.yml"
+        cat > $CUBITPY_CONFIG_PATH <<EOF
+        cubitpy_mode: "local"
+        local_config:
+          cubit_path: "${{ inputs.cubit-root }}"
+        EOF
+        cat "$CUBITPY_CONFIG_PATH"
+        echo "cubitpy_config_path=$CUBITPY_CONFIG_PATH" >> "$GITHUB_OUTPUT"
