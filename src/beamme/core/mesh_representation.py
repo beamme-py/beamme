@@ -62,6 +62,15 @@ MESH_REPRESENTATION_MAPPINGS[
     ),
 }
 
+# fmt: off
+MESH_REPRESENTATION_MAPPINGS["connectivity_mapping_exodus_to_vtk"] = {
+    # Only list the non-standard mappings
+    20: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 12, 13, 14, 15],
+    27: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 12, 13, 14, 15, 23, 24, 25, 26, 21, 22, 20],
+}
+# fmt: on
+
+
 GEOMETRY_SET_INFO_PREFIX = "geometry_set"
 
 
