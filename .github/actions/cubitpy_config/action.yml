@@ -12,6 +12,7 @@ runs:
   using: composite
   steps:
     - name: Create the CubitPy config file
+      id: cubitpy_config
       shell: bash
       run: |
         CUBITPY_CONFIG_PATH="${RUNNER_TEMP:-$HOME}/cubitpy_config_local.yml"
