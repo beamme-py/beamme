@@ -54,11 +54,16 @@ jobs:
           cubit_download_url: ${{ env.CUBIT_DOWNLOAD_URL }}
           cubit_email: ${{ secrets.CUBIT_EMAIL }}
           cubit_password: ${{ secrets.CUBIT_PASSWORD }}
+      - name: Setup CubitPy config
+        uses: ./.github/actions/cubitpy_config
+        id: cubitpy_config
+        with:
+          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:
           additional-pytest-flags: "--4C --ArborX --Coreform --check-for-unused-reference-files --cov-fail-under=93"
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
+          cubitpy_config_path: ${{ steps.cubitpy_config.outputs.cubitpy_config_path }}
       - name: Free cubit license
         if: ${{ always() }}
         uses: ./.github/actions/cubit_finalize
@@ -104,11 +109,16 @@ jobs:
           cubit_download_url: ${{ env.CUBIT_DOWNLOAD_URL }}
           cubit_email: ${{ secrets.CUBIT_EMAIL }}
           cubit_password: ${{ secrets.CUBIT_PASSWORD }}
+      - name: Setup CubitPy config
+        uses: ./.github/actions/cubitpy_config
+        id: cubitpy_config
+        with:
+          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:
           additional-pytest-flags: "--performance-tests --Coreform --exclude-standard-tests -s --no-cov"
-          cubit-root: ${{ steps.cubit.outputs.cubit_root }}
+          cubitpy_config_path: ${{ steps.cubitpy_config.outputs.cubitpy_config_path }}
       - name: Free cubit license
         if: ${{ always() }}
         uses: ./.github/actions/cubit_finalize

@@ -372,8 +372,8 @@ These flags can be combined arbitrarily; for example, to run the 4C, Coreform Cu
 ```bash
 # 4C Tests require a path to a 4C executable
 export BEAMME_FOUR_C_EXE=<path_to_4C>
-# Coreform Tests require a path to a Coreform Cubit installation
-export CUBIT_ROOT=<path_to_Cubit_or_Coreform>
+# Coreform Tests require a path to a CubitPy configuration file
+export CUBITPY_CONFIG_PATH=<path_to_CubitPy_config_file>
 
 pytest --4C --ArborX --Coreform --exclude-standard-tests
 ```
