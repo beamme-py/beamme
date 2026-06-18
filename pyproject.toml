@@ -71,3 +71,8 @@ markers = [
   "coreform: tests in combination with Coreform Cubit",
   "performance: performance tests"
 ]
+filterwarnings = [
+  # Ignore warnings coming from CubitPy, as they are only related to testing scripts
+  # and not directly to BeamMe code.
+  "ignore::cubitpy.conf.CubitPyWarning",
+]
