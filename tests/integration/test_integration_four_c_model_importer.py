@@ -34,28 +34,30 @@ from beamme.four_c.model_importer import (
     import_four_c_model,
 )
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
-from tests.create_test_models import create_multiple_solid_bricks, create_tube_cubit
+from tests.create_test_models import create_multiple_solid_bricks
 
 
 @pytest.mark.parametrize("full_import", (False, True))
-@pytest.mark.coreform
-def test_integration_four_c_model_importer_import_cubitpy_model(
+def test_integration_four_c_model_importer_import_exodus_model(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
-    """Check that an import from a cubitpy object works as expected."""
+    """Check that an input file with exodus mesh can be imported correctly."""
 
-    cubit = create_tube_cubit()
-    input_file_cubit, mesh = import_cubitpy_model(
-        cubit, convert_input_to_mesh=full_import
+    input_file, mesh = import_four_c_model(
+        get_corresponding_reference_file_path(
+            reference_file_base_name="test_other_create_cubit_input_files_tube_exo"
+        ),
+        convert_input_to_mesh=full_import,
     )
+
     if full_import:
-        input_file_cubit.add(mesh)
+        input_file.add(mesh)
 
     assert_results_close(
         get_corresponding_reference_file_path(
-            reference_file_base_name="test_other_create_cubit_input_files_tube"
+            reference_file_base_name="test_other_create_cubit_input_files_tube_yaml"
         ),
-        input_file_cubit,
+        input_file,
     )
 
 
@@ -73,20 +75,20 @@ def test_integration_four_c_model_importer_solid_element_types_from_cubitpy(
         input_file.add(mesh)
 
     reference_file = get_corresponding_reference_file_path(
-        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks"
+        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_yaml"
     )
     assert_results_close(reference_file, input_file)
 
 
 @pytest.mark.parametrize("full_import", (False, True))
-def test_integration_four_c_model_importer_solid_element_types_from_input_file(
+def test_integration_four_c_model_importer_solid_element_types_from_input_file_yaml(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
     """Check that all supported solid element types are imported correctly from
     a text based input file."""
 
     reference_file = get_corresponding_reference_file_path(
-        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks"
+        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_yaml"
     )
     input_file, mesh = import_four_c_model(
         input_file_path=reference_file, convert_input_to_mesh=full_import
@@ -95,6 +97,28 @@ def test_integration_four_c_model_importer_solid_element_types_from_input_file(
         input_file.add(mesh)
 
     assert_results_close(reference_file, input_file)
+
+
+@pytest.mark.parametrize("full_import", (False, True))
+def test_integration_four_c_model_importer_solid_element_types_from_input_file_exo(
+    full_import, assert_results_close, get_corresponding_reference_file_path
+):
+    """Check that all supported solid element types are imported correctly from
+    an input file with an exodus mesh."""
+
+    input_file_path = get_corresponding_reference_file_path(
+        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_exo"
+    )
+    input_file, mesh = import_four_c_model(
+        input_file_path=input_file_path, convert_input_to_mesh=full_import
+    )
+    if full_import:
+        input_file.add(mesh)
+
+    reference_file_path = get_corresponding_reference_file_path(
+        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_yaml"
+    )
+    assert_results_close(reference_file_path, input_file)
 
 
 def test_integration_four_c_model_importer_import_nested_materials(
@@ -182,6 +206,48 @@ def test_integration_four_c_model_importer_non_consecutive_geometry_sets(
         mesh.add(beam_set)
 
     input_file.add(mesh)
+
+    assert_results_close(
+        get_corresponding_reference_file_path(
+            additional_identifier="full_import" if full_import else "dict_import"
+        ),
+        input_file,
+    )
+
+
+@pytest.mark.parametrize("full_import", (False, True))
+def test_integration_four_c_model_importer_user_defined_node_set_and_block_ids(
+    full_import, get_corresponding_reference_file_path, assert_results_close
+):
+    """Test that user-defined node set and block IDs work as expected."""
+
+    reference_file_base_name = (
+        "test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids"
+    )
+    reference_file = get_corresponding_reference_file_path(
+        reference_file_base_name=reference_file_base_name
+    )
+
+    input_file, mesh = import_four_c_model(
+        input_file_path=reference_file, convert_input_to_mesh=full_import
+    )
+
+    if full_import:
+        input_file.add(mesh)
+        named_geometry_sets = mesh.get_named_geometry_sets()
+        assert len(named_geometry_sets) == 8
+        assert set(
+            [
+                "curve_1",
+                "curve_2",
+                "curve_3",
+                "master",
+                "pushing",
+                "set_without_bc",
+                "slave",
+                "wall",
+            ]
+        ) == set(named_geometry_sets.keys())
 
     assert_results_close(
         get_corresponding_reference_file_path(

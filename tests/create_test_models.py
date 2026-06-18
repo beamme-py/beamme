@@ -170,13 +170,6 @@ def create_tube_cubit():
     return cubit
 
 
-def create_tube(file_path):
-    """Write the solid tube to a file."""
-
-    # Export mesh.
-    create_tube_cubit().dump(file_path)
-
-
 def create_block_cubit():
     """Create a solid block in cubit and add a volume condition."""
 
@@ -221,15 +214,8 @@ def create_block_cubit():
     return cubit
 
 
-def create_block(file_path):
-    """Create the solid cube in cubit and write it to a file."""
-
-    # Export mesh.
-    create_block_cubit().dump(file_path)
-
-
-def create_solid_shell_meshes(file_path_blocks, file_path_dome):
-    """Create the meshes needed for the solid shell tests."""
+def create_solid_shell_blocks() -> InputFile:
+    """Create the meshes needed for the solid shell block tests."""
 
     def create_brick_mesh(
         dimensions, n_elements, *, element_type=cupy.element_type.hex8sh
@@ -278,9 +264,11 @@ def create_solid_shell_meshes(file_path_blocks, file_path_dome):
     brick.translate([3 * 4, 0, 0])
     input_file.add(brick)
 
-    input_file.dump(
-        file_path_blocks, add_header_information=False, validate_sections_only=True
-    )
+    return input_file
+
+
+def create_solid_shell_dome() -> InputFile:
+    """Create the meshes needed for the solid shell block tests."""
 
     # Create the dome input
     cubit = CubitPy()
@@ -297,7 +285,7 @@ def create_solid_shell_meshes(file_path_blocks, file_path_dome):
             "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2},
         }
     ]
-    cubit.dump(file_path_dome)
+    return cubit
 
 
 def create_beam_to_solid_conditions_model(
@@ -346,7 +334,7 @@ def create_beam_to_solid_conditions_model(
     return input_file, mesh
 
 
-def create_single_solid_element_brick(input_file_path, get_default_test_solid_material):
+def create_single_solid_element_brick(get_default_test_solid_material):
     """Create an input file with a single solid element brick in CubitPy for
     testing purposes."""
 
@@ -359,11 +347,10 @@ def create_single_solid_element_brick(input_file_path, get_default_test_solid_ma
     dumped_material_dict = material.dump_to_list()
     dumped_material_dict["MAT"] = 1
     cubit.fourc_input["MATERIALS"] = [dumped_material_dict]
+    return cubit
 
-    cubit.dump(input_file_path)
 
-
-def create_solid_brick(input_file_path, get_default_test_solid_material):
+def create_solid_brick(get_default_test_solid_material):
     """Create an a brick with the dimensions 1x3x15."""
 
     cubit = CubitPy()
@@ -382,7 +369,7 @@ def create_solid_brick(input_file_path, get_default_test_solid_material):
     dumped_material_dict = material.dump_to_list()
     dumped_material_dict["MAT"] = 1
     cubit.fourc_input["MATERIALS"] = [dumped_material_dict]
-    cubit.dump(input_file_path)
+    return cubit
 
 
 def create_multiple_solid_bricks():
@@ -489,6 +476,142 @@ def create_multiple_solid_bricks():
     # Set the material.
     cubit.fourc_input["MATERIALS"] = [
         {"MAT": 1, "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2}}
+    ]
+
+    return cubit
+
+
+def create_cubit_model_with_user_defined_node_set_and_block_ids():
+    """Create a Cubit model with user-defined node set and block IDs."""
+
+    # Set up Cubit.
+    cubit = CubitPy()
+
+    # Initialize geometry
+    cubit.cmd("brick x 1 y 1 z 1")
+    cubit.cmd("brick x 5e-1 y 5e-1 z 5e-1")
+    cubit.cmd("move Volume 2 x 75e-2 y 0 z 0")
+    cubit.cmd("volume 1 size {5e-1}")
+    cubit.cmd("volume 2 size {2.5e-1}")
+
+    # mesh the two geometries
+    cubit.cmd("mesh volume 1")
+    cubit.cmd("mesh volume 2")
+
+    # Assign nodesets, required for boundary conditions
+    cubit.add_node_set(
+        cubit.group(add_value="add surface 6"),
+        name="slave",
+        bc_type=cupy.bc_type.solid_to_solid_contact,
+        bc_description={
+            "InterfaceID": 6,
+            "Side": "Slave",
+        },
+    )
+    cubit.add_node_set(
+        cubit.group(add_value="add surface 10"),
+        name="master",
+        bc_type=cupy.bc_type.solid_to_solid_contact,
+        bc_description={
+            "InterfaceID": 10,
+            "Side": "Master",
+        },
+    )
+    cubit.add_node_set(
+        cubit.group(add_value="add surface 4"),
+        name="wall",
+        bc_type=cupy.bc_type.dirichlet,
+        bc_description={
+            "NUMDOF": 3,
+            "ONOFF": [4, 0, 0],
+            "VAL": [0, 0, 0],
+            "FUNCT": [None, None, None],
+        },
+        node_set_id=17,
+    )
+    cubit.add_node_set(
+        cubit.group(add_value="add surface 12"),
+        name="pushing",
+        bc_type=cupy.bc_type.dirichlet,
+        bc_description={
+            "NUMDOF": 3,
+            "ONOFF": [12, 0, 0],
+            "VAL": [-1.0, 0.0, 0.0],
+            "FUNCT": [1, None, None],
+        },
+    )
+
+    cubit.add_node_set(
+        cubit.group(add_value="add curve 1"),
+        name="curve_1",
+        bc_type=cupy.bc_type.neumann,
+        bc_description={
+            "NUMDOF": 3,
+            "ONOFF": [1, 0, 0],
+            "VAL": [1.0, 0.0, 0.0],
+            "FUNCT": [None, None, None],
+        },
+    )
+    cubit.add_node_set(
+        cubit.group(add_value="add curve 2"),
+        name="curve_2",
+        bc_type=cupy.bc_type.neumann,
+        bc_description={
+            "NUMDOF": 3,
+            "ONOFF": [2, 0, 0],
+            "VAL": [1.0, 0.0, 0.0],
+            "FUNCT": [None, None, None],
+        },
+    )
+    cubit.add_node_set(
+        cubit.group(add_value="add curve 3"),
+        name="curve_3",
+        bc_type=cupy.bc_type.neumann,
+        bc_description={
+            "NUMDOF": 3,
+            "ONOFF": [3, 0, 0],
+            "VAL": [1.0, 0.0, 0.0],
+            "FUNCT": [None, None, None],
+        },
+        node_set_id=15,
+    )
+
+    cubit.add_node_set(cubit.group(add_value="add curve 4"), name="set_without_bc")
+
+    # Add the element types
+    cubit.add_element_type(
+        cubit.group(add_value="add volume 1"),
+        el_type=cupy.element_type.hex8,
+        material={
+            "MAT": 1,
+        },
+        bc_description={
+            "KINEM": "nonlinear",
+        },
+        block_id=27,
+    )
+    cubit.add_element_type(
+        cubit.group(add_value="add volume 2"),
+        el_type=cupy.element_type.hex8,
+        material={
+            "MAT": 2,
+        },
+        bc_description={
+            "KINEM": "nonlinear",
+        },
+        block_id=1,
+    )
+
+    # Add the materials
+    cubit.fourc_input["MATERIALS"] = [
+        {
+            "MAT": 1,
+            "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2},
+        },
+        {
+            "MAT": 2,
+            "MAT_Struct_StVenantKirchhoff": {"DENS": 2, "NUE": 0.3, "YOUNG": 2},
+        },
     ]
 
     return cubit

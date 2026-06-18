@@ -24,12 +24,14 @@
 import pytest
 
 from tests.create_test_models import (
-    create_block,
+    create_block_cubit,
+    create_cubit_model_with_user_defined_node_set_and_block_ids,
     create_multiple_solid_bricks,
     create_single_solid_element_brick,
     create_solid_brick,
-    create_solid_shell_meshes,
-    create_tube,
+    create_solid_shell_blocks,
+    create_solid_shell_dome,
+    create_tube_cubit,
 )
 
 
@@ -41,9 +43,15 @@ def test_other_create_cubit_input_files_tube(
 ):
     """Test that the solid tube reference file is up to date."""
 
-    result_path = tmp_path / get_corresponding_reference_file_path().name
-    create_tube(result_path)
-    assert_results_close(result_path, get_corresponding_reference_file_path())
+    cubit = create_tube_cubit()
+
+    for additional_identifier, mesh_in_exo in (("yaml", False), ("exo", True)):
+        reference_file = get_corresponding_reference_file_path(
+            additional_identifier=additional_identifier
+        )
+        result_path = tmp_path / reference_file.name
+        cubit.dump(result_path, mesh_in_exo=mesh_in_exo)
+        assert_results_close(result_path, reference_file)
 
 
 @pytest.mark.coreform
@@ -55,29 +63,46 @@ def test_other_create_cubit_input_files_block(
     """Test that the solid block reference file is up to date."""
 
     result_path = tmp_path / get_corresponding_reference_file_path().name
-    create_block(result_path)
+
+    cubit = create_block_cubit()
+    cubit.dump(result_path)
+
     assert_results_close(result_path, get_corresponding_reference_file_path())
 
 
 @pytest.mark.coreform
-def test_other_create_cubit_input_files_solid_shell(
+def test_other_create_cubit_input_files_solid_shell_blocks(
     tmp_path,
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
     """Test that the solid shell reference files are up to date."""
 
-    reference_path_blocks = get_corresponding_reference_file_path(
-        additional_identifier="blocks"
-    )
-    reference_path_dome = get_corresponding_reference_file_path(
-        additional_identifier="dome"
-    )
+    reference_path_blocks = get_corresponding_reference_file_path()
     result_path_blocks = tmp_path / reference_path_blocks.name
+
+    input_file = create_solid_shell_blocks()
+    input_file.dump(
+        result_path_blocks, add_header_information=False, validate_sections_only=True
+    )
+
+    assert_results_close(result_path_blocks, reference_path_blocks)
+
+
+@pytest.mark.coreform
+def test_other_create_cubit_input_files_solid_shell_dome(
+    tmp_path,
+    get_corresponding_reference_file_path,
+    assert_results_close,
+):
+    """Test that the solid shell reference files are up to date."""
+
+    reference_path_dome = get_corresponding_reference_file_path()
     result_path_dome = tmp_path / reference_path_dome.name
 
-    create_solid_shell_meshes(result_path_blocks, result_path_dome)
-    assert_results_close(result_path_blocks, reference_path_blocks)
+    cubit = create_solid_shell_dome()
+    cubit.dump(result_path_dome)
+
     assert_results_close(result_path_dome, reference_path_dome)
 
 
@@ -94,7 +119,8 @@ def test_other_create_cubit_input_files_single_solid_element_brick(
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 
-    create_single_solid_element_brick(result_path, get_default_test_solid_material)
+    cubit = create_single_solid_element_brick(get_default_test_solid_material)
+    cubit.dump(result_path)
 
     assert_results_close(result_path, reference_file)
 
@@ -111,7 +137,8 @@ def test_other_create_cubit_input_files_solid_brick(
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 
-    create_solid_brick(result_path, get_default_test_solid_material)
+    cubit = create_solid_brick(get_default_test_solid_material)
+    cubit.dump(result_path)
     assert_results_close(result_path, reference_file)
 
 
@@ -121,9 +148,27 @@ def test_other_create_cubit_input_files_multiple_solid_bricks(
 ):
     """Test that the solid brick reference files are up to date."""
 
+    cubit = create_multiple_solid_bricks()
+
+    for additional_identifier, mesh_in_exo in (("yaml", False), ("exo", True)):
+        reference_file = get_corresponding_reference_file_path(
+            additional_identifier=additional_identifier
+        )
+        result_path = tmp_path / reference_file.name
+        cubit.dump(result_path, mesh_in_exo=mesh_in_exo)
+        assert_results_close(result_path, reference_file)
+
+
+@pytest.mark.coreform
+def test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids(
+    tmp_path, get_corresponding_reference_file_path, assert_results_close
+):
+    """Test that the solid brick reference files are up to date."""
+
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 
-    cubit = create_multiple_solid_bricks()
-    cubit.dump(result_path)
+    cubit = create_cubit_model_with_user_defined_node_set_and_block_ids()
+    cubit.dump(result_path, mesh_in_exo=True)
+
     assert_results_close(result_path, reference_file)

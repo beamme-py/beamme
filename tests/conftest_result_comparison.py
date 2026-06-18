@@ -31,7 +31,7 @@ import numpy as np
 import pytest
 import pyvista as pv
 import xmltodict
-from cubitpy.exodus_utility import exodus_to_dict as _exodus_to_dict
+from cubitpy.exodus_utility import convert_exodus_to_dict
 from vistools.vtk.compare_grids import compare_grids
 
 from beamme.core.mesh import Mesh
@@ -140,7 +140,7 @@ def convert_to_primitive_type(
             return pv.read(obj)
 
         elif obj.suffix in (".exo", ".e"):
-            return _exodus_to_dict(obj)
+            return convert_exodus_to_dict(obj)
 
         elif obj.name.endswith(".4C.yaml"):
             # Return input file sections as dictionary
