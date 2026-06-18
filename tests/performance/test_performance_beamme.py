@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 """Create a couple of different mesh cases and test the performance."""
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -31,104 +33,14 @@ from beamme.four_c.input_file import InputFile
 from beamme.four_c.material import MaterialReissner
 from beamme.four_c.model_importer import import_four_c_model
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
-from beamme.utils.environment import cubitpy_is_available
 from beamme.utils.nodes import find_close_nodes
-
-if cubitpy_is_available():
-    from cubitpy import CubitPy, cupy
+from tests.create_structured_exodus_hex_mesh import create_exodus_input_file
 
 
 @pytest.fixture(scope="module")
 def shared_tmp_path(tmp_path_factory):
     """Create a temporary path for shared use in performance tests."""
     return tmp_path_factory.mktemp("performance_tests")
-
-
-def create_solid_block(cubit, file_path, nx, ny, nz):
-    """Create a solid block (1 x 1 x 1) with (nx * ny * nz) elements."""
-    # Create brick.
-    brick = cubit.brick(1)
-
-    # Set mesh parameters.
-    mesh_size = [
-        [nx, [2, 4, 6, 8]],
-        [ny, [1, 3, 5, 7]],
-        [nz, [9, 10, 11, 12]],
-    ]
-    for [n_el, curves] in mesh_size:
-        for i in curves:
-            cubit.set_line_interval(brick.curves()[i - 1], n_el)
-    brick.volumes()[0].mesh()
-
-    # Add block and sets.
-    cubit.add_element_type(
-        brick.volumes()[0],
-        cupy.element_type.hex8,
-        name="brick",
-        material={"MAT": 1},
-        bc_description={"KINEM": "nonlinear"},
-    )
-    counter = 0
-    for item in brick.vertices():
-        cubit.add_node_set(
-            item,
-            name="node_set_" + str(counter),
-            bc_type=cupy.bc_type.neumann,
-            bc_description={
-                "NUMDOF": 3,
-                "ONOFF": [1, 1, 1],
-                "VAL": [3.0, 3.0, 0],
-                "FUNCT": [1, 2, 0],
-            },
-        )
-        counter += 1
-    for item in brick.curves():
-        cubit.add_node_set(
-            item,
-            name="node_set_" + str(counter),
-            bc_type=cupy.bc_type.dirichlet,
-            bc_description={
-                "NUMDOF": 3,
-                "ONOFF": [1, 1, 1],
-                "VAL": [3.0, 3.0, 0],
-                "FUNCT": [1, 2, 0],
-            },
-        )
-        counter += 1
-    for item in brick.surfaces():
-        cubit.add_node_set(
-            item,
-            name="node_set_" + str(counter),
-            bc_type=cupy.bc_type.neumann,
-            bc_description={
-                "NUMDOF": 3,
-                "ONOFF": [1, 1, 1],
-                "VAL": [3.0, 3.0, 0],
-                "FUNCT": [1, 2, 0],
-            },
-        )
-        counter += 1
-    for item in brick.volumes():
-        cubit.add_node_set(
-            item,
-            name="node_set_" + str(counter),
-            bc_type=cupy.bc_type.neumann,
-            bc_description={
-                "NUMDOF": 3,
-                "ONOFF": [1, 1, 1],
-                "VAL": [3.0, 3.0, 0],
-                "FUNCT": [1, 2, 0],
-            },
-        )
-        counter += 1
-
-    # Set the material.
-    cubit.fourc_input["MATERIALS"] = [
-        {"MAT": 1, "MAT_Struct_StVenantKirchhoff": {"DENS": 1, "NUE": 0.3, "YOUNG": 2}}
-    ]
-
-    # Export mesh
-    cubit.dump(file_path)
 
 
 def create_beam_mesh(n_x, n_y, n_z, n_el):
@@ -172,75 +84,20 @@ def create_beam_mesh(n_x, n_y, n_z, n_el):
 
 
 @pytest.fixture(scope="module")
-def medium_solid_block(shared_tmp_path, evaluate_execution_time):
-    """Provide a solid mesh from cubit.
+def large_solid_block(shared_tmp_path) -> Path:
+    """Create a large solid input file containing two blocks (hex8 and hex27) in exodus
+    format.
 
-    The version of Cubit we use in testing only allows for 50,000, so we create a mesh
-    with exactly that.
+    In total the mesh contains:
+    - 2,060,602 nodes
+    - 1,000,000 hex8 elements
+    - 125,000 hex27 elements
     """
-    cubit = CubitPy()
-    input_file_path = shared_tmp_path / "performance_testing_solid_half.4C.yaml"
-    evaluate_execution_time(
-        "CubitPy: Create half solid block",
-        create_solid_block,
-        kwargs={
-            "cubit": cubit,
-            "file_path": input_file_path,
-            "nx": 100,
-            "ny": 50,
-            "nz": 10,
-        },
-        expected_time=3.8,
-    )
-    return input_file_path
-
-
-@pytest.mark.coreform
-@pytest.mark.performance
-def test_performance_beamme_cubitpy_create_solid(medium_solid_block):
-    """Test the performance of creating a solid block using CubitPy.
-
-    The test is run in the fixture, so we don't need to do anything here.
-    """
-    pass
-
-
-@pytest.fixture(scope="module")
-def large_solid_block(evaluate_execution_time, medium_solid_block, shared_tmp_path):
-    """The version of Cubit we use in testing only allows for 50,000 elements, our goal
-    is 100,000 so we double the block with 50,000 elements here."""
-
-    def double_block():
-        """Load the block with 50,000 elements and double the mesh."""
-        input_file, mesh = import_four_c_model(
-            medium_solid_block, convert_input_to_mesh=True
-        )
-        mesh_translated = mesh.copy()
-        mesh_translated.translate([1, 0, 0])
-        input_file.add(mesh)
-        input_file.add(mesh_translated)
-        input_file_path = shared_tmp_path / "performance_testing_solid.4C.yaml"
-        input_file.dump(input_file_path, validate=False)
-        return input_file_path
-
-    return evaluate_execution_time(
-        "BeamMe: Load and double solid element block from cubit",
-        double_block,
-        expected_time=10.5,
+    return create_exodus_input_file(
+        shared_tmp_path, n_per_dir_hex8=100, n_per_dir_hex27=50
     )
 
 
-@pytest.mark.coreform
-@pytest.mark.performance
-def test_performance_beamme_double_solid_block(large_solid_block):
-    """Test the performance of doubling a solid block from an input file.
-
-    The test is run in the fixture, so we don't need to do anything here.
-    """
-    pass
-
-
-@pytest.mark.coreform
 @pytest.mark.parametrize(
     ("log_name", "full_import", "expected_time"),
     [
