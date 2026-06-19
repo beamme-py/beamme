@@ -60,10 +60,11 @@ def test_integration_core_mesh_visualization_solid(
 ):
     """Import a solid mesh and check the VTU output."""
 
-    # Convert the solid mesh to beamme objects.
+    # Convert the solid mesh to beamme objects. We use the exo mesh here, thus
+    # we will also have the node set names added to the visualization.
     _, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
-            reference_file_base_name="test_other_create_cubit_input_files_tube"
+            reference_file_base_name="test_other_create_cubit_input_files_tube_exo"
         ),
         convert_input_to_mesh=True,
     )
@@ -82,7 +83,7 @@ def test_integration_core_mesh_visualization_solid_elements(
     # Convert the solid mesh to beamme objects.
     _, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
-            reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks"
+            reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_yaml"
         ),
         convert_input_to_mesh=True,
     )

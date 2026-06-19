@@ -188,7 +188,7 @@
             </Value>
           </InformationKey>
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_0_surface" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_0_surface_fix" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 1 1
           1 1 0 0 1 1
           0 0 0 0 0 0
@@ -201,7 +201,7 @@
           0 0 0 0 0 0
           0 0 0 0 0 0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_1_surface" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_1_surface_dirichlet_controlled" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0

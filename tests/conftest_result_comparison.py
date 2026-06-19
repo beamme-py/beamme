@@ -31,6 +31,7 @@ import numpy as np
 import pytest
 import pyvista as pv
 import xmltodict
+from cubitpy.exodus_utility import convert_exodus_to_dict
 from vistools.vtk.compare_grids import compare_grids
 
 from beamme.core.mesh import Mesh
@@ -47,9 +48,7 @@ ABSOLUTE_TOLERANCE = 1e-13
 
 
 @pytest.fixture(scope="function")
-def assert_results_close(
-    tmp_path, current_test_name, get_corresponding_reference_file_path
-) -> Callable:
+def assert_results_close(tmp_path, current_test_name) -> Callable:
     """Return function to compare either string or files.
 
     Necessary to enable the function call through pytest fixtures.
@@ -58,8 +57,6 @@ def assert_results_close(
         tmp_path: Temporary path to write file if assertion fails.
         current_test_name: Name of the current test to create file
             if assertion fails.
-        get_corresponding_reference_file_path: Fixture to get the path of the
-            corresponding reference file.
 
     Returns:
         Function to compare results.
@@ -142,16 +139,23 @@ def convert_to_primitive_type(
         elif obj.suffix == ".vtu":
             return pv.read(obj)
 
+        elif obj.suffix in (".exo", ".e"):
+            return convert_exodus_to_dict(obj)
+
         elif obj.name.endswith(".4C.yaml"):
             # Return input file sections as dictionary
-            sections = (
-                InputFile().from_4C_yaml(input_file_path=obj).fourc_input.sections
-            )
-            if "STRUCTURE GEOMETRY" in sections:
-                # If external geometry is given, add the vtu file to the data structure
+            input_file = InputFile().from_4C_yaml(input_file_path=obj)
+            sections = input_file.fourc_input.sections
+            if (
+                input_file.contains_mesh_based_geometry_vtu()
+                or input_file.contains_mesh_based_geometry_exodus()
+            ):
+                # If external geometry is given, add the mesh file to the data structure
                 # for comparison.
                 mesh_file_path = obj.parent / sections["STRUCTURE GEOMETRY"]["FILE"]
-                sections["STRUCTURE GEOMETRY"]["FILE"] = pv.read(mesh_file_path)
+                sections["STRUCTURE GEOMETRY"]["FILE"] = convert_to_primitive_type(
+                    mesh_file_path
+                )
                 # Add the file to the set of used reference files.
                 USED_REFERENCE_FILES.add(mesh_file_path.resolve())
             return sections

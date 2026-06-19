@@ -370,11 +370,39 @@ class InputFile:
 
         return application_script_lines
 
-    def contains_external_mesh_based_geometry(self) -> bool:
-        """Check if the input file contains external mesh-based geometry.
+    def _contains_mesh_based_geometry(self, allowed_extensions: list[str]) -> bool:
+        """Check if the input file contains mesh-based geometry.
+
+        Args:
+            allowed_extensions: List of allowed file extensions for mesh files.
 
         Returns:
-            True if the input file contains external mesh-based geometry, False otherwise.
+            True if the input file contains mesh-based geometry of given type,
+            False otherwise.
         """
-
+        structure_geometry_section = self.fourc_input.sections.get(
+            "STRUCTURE GEOMETRY", None
+        )
+        if structure_geometry_section is not None:
+            file_name = structure_geometry_section.get("FILE", None)
+            if file_name is not None:
+                mesh_file_name = _Path(file_name)
+                if mesh_file_name.suffix.lower() in allowed_extensions:
+                    return True
         return False
+
+    def contains_mesh_based_geometry_exodus(self) -> bool:
+        """Check if the input file contains exodus mesh-based geometry.
+
+        Returns:
+            True if the input file contains exodus mesh-based geometry, False otherwise.
+        """
+        return self._contains_mesh_based_geometry([".exo", ".e"])
+
+    def contains_mesh_based_geometry_vtu(self) -> bool:
+        """Check if the input file contains VTU mesh-based geometry.
+
+        Returns:
+            True if the input file contains VTU mesh-based geometry, False otherwise.
+        """
+        return self._contains_mesh_based_geometry([".vtu"])

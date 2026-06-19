@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 """This module contains functions to load and parse existing 4C input files."""
 
+import tempfile as _tempfile
 from collections import defaultdict as _defaultdict
 from pathlib import Path as _Path
 from typing import Tuple as _Tuple
@@ -47,6 +48,9 @@ from beamme.core.mesh_representation import (
 from beamme.core.node import Node as _Node
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
 from beamme.four_c.element_data import (
+    four_c_element_data_from_exo_dict as _four_c_element_data_from_exo_dict,
+)
+from beamme.four_c.element_data import (
     four_c_element_data_from_yaml_dict as _four_c_element_data_from_yaml_dict,
 )
 from beamme.four_c.element_solid import get_four_c_solid as _get_four_c_solid
@@ -55,12 +59,18 @@ from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
 from beamme.four_c.material import MaterialSolid as _MaterialSolid
+from beamme.utils.data_structures import (
+    create_inverse_mapping as _create_inverse_mapping,
+)
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 
 if _cubitpy_is_available():
-    from cubitpy.cubit_to_fourc_input import (
-        get_input_file_with_mesh as _get_input_file_with_mesh,
+    import netCDF4 as _netCDF4
+    from cubitpy.conf import cupy as _cupy
+    from cubitpy.cubit_utility import (
+        string_to_node_set_info as _string_to_node_set_info,
     )
+    from cubitpy.exodus_utility import get_exo_info as _get_exo_info
 
 
 class UniqueDataTracker:
@@ -113,14 +123,16 @@ def import_cubitpy_model(
         False, the mesh will be empty. Note that the input sections which are
         converted to a BeamMe mesh are removed from the input file object.
     """
-
-    input_file = _InputFile()
-    input_file.add(_get_input_file_with_mesh(cubit).sections)
-
-    if convert_input_to_mesh:
-        return _extract_mesh_from_input_file(input_file)
-    else:
-        return input_file, _Mesh()
+    temp_dir: str | _Path
+    with _tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir = _Path(temp_dir)
+        input_file_path = temp_dir / "temp_cubit_input_file.4C.yaml"
+        cubit.dump(
+            input_file_path, mesh_in_exo=True, mesh_in_exo_add_node_set_info=True
+        )
+        return import_four_c_model(
+            input_file_path, convert_input_to_mesh=convert_input_to_mesh
+        )
 
 
 def import_four_c_model(
@@ -142,40 +154,39 @@ def import_four_c_model(
     """
 
     input_file = _InputFile().from_4C_yaml(input_file_path=input_file_path)
+    base_path = input_file_path.parent
 
-    if convert_input_to_mesh:
-        return _extract_mesh_from_input_file(input_file)
-    else:
-        return input_file, _Mesh()
+    if input_file.contains_mesh_based_geometry_exodus():
+        (
+            mesh_representation,
+            element_type_id_to_data,
+            node_set_id_mesh_representation_to_input_file,
+        ) = _extract_mesh_representation_from_exo(input_file, base_path)
 
-
-def _extract_mesh_from_input_file(input_file: _InputFile) -> tuple[_InputFile, _Mesh]:
-    """Convert an InputFile into a native mesh by translating sections like
-    materials, nodes, elements, geometry sets, and boundary conditions.
-
-    Args:
-        input_file: The input file containing 4C sections.
-    Returns:
-        A tuple (input_file, mesh). The input_file is modified in place to remove
-        sections converted into BeamMe objects.
-    """
-    if input_file.contains_external_mesh_based_geometry():
-        raise NotImplementedError(
-            "Importing external mesh-based geometry from 4C input files "
-            "is not yet implemented."
-        )
-    else:
+    elif convert_input_to_mesh:
         (
             mesh_representation,
             element_type_id_to_data,
             node_set_id_mesh_representation_to_input_file,
         ) = _extract_mesh_representation(input_file)
-    return _create_mesh_from_mesh_representation(
-        input_file,
-        mesh_representation,
-        element_type_id_to_data,
-        node_set_id_mesh_representation_to_input_file,
-    )
+
+    else:
+        mesh_representation = None
+        element_type_id_to_data = None
+
+    if convert_input_to_mesh:
+        return _create_mesh_from_mesh_representation(
+            input_file,
+            mesh_representation,
+            element_type_id_to_data,
+            node_set_id_mesh_representation_to_input_file,
+        )
+    else:
+        if mesh_representation is not None:
+            input_file.mesh_representation = mesh_representation
+        if element_type_id_to_data is not None:
+            input_file.element_type_id_to_data = element_type_id_to_data
+        return input_file, _Mesh()
 
 
 def _extract_mesh_representation(
@@ -321,6 +332,206 @@ def _extract_mesh_representation(
     )
 
 
+def _get_exodus_path_from_input_file(input_file: _InputFile, base_path: _Path) -> _Path:
+    """Returns the path to the exodus file linked in the input file.
+
+    Args:
+        input_file: The input file to extract the exodus file path from.
+        base_path: The base path for loading the exodus file.
+
+    Returns:
+        The path to the exodus file linked in the input file.
+    """
+
+    if "STRUCTURE GEOMETRY" in input_file.fourc_input:
+        structure_geometry_section = input_file.fourc_input["STRUCTURE GEOMETRY"]
+        if "FILE" in structure_geometry_section:
+            exodus_file_name = _Path(structure_geometry_section["FILE"])
+            if exodus_file_name.suffix.lower() in [".exo", ".e"]:
+                exodus_file_path = base_path / exodus_file_name
+                if not exodus_file_path.is_file():
+                    raise FileNotFoundError(
+                        "The input file contains a link to an external mesh file "
+                        f"{exodus_file_name}, but this file does not exist at the expected "
+                        f"location {exodus_file_path}."
+                    )
+                return exodus_file_path
+            else:
+                raise ValueError(
+                    "The input file contains a link to an external file "
+                    f"{exodus_file_name}, with the extension {exodus_file_name.suffix}, but only "
+                    ".exo and .e files are supported."
+                )
+        else:
+            raise ValueError(
+                "The input file contains a STRUCTURE GEOMETRY section, but no "
+                "FILE entry."
+            )
+    else:
+        raise ValueError("The input file does not contain a STRUCTURE GEOMETRY section")
+
+
+def _extract_mesh_representation_from_exo(
+    input_file: _InputFile, base_path: _Path
+) -> tuple[_MeshRepresentation, dict[int, _FourCElementData], dict[int, int]]:
+    """Extract the mesh representation from mesh data in exodus format.
+
+    This will do an inplace removal of the extracted sections in the provided input file.
+
+    Args:
+        input_file: The input file containing the mesh data, will be modified in place.
+
+    Returns:
+        A tuple (mesh_representation, element_type_id_to_data, node_set_id_mesh_representation_to_input_file).
+        - `mesh_representation`: Contains the mesh data extracted from the input file.
+        - `element_type_id_to_data`: A mapping between the element type ID and the element data.
+        - `node_set_id_mesh_representation_to_input_file`: A mapping that can be used to map the
+           geometry set IDs in the mesh representation to the ones in the input file.
+    """
+
+    # Load the exodus file.
+    with _netCDF4.Dataset(
+        _get_exodus_path_from_input_file(input_file, base_path)
+    ) as exo:
+        # Read the coordinate array.
+        if "coordz" not in exo.variables:
+            raise ValueError(
+                "The exodus file provides only 2D coordinates, this is not supported."
+            )
+        coordinates = _np.array(
+            [exo.variables["coord" + dim][:] for dim in ["x", "y", "z"]],
+        ).transpose()
+        n_points = coordinates.shape[0]
+        point_types = _np.full(n_points, _bme.node_type.node.value)
+
+        # Remove the structure geometry section from the input file and extract the
+        # element blocks.
+        element_blocks = input_file.pop("STRUCTURE GEOMETRY")["ELEMENT_BLOCKS"]
+        cubit_id_to_element_blocks = {block["ID"]: block for block in element_blocks}
+
+        # Add the element connectivity
+        element_type_tracker = UniqueDataTracker()
+        block_connectivity_list = []
+        cell_types = []
+        cell_element_type_ids = []
+        cell_material_ids = []
+        _, exo_block_id_to_info = _get_exo_info(exo, "block")
+        for exo_id in sorted(exo_block_id_to_info.keys()):
+            # First, get the element block ID in beamme and the corresponding element data.
+            info = exo_block_id_to_info[exo_id]
+            element_data = cubit_id_to_element_blocks[info["cubit_id"]]
+            four_c_element_data, material_id = _four_c_element_data_from_exo_dict(
+                element_data
+            )
+            element_type_id = element_type_tracker.get_unique_id(four_c_element_data)
+
+            # Get the connectivity information for this block and if necessary
+            # reorder it to match the VTK node ordering.
+            connectivity = exo.variables[f"connect{exo_id + 1}"][:] - 1
+            n_elements_in_block = connectivity.shape[0]
+            n_nodes_per_element = connectivity.shape[1]
+            if (
+                not n_nodes_per_element
+                == _INPUT_FILE_MAPPINGS["four_c_cell_to_element_type_and_n_nodes"][
+                    four_c_element_data.four_c_cell
+                ][1]
+            ):
+                raise ValueError(
+                    f"Number of nodes per element {n_nodes_per_element} in block with "
+                    f"ID {info['cubit_id']} does not match expected number of nodes for "
+                    f"cell type {four_c_element_data.four_c_cell}."
+                )
+            reordering = _MESH_REPRESENTATION_MAPPINGS[
+                "connectivity_mapping_exodus_to_vtk"
+            ].get(n_nodes_per_element, None)
+            if reordering is not None:
+                connectivity = connectivity[:, reordering]
+
+            # Add the data for this element block to the cell data lists.
+            cell_material_ids.extend([material_id] * n_elements_in_block)
+            cell_element_type_ids.extend([element_type_id] * n_elements_in_block)
+            cell_types.extend(
+                [
+                    _INPUT_FILE_MAPPINGS["four_c_cell_to_vtk_cell_type"][
+                        four_c_element_data.four_c_cell
+                    ]
+                ]
+                * n_elements_in_block
+            )
+            block_connectivity = _np.empty(
+                (n_elements_in_block, n_nodes_per_element + 1), dtype=int
+            )
+            block_connectivity[:, 0] = n_nodes_per_element
+            block_connectivity[:, 1:] = connectivity
+            block_connectivity_list.append(block_connectivity.ravel())
+        cell_connectivity = _np.concatenate(block_connectivity_list)
+
+        # Extract the node sets.
+        cubitpy_geometry_type_to_beamme = {
+            _cupy.geometry.vertex: _bme.geo.point,
+            _cupy.geometry.curve: _bme.geo.line,
+            _cupy.geometry.surface: _bme.geo.surface,
+            _cupy.geometry.volume: _bme.geo.volume,
+        }
+        node_set_id_mesh_representation_to_input_file = {}
+        geometry_sets: list[_GeometrySetInfo] = []
+        _, exo_node_set_id_to_info = _get_exo_info(exo, "nodeset")
+        for exo_id in sorted(exo_node_set_id_to_info.keys()):
+            exo_name = exo_node_set_id_to_info[exo_id]["name"]
+            cubit_id, geometry_type_cubitpy, name = _string_to_node_set_info(exo_name)
+
+            node_set_flag = _np.zeros(n_points, dtype=int)
+            node_set_flag[exo.variables[f"node_ns{exo_id + 1}"][:] - 1] = 1
+
+            mesh_representation_id = len(geometry_sets)
+            node_set_id_mesh_representation_to_input_file[mesh_representation_id] = (
+                cubit_id
+            )
+            geometry_sets.append(
+                _GeometrySetInfo(
+                    geometry_type=cubitpy_geometry_type_to_beamme[
+                        geometry_type_cubitpy
+                    ],
+                    i_global=mesh_representation_id,
+                    point_flag_vector=node_set_flag,
+                    name=name,
+                )
+            )
+
+    # Remove the entries in the boundary condition definitions in the input file that
+    # are exodus specific. Also, set the geometry set IDs in the boundary conditions to
+    # the ones in the mesh representation.
+    node_set_id_input_file_to_mesh_representation = _create_inverse_mapping(
+        node_set_id_mesh_representation_to_input_file
+    )
+    for section_name in input_file.sections:
+        if section_name in _INPUT_FILE_MAPPINGS["boundary_conditions"].values():
+            items = input_file.pop(section_name)
+            for bc in items:
+                bc.pop("ENTITY_TYPE")
+                bc["E"] = node_set_id_input_file_to_mesh_representation[bc["E"]] + 1
+            input_file.add({section_name: items})
+
+    # Create the mesh representation
+    mesh_representation = _MeshRepresentation(
+        cell_connectivity=cell_connectivity,
+        cell_types=cell_types,
+        points=coordinates,
+        geometry_sets=geometry_sets,
+        point_data={"point_type": point_types},
+        cell_data={
+            "element_type_id": cell_element_type_ids,
+            "material_id": cell_material_ids,
+        },
+    )
+
+    return (
+        mesh_representation,
+        element_type_tracker.unique_id_to_data,
+        {i: i + 1 for i in range(len(node_set_id_mesh_representation_to_input_file))},
+    )
+
+
 def _create_mesh_from_mesh_representation(
     input_file,
     mesh_representation,
@@ -412,7 +623,9 @@ def _create_mesh_from_mesh_representation(
             node_indices = _np.nonzero(mesh_representation.point_data[name])[0]
             geometry_type = info.geometry_type
             geometry_set = _GeometrySetNodes(
-                geometry_type, nodes=[mesh.nodes[i] for i in node_indices]
+                geometry_type,
+                nodes=[mesh.nodes[i] for i in node_indices],
+                name=info.name,
             )
             input_file_id = node_set_id_mesh_representation_to_input_file[info.i_global]
             geometry_sets_in_sections[geometry_type][input_file_id] = geometry_set

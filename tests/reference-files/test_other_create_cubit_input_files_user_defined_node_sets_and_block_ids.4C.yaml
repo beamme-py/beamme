@@ -1,0 +1,81 @@
+STRUCTURE GEOMETRY:
+  FILE: "test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids.exo"
+  SHOW_INFO: "detailed_summary"
+  ELEMENT_BLOCKS:
+    - ID: 27
+      SOLID:
+        HEX8:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 1
+      SOLID:
+        HEX8:
+          MAT: 2
+          KINEM: "nonlinear"
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2
+  - MAT: 2
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 2
+      NUE: 0.3
+      YOUNG: 2
+DESIGN LINE NEUMANN CONDITIONS:
+  - NUMDOF: 3
+    ONOFF: [3, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+    E: 15
+    ENTITY_TYPE: "node_set_id"
+  - NUMDOF: 3
+    ONOFF: [1, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+    E: 19
+    ENTITY_TYPE: "node_set_id"
+  - NUMDOF: 3
+    ONOFF: [2, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+    E: 20
+    ENTITY_TYPE: "node_set_id"
+DESIGN SURF DIRICH CONDITIONS:
+  - NUMDOF: 3
+    ONOFF: [4, 0, 0]
+    VAL: [0, 0, 0]
+    FUNCT:
+      - null
+      - null
+      - null
+    E: 17
+    ENTITY_TYPE: "node_set_id"
+  - NUMDOF: 3
+    ONOFF: [12, 0, 0]
+    VAL: [-1.0, 0.0, 0.0]
+    FUNCT:
+      - 1
+      - null
+      - null
+    E: 18
+    ENTITY_TYPE: "node_set_id"
+DESIGN SURF MORTAR CONTACT CONDITIONS 3D:
+  - InterfaceID: 6
+    Side: "Slave"
+    E: 1
+    ENTITY_TYPE: "node_set_id"
+  - InterfaceID: 10
+    Side: "Master"
+    E: 2
+    ENTITY_TYPE: "node_set_id"

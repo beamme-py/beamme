@@ -1,0 +1,182 @@
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2
+  - MAT: 2
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 2
+      NUE: 0.3
+      YOUNG: 2
+DESIGN LINE NEUMANN CONDITIONS:
+  - E: 1
+    NUMDOF: 3
+    ONOFF: [3, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+  - E: 2
+    NUMDOF: 3
+    ONOFF: [1, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+  - E: 3
+    NUMDOF: 3
+    ONOFF: [2, 0, 0]
+    VAL: [1.0, 0.0, 0.0]
+    FUNCT:
+      - null
+      - null
+      - null
+DESIGN SURF DIRICH CONDITIONS:
+  - E: 7
+    NUMDOF: 3
+    ONOFF: [4, 0, 0]
+    VAL: [0, 0, 0]
+    FUNCT:
+      - null
+      - null
+      - null
+  - E: 8
+    NUMDOF: 3
+    ONOFF: [12, 0, 0]
+    VAL: [-1.0, 0.0, 0.0]
+    FUNCT:
+      - 1
+      - null
+      - null
+DESIGN SURF MORTAR CONTACT CONDITIONS 3D:
+  - E: 5
+    InterfaceID: 6
+    Side: "Slave"
+  - E: 6
+    InterfaceID: 10
+    Side: "Master"
+STRUCTURE ELEMENTS:
+  - "1 SOLID HEX8 1 2 3 4 5 6 7 8 MAT 2 KINEM nonlinear"
+  - "2 SOLID HEX8 2 9 10 3 6 11 12 7 MAT 2 KINEM nonlinear"
+  - "3 SOLID HEX8 4 3 13 14 8 7 15 16 MAT 2 KINEM nonlinear"
+  - "4 SOLID HEX8 3 10 17 13 7 12 18 15 MAT 2 KINEM nonlinear"
+  - "5 SOLID HEX8 5 6 7 8 19 20 21 22 MAT 2 KINEM nonlinear"
+  - "6 SOLID HEX8 6 11 12 7 20 23 24 21 MAT 2 KINEM nonlinear"
+  - "7 SOLID HEX8 8 7 15 16 22 21 25 26 MAT 2 KINEM nonlinear"
+  - "8 SOLID HEX8 7 12 18 15 21 24 27 25 MAT 2 KINEM nonlinear"
+  - "9 SOLID HEX8 28 29 30 31 32 33 34 35 MAT 1 KINEM nonlinear"
+  - "10 SOLID HEX8 29 36 37 30 33 38 39 34 MAT 1 KINEM nonlinear"
+  - "11 SOLID HEX8 31 30 40 41 35 34 42 43 MAT 1 KINEM nonlinear"
+  - "12 SOLID HEX8 30 37 44 40 34 39 45 42 MAT 1 KINEM nonlinear"
+  - "13 SOLID HEX8 32 33 34 35 46 47 48 49 MAT 1 KINEM nonlinear"
+  - "14 SOLID HEX8 33 38 39 34 47 50 51 48 MAT 1 KINEM nonlinear"
+  - "15 SOLID HEX8 35 34 42 43 49 48 52 53 MAT 1 KINEM nonlinear"
+  - "16 SOLID HEX8 34 39 45 42 48 51 54 52 MAT 1 KINEM nonlinear"
+NODE COORDS:
+  - "NODE 1 COORD 0.5 -0.25 0.25"
+  - "NODE 2 COORD 0.5 -0.25 0.0"
+  - "NODE 3 COORD 0.5 0.0 0.0"
+  - "NODE 4 COORD 0.5 0.0 0.25"
+  - "NODE 5 COORD 0.75 -0.25 0.25"
+  - "NODE 6 COORD 0.75 -0.25 0.0"
+  - "NODE 7 COORD 0.75 0.0 0.0"
+  - "NODE 8 COORD 0.75 0.0 0.25"
+  - "NODE 9 COORD 0.5 -0.25 -0.25"
+  - "NODE 10 COORD 0.5 0.0 -0.25"
+  - "NODE 11 COORD 0.75 -0.25 -0.25"
+  - "NODE 12 COORD 0.75 0.0 -0.25"
+  - "NODE 13 COORD 0.5 0.25 0.0"
+  - "NODE 14 COORD 0.5 0.25 0.25"
+  - "NODE 15 COORD 0.75 0.25 0.0"
+  - "NODE 16 COORD 0.75 0.25 0.25"
+  - "NODE 17 COORD 0.5 0.25 -0.25"
+  - "NODE 18 COORD 0.75 0.25 -0.25"
+  - "NODE 19 COORD 1.0 -0.25 0.25"
+  - "NODE 20 COORD 1.0 -0.25 0.0"
+  - "NODE 21 COORD 1.0 0.0 0.0"
+  - "NODE 22 COORD 1.0 0.0 0.25"
+  - "NODE 23 COORD 1.0 -0.25 -0.25"
+  - "NODE 24 COORD 1.0 0.0 -0.25"
+  - "NODE 25 COORD 1.0 0.25 0.0"
+  - "NODE 26 COORD 1.0 0.25 0.25"
+  - "NODE 27 COORD 1.0 0.25 -0.25"
+  - "NODE 28 COORD -0.5 -0.5 0.5"
+  - "NODE 29 COORD -0.5 -0.5 0.0"
+  - "NODE 30 COORD -0.5 0.0 0.0"
+  - "NODE 31 COORD -0.5 0.0 0.5"
+  - "NODE 32 COORD 0.0 -0.5 0.5"
+  - "NODE 33 COORD 0.0 -0.5 0.0"
+  - "NODE 34 COORD 0.0 0.0 0.0"
+  - "NODE 35 COORD 0.0 0.0 0.5"
+  - "NODE 36 COORD -0.5 -0.5 -0.5"
+  - "NODE 37 COORD -0.5 0.0 -0.5"
+  - "NODE 38 COORD 0.0 -0.5 -0.5"
+  - "NODE 39 COORD 0.0 0.0 -0.5"
+  - "NODE 40 COORD -0.5 0.5 0.0"
+  - "NODE 41 COORD -0.5 0.5 0.5"
+  - "NODE 42 COORD 0.0 0.5 0.0"
+  - "NODE 43 COORD 0.0 0.5 0.5"
+  - "NODE 44 COORD -0.5 0.5 -0.5"
+  - "NODE 45 COORD 0.0 0.5 -0.5"
+  - "NODE 46 COORD 0.5 -0.5 0.5"
+  - "NODE 47 COORD 0.5 -0.5 0.0"
+  - "NODE 48 COORD 0.5 0.0 0.0"
+  - "NODE 49 COORD 0.5 0.0 0.5"
+  - "NODE 50 COORD 0.5 -0.5 -0.5"
+  - "NODE 51 COORD 0.5 0.0 -0.5"
+  - "NODE 52 COORD 0.5 0.5 0.0"
+  - "NODE 53 COORD 0.5 0.5 0.5"
+  - "NODE 54 COORD 0.5 0.5 -0.5"
+DLINE-NODE TOPOLOGY:
+  - "NODE 28 DLINE 1"
+  - "NODE 31 DLINE 1"
+  - "NODE 41 DLINE 1"
+  - "NODE 46 DLINE 2"
+  - "NODE 49 DLINE 2"
+  - "NODE 53 DLINE 2"
+  - "NODE 41 DLINE 3"
+  - "NODE 43 DLINE 3"
+  - "NODE 53 DLINE 3"
+  - "NODE 28 DLINE 4"
+  - "NODE 32 DLINE 4"
+  - "NODE 46 DLINE 4"
+DSURF-NODE TOPOLOGY:
+  - "NODE 46 DSURFACE 5"
+  - "NODE 47 DSURFACE 5"
+  - "NODE 48 DSURFACE 5"
+  - "NODE 49 DSURFACE 5"
+  - "NODE 50 DSURFACE 5"
+  - "NODE 51 DSURFACE 5"
+  - "NODE 52 DSURFACE 5"
+  - "NODE 53 DSURFACE 5"
+  - "NODE 54 DSURFACE 5"
+  - "NODE 1 DSURFACE 6"
+  - "NODE 2 DSURFACE 6"
+  - "NODE 3 DSURFACE 6"
+  - "NODE 4 DSURFACE 6"
+  - "NODE 9 DSURFACE 6"
+  - "NODE 10 DSURFACE 6"
+  - "NODE 13 DSURFACE 6"
+  - "NODE 14 DSURFACE 6"
+  - "NODE 17 DSURFACE 6"
+  - "NODE 28 DSURFACE 7"
+  - "NODE 29 DSURFACE 7"
+  - "NODE 30 DSURFACE 7"
+  - "NODE 31 DSURFACE 7"
+  - "NODE 36 DSURFACE 7"
+  - "NODE 37 DSURFACE 7"
+  - "NODE 40 DSURFACE 7"
+  - "NODE 41 DSURFACE 7"
+  - "NODE 44 DSURFACE 7"
+  - "NODE 19 DSURFACE 8"
+  - "NODE 20 DSURFACE 8"
+  - "NODE 21 DSURFACE 8"
+  - "NODE 22 DSURFACE 8"
+  - "NODE 23 DSURFACE 8"
+  - "NODE 24 DSURFACE 8"
+  - "NODE 25 DSURFACE 8"
+  - "NODE 26 DSURFACE 8"
+  - "NODE 27 DSURFACE 8"
