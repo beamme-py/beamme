@@ -31,7 +31,7 @@ jobs:
         shell: bash
     steps:
       - name: Checkout PR code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
@@ -88,7 +88,7 @@ jobs:
         shell: bash
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref

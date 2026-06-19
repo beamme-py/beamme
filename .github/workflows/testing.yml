@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     steps:
       - name: Checkout PR code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup python environment
         uses: ./.github/actions/setup_python_environment
         with:
