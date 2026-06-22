@@ -27,6 +27,7 @@ from typing import Any as _Any
 from typing import Iterable as _Iterable
 
 import numpy as _np
+import pyvista as _pv
 from numpy.typing import NDArray as _NDArray
 
 from beamme.core.conf import Geometry as _Geometry
@@ -327,6 +328,58 @@ class MeshRepresentation:
                         new_dict[new_name] = data_field.pop(name)
                 # Add the renamed geometry sets back to the data field.
                 setattr(self, field_type, {**data_field, **new_dict})
+
+    def get_pyvista_grid(
+        self,
+        *,
+        cell_data_fields: bool | list[str] = False,
+        point_data_fields: bool | list[str] = False,
+        add_geometry_sets: bool = False,
+    ) -> _pv.UnstructuredGrid:
+        """Return a PyVista UnstructuredGrid representation of this mesh
+        representation.
+
+        Args:
+            cell_data_fields: The cell data fields to add to the grid. This can be
+                either a list of field names, or a boolean. If a list of field names
+                is given, only those fields are added to the grid. If it is True, all
+                cell data fields are added to the grid. If it is False, no cell data
+                fields are added to the grid.
+            point_data_fields: The point data fields to add to the grid. This can be
+                either a list of field names, or a boolean. If a list of field names
+                is given, only those fields are added to the grid. If it is True, all
+                point data fields are added to the grid. If it is False, no point data
+                fields are added to the grid.
+            add_geometry_sets: If this is True, all geometry set information is added to
+                the grid, even if it is not included in the cell_data_fields or
+                point_data_fields arguments.
+
+        Returns:
+            A PyVista UnstructuredGrid representation of this mesh representation.
+        """
+        grid = _pv.UnstructuredGrid(
+            self.cell_connectivity,
+            self.cell_types,
+            self.points,
+        )
+
+        for names, mesh_representation_field, grid_field in zip(
+            (cell_data_fields, point_data_fields),
+            (self.cell_data, self.point_data),
+            (grid.cell_data, grid.point_data),
+        ):
+            for name, data in mesh_representation_field.items():
+                add_field = False
+                if type(names) is bool:
+                    add_field = names
+                elif name in names:
+                    add_field = True
+                elif add_geometry_sets:
+                    add_field = string_to_geometry_set_info(name) is not None
+                if add_field:
+                    grid_field[name] = data
+
+        return grid
 
 
 def merge_mesh_representations(
