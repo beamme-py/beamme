@@ -1120,7 +1120,6 @@ def add_letter_m(plotter, plot_data):
         cross_section_mesh = pv.UnstructuredGrid(
             polyline_cross_section(vtk_curve, cross_section, closed=False)
         )
-        cross_section_mesh.save("test.vtu")
         plotter.add_mesh(cross_section_mesh, color=color_letter)
         mesh.add(curve_mesh)
 
