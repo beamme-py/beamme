@@ -256,8 +256,7 @@ def test_integration_space_time_named_node_set(
 def test_integration_space_time_node_sets(
     n_nodes, couple_nodes, assert_results_close, get_corresponding_reference_file_path
 ):
-    """Check that nodes in node sets are correctly ported to space-time
-    meshes."""
+    """Check that geometry sets are correctly ported to space-time meshes."""
 
     mesh = Mesh()
     beam_type = generate_beam_class(n_nodes)
@@ -269,6 +268,10 @@ def test_integration_space_time_node_sets(
         mesh, beam_type, MaterialBeamBase(), [1, 0, 0], [1, 1, 0], n_el=2
     )
     mesh.add(beam_set_2)
+    beam_set_3 = create_beam_mesh_line(
+        mesh, beam_type, MaterialBeamBase(), [1, 0, 0], [2, -1, 0], n_el=1
+    )
+    mesh.add(beam_set_3)
 
     if couple_nodes:
         mesh.couple_nodes()

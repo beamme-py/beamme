@@ -1,27 +1,30 @@
 <?xml version="1.0"?>
 <VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
   <UnstructuredGrid>
-    <Piece NumberOfPoints="24" NumberOfCells="15">
+    <Piece NumberOfPoints="28" NumberOfCells="18">
       <PointData Scalars="point_type">
         <DataArray type="Int64" Name="point_type" format="ascii" RangeMin="4" RangeMax="4">
           4 4 4 4 4 4
           4 4 4 4 4 4
           4 4 4 4 4 4
           4 4 4 4 4 4
+          4 4 4 4
         </DataArray>
         <DataArray type="Float64" Name="rotation_vector" NumberOfComponents="3" format="ascii" RangeMin="0" RangeMax="2.0943951023931953">
           0 0 0 0 0 0
           0 0 0 0 0 0
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 0 0 0
+          0 0 0 0 0 0
+          0 0 0 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.2091995761561452 1.2091995761561452 1.2091995761561452 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
           0 0 0 0 0 0
           0 0 0 0 0 0
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 0 0 0
           0 0 0 0 0 0
-          0 0 0 0 0 0
-          1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
-          0 0 0 0 0 0
-          0 0 0 0 0 0
-          1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          0 0 0 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.2091995761561452 1.2091995761561452 1.2091995761561452 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
           <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
             <Value index="0">
               0
@@ -33,116 +36,153 @@
         </DataArray>
         <DataArray type="Float64" Name="time" format="ascii" RangeMin="2.5" RangeMax="9.4">
           2.5 2.5 2.5 2.5 2.5 2.5
-          4.800000000000001 4.800000000000001 4.800000000000001 4.800000000000001 4.800000000000001 4.800000000000001
-          7.1000000000000005 7.1000000000000005 7.1000000000000005 7.1000000000000005 7.1000000000000005 7.1000000000000005
-          9.4 9.4 9.4 9.4 9.4 9.4
+          2.5 4.800000000000001 4.800000000000001 4.800000000000001 4.800000000000001 4.800000000000001
+          4.800000000000001 4.800000000000001 7.1000000000000005 7.1000000000000005 7.1000000000000005 7.1000000000000005
+          7.1000000000000005 7.1000000000000005 7.1000000000000005 9.4 9.4 9.4
+          9.4 9.4 9.4 9.4
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_0_point" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 1 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
+          0 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_1_point" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
-          0 0 0 1 0 0
+          0 0 0 0 1 0
           0 0 0 0 0 0
           0 0 0 0 0 0
+          0 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_2_point" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
           0 0 0 0 0 0
-          0 0 0 1 0 0
+          0 0 0 0 0 1
           0 0 0 0 0 0
+          0 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_3_point" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
-          0 0 0 1 0 0
+          0 0 0 0 0 0
+          1 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_4_line" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 1 0 0
-          0 0 0 1 0 0
-          0 0 0 1 0 0
-          0 0 0 1 0 0
+          0 0 0 0 1 0
+          0 0 0 0 0 1
+          0 0 0 0 0 0
+          1 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_5_line" format="ascii" RangeMin="0" RangeMax="1">
           1 0 0 0 0 0
-          1 0 0 0 0 0
-          1 0 0 0 0 0
-          1 0 0 0 0 0
+          0 1 0 0 0 0
+          0 0 1 0 0 0
+          0 0 0 1 0 0
+          0 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_6_line" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 1
-          0 0 0 0 0 1
-          0 0 0 0 0 1
-          0 0 0 0 0 1
+          0 0 0 0 0 0
+          1 0 0 0 0 0
+          0 1 0 0 0 0
+          0 0 1 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_7_line" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 1 0 0
-          0 0 0 1 0 0
-          0 0 0 1 0 0
-          0 0 0 1 0 0
+          0 0 0 0 1 0
+          0 0 0 0 0 1
+          0 0 0 0 0 0
+          1 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_8_line" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
-          0 0 0 0 0 0
-          0 0 0 0 0 0
-          1 1 1 1 1 1
+          1 0 0 0 0 0
+          0 1 0 0 0 0
+          0 0 1 0 0 0
+          0 0 0 1
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_9_line" format="ascii" RangeMin="0" RangeMax="1">
-          1 0 0 0 0 0
-          1 0 0 0 0 0
-          1 0 0 0 0 0
-          1 0 0 0 0 0
+          0 0 0 1 0 0
+          0 0 0 0 1 0
+          0 0 0 0 0 1
+          0 0 0 0 0 0
+          1 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_10_line" format="ascii" RangeMin="0" RangeMax="1">
-          0 0 0 0 0 1
-          0 0 0 0 0 1
-          0 0 0 0 0 1
-          0 0 0 0 0 1
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 1 1 1
+          1 1 1 1
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_11_line" format="ascii" RangeMin="0" RangeMax="1">
+          1 0 0 0 0 0
+          0 1 0 0 0 0
+          0 0 1 0 0 0
+          0 0 0 1 0 0
+          0 0 0 0
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_12_line" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 0 0 0
+          1 0 0 0 0 0
+          0 1 0 0 0 0
+          0 0 1 0 0 0
+          0 0 0 1
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_13_line" format="ascii" RangeMin="0" RangeMax="1">
           1 1 1 1 1 1
+          1 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
-          0 0 0 0 0 0
+          0 0 0 0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_12_surface" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_14_surface" format="ascii" RangeMin="0" RangeMax="1">
           1 1 1 1 0 0
-          1 1 1 1 0 0
-          1 1 1 1 0 0
-          1 1 1 1 0 0
+          0 1 1 1 1 0
+          0 0 1 1 1 1
+          0 0 0 1 1 1
+          1 0 0 0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_13_surface" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_15_surface" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 1 1 1
-          0 0 0 1 1 1
-          0 0 0 1 1 1
-          0 0 0 1 1 1
+          0 0 0 0 1 1
+          1 0 0 0 0 1
+          1 1 0 0 0 0
+          1 1 1 0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_14_surface" format="ascii" RangeMin="1" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_16_surface" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 1 0 0
+          1 0 0 0 1 0
+          0 1 0 0 0 1
+          0 0 1 0 0 0
+          1 0 0 1
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_17_surface" format="ascii" RangeMin="1" RangeMax="1">
           1 1 1 1 1 1
           1 1 1 1 1 1
           1 1 1 1 1 1
           1 1 1 1 1 1
+          1 1 1 1
         </DataArray>
       </PointData>
       <CellData Scalars="element_type_id">
         <DataArray type="Int64" Name="element_type_id" format="ascii" RangeMin="0" RangeMax="0">
           0 0 0 0 0 0
           0 0 0 0 0 0
-          0 0 0
+          0 0 0 0 0 0
         </DataArray>
         <DataArray type="Int64" Name="material_id" format="ascii" RangeMin="-1" RangeMax="-1">
           -1 -1 -1 -1 -1 -1
           -1 -1 -1 -1 -1 -1
-          -1 -1 -1
+          -1 -1 -1 -1 -1 -1
         </DataArray>
-        <DataArray type="Int64" Name="beamme_id" format="ascii" RangeMin="0" RangeMax="14">
+        <DataArray type="Int64" Name="beamme_id" format="ascii" RangeMin="0" RangeMax="17">
           0 1 2 3 4 5
           6 7 8 9 10 11
-          12 13 14
+          12 13 14 15 16 17
         </DataArray>
         <DataArray type="Float64" Name="rotation_vector" NumberOfComponents="12" format="ascii" RangeMin="0" RangeMax="4.188790204786391">
           0 0 0 0 0 0
@@ -155,6 +195,8 @@
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
           0 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
@@ -165,6 +207,8 @@
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
           0 0 0 0 0 0
           0 0 0 0 0 0
           0 0 0 0 0 0
@@ -175,6 +219,8 @@
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
           1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452 1.2091995761561452
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
+          1.4821898202742554 -0.6139431255689369 -0.6139431255689369 1.4821898202742554 -0.6139431255689369 -0.6139431255689369
           <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
             <Value index="0">
               0
@@ -186,51 +232,55 @@
         </DataArray>
       </CellData>
       <Points>
-        <DataArray type="Float64" Name="Points" NumberOfComponents="3" format="ascii" RangeMin="0" RangeMax="1.4142135623730951">
+        <DataArray type="Float64" Name="Points" NumberOfComponents="3" format="ascii" RangeMin="0" RangeMax="2.23606797749979">
           0 0 0 0.3333333333333333 0 0
           0.6666666666666666 0 0 1 0 0
           1 0.5 0 1 1 0
+          2 -1 0 0 0 0
+          0.3333333333333333 0 0 0.6666666666666666 0 0
+          1 0 0 1 0.5 0
+          1 1 0 2 -1 0
           0 0 0 0.3333333333333333 0 0
           0.6666666666666666 0 0 1 0 0
           1 0.5 0 1 1 0
-          0 0 0 0.3333333333333333 0 0
-          0.6666666666666666 0 0 1 0 0
-          1 0.5 0 1 1 0
-          0 0 0 0.3333333333333333 0 0
-          0.6666666666666666 0 0 1 0 0
-          1 0.5 0 1 1 0
+          2 -1 0 0 0 0
+          0.3333333333333333 0 0 0.6666666666666666 0 0
+          1 0 0 1 0.5 0
+          1 1 0 2 -1 0
           <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
             <Value index="0">
               0
             </Value>
             <Value index="1">
-              1.4142135624
+              2.2360679775
             </Value>
           </InformationKey>
         </DataArray>
       </Points>
       <Cells>
-        <DataArray type="Int64" Name="connectivity" format="ascii" RangeMin="0" RangeMax="23">
-          0 1 7 6 1 2
-          8 7 2 3 9 8
-          3 4 10 9 4 5
-          11 10 6 7 13 12
-          7 8 14 13 8 9
-          15 14 9 10 16 15
-          10 11 17 16 12 13
-          19 18 13 14 20 19
-          14 15 21 20 15 16
-          22 21 16 17 23 22
+        <DataArray type="Int64" Name="connectivity" format="ascii" RangeMin="0" RangeMax="27">
+          0 1 8 7 1 2
+          9 8 2 3 10 9
+          3 4 11 10 4 5
+          12 11 3 6 13 10
+          7 8 15 14 8 9
+          16 15 9 10 17 16
+          10 11 18 17 11 12
+          19 18 10 13 20 17
+          14 15 22 21 15 16
+          23 22 16 17 24 23
+          17 18 25 24 18 19
+          26 25 17 20 27 24
         </DataArray>
-        <DataArray type="Int64" Name="offsets" format="ascii" RangeMin="4" RangeMax="60">
+        <DataArray type="Int64" Name="offsets" format="ascii" RangeMin="4" RangeMax="72">
           4 8 12 16 20 24
           28 32 36 40 44 48
-          52 56 60
+          52 56 60 64 68 72
         </DataArray>
         <DataArray type="UInt8" Name="types" format="ascii" RangeMin="9" RangeMax="9">
           9 9 9 9 9 9
           9 9 9 9 9 9
-          9 9 9
+          9 9 9 9 9 9
         </DataArray>
       </Cells>
     </Piece>
