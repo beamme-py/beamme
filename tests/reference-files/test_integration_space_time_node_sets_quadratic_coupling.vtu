@@ -490,6 +490,21 @@
           6 7 8 9 10 11
           12 13 14 15 16 17
         </DataArray>
+        <DataArray type="Int64" Name="geometry_set_17_surface" format="ascii" RangeMin="0" RangeMax="1">
+          1 1 1 0 0 0
+          1 1 1 0 0 0
+          1 1 1 0 0 0
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_18_surface" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 1 1 0
+          0 0 0 1 1 0
+          0 0 0 1 1 0
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_19_surface" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 0 0 1
+          0 0 0 0 0 1
+          0 0 0 0 0 1
+        </DataArray>
         <DataArray type="Float64" Name="rotation_vector" NumberOfComponents="27" format="ascii" RangeMin="0" RangeMax="6.283185307179585">
           0 0 0 0 0 0
           0 0 0 0 0 0
