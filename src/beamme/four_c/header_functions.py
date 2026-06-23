@@ -177,7 +177,6 @@ def set_beam_to_solid_meshtying(
     n_integration_points_circ=None,
     penalty_parameter=None,
     coupling_type=None,
-    binning_parameters: dict = {},
 ):
     """Set the beam to solid meshtying options.
 
@@ -206,8 +205,6 @@ def set_beam_to_solid_meshtying(
         Penalty parameter for contact enforcement.
     coupling_type: str
         Type of coupling for beam-to-surface coupling.
-    binning_parameters:
-        Keyword parameters for the binning section
     """
 
     # Set the beam contact options.
@@ -217,11 +214,6 @@ def set_beam_to_solid_meshtying(
         or input_file["BEAM INTERACTION"].get("REPARTITIONSTRATEGY") != "everydt"
     ):
         input_file.add({"BEAM INTERACTION": {"REPARTITIONSTRATEGY": "everydt"}})
-
-    set_binning_strategy_section(
-        input_file,
-        **binning_parameters,
-    )
 
     # Add the beam to solid volume mesh tying options.
     bts_parameters = {}
@@ -442,44 +434,6 @@ def set_header_static(
     input_file.add(input_file_parameters)
 
 
-def set_binning_strategy_section(
-    input_file: _InputFile,
-    binning_bounding_box: list[int] | None = None,
-    binning_cutoff_radius: float | None = None,
-):
-    """Set binning strategy in section of the input file.
-
-    Args
-    ----
-    input_file:
-        Input file that the options will be added to.
-    binning_bounding_box:
-        List with the limits of the bounding box.
-    binning_cutoff_radius:
-        Maximal influence radius of pair elements.
-    """
-
-    if binning_bounding_box is not None and binning_cutoff_radius is not None:
-        binning_bounding_box_string = " ".join(
-            [str(val) for val in binning_bounding_box]
-        )
-
-        input_file.add(
-            {
-                "BINNING STRATEGY": {
-                    "BIN_SIZE_LOWER_BOUND": binning_cutoff_radius,
-                    "DOMAINBOUNDINGBOX": binning_bounding_box_string,
-                }
-            }
-        )
-    elif [binning_bounding_box, binning_cutoff_radius].count(None) == 2:
-        return
-    else:
-        raise ValueError(
-            f"The variables binning_bounding_box {binning_bounding_box} and binning_cutoff_radius {binning_cutoff_radius} must both be set."
-        )
-
-
 def set_beam_interaction_section(
     input_file: _InputFile, *, repartition_strategy: str = "everydt"
 ):
@@ -526,7 +480,6 @@ def set_beam_contact_runtime_output(
 def set_beam_contact_section(
     input_file: _InputFile,
     *,
-    interaction_strategy: str = "penalty",
     btb_penalty: float = 0,
     btb_line_penalty: float = 0,
     per_shift_angle: list[float] = [70, 80],
@@ -537,20 +490,17 @@ def set_beam_contact_section(
     penalty_regularization_g0: float = 0,
     penalty_regularization_f0: float = 0,
     penalty_regularization_c0: float = 0,
-    binning_parameters: dict = {},
     beam_interaction_parameters: dict = {},
 ):
     """Set default beam contact section, for more and updated details see
-    respective input file within 4C. Parameters for set_binning_strategy and
-    set_beam_interaction may be forwarded as keyword arguments.
+    respective input file within 4C.
+
+    Parameters for `set_beam_interaction_section` are forwarded as keyword arguments.
 
     Args
     ----
     input_file:
         Input file that the options will be added to.
-    interaction_strategy:
-        Type of employed solving strategy
-        Options: "none", "penalty" or "gmshonly"
     btb_penalty: double
         Penalty parameter for beam-to-beam point contact
     btb_line_penalty:
@@ -571,10 +521,8 @@ def set_beam_contact_section(
         Second penalty regularization parameter F0
     penalty_regularization_c0:
         Third penalty regularization parameter C0
-    binning_parameters:
-        Keyword parameters for the binning section
     beam_interaction_parameters:
-        Keyword parameters for the beam-contact section
+        Keyword parameters for `set_beam_interaction_section`
     """
 
     if len(per_shift_angle) != 2:
@@ -604,9 +552,6 @@ def set_beam_contact_section(
             }
         }
     )
-
-    # beam contact needs a binning strategy
-    set_binning_strategy_section(input_file, **binning_parameters)
 
     # beam contact needs interaction strategy
     set_beam_interaction_section(input_file, **beam_interaction_parameters)

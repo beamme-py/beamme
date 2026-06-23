@@ -286,10 +286,6 @@ def test_integration_four_c_nurbs_import(
         penalty_parameter=1000,
         n_gauss_points=6,
         segmentation=True,
-        binning_parameters={
-            "binning_bounding_box": [-3, -3, -1, 3, 3, 5],
-            "binning_cutoff_radius": 1,
-        },
     )
     set_runtime_output(input_file)
     input_file["PROBLEM TYPE"]["SHAPEFCT"] = "Nurbs"
