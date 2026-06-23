@@ -108,7 +108,7 @@ def beam_to_space_time(
             might lead to unexpected results.
         - return_set:
             The nodes sets to be returned for the space time mesh:
-                "start", "end", "left", "right", "surface"
+                "start", "end", "surface"
     """
 
     # Get the "reference" spatial mesh
@@ -148,8 +148,6 @@ def beam_to_space_time(
         element.i_global = i_element
 
     # Get the nodes for the final space-time mesh
-    left_nodes: list[_Node] = []
-    right_nodes: list[_Node] = []
     space_time_nodes = []
     start_nodes: list[_Node] = []
     end_nodes: list[_Node] = []
@@ -180,9 +178,6 @@ def beam_to_space_time(
             start_nodes.extend(space_time_nodes_to_add)
         elif i_mesh_space == number_of_copies_in_time - 1:
             end_nodes.extend(space_time_nodes_to_add)
-
-        left_nodes.append(space_time_nodes_to_add[0])
-        right_nodes.append(space_time_nodes_to_add[-1])
 
     # Create the space time elements
     space_time_elements = []
@@ -324,8 +319,6 @@ def beam_to_space_time(
     return_set = _GeometryName()
     return_set["start"] = _GeometrySetNodes(_bme.geo.line, start_nodes)
     return_set["end"] = _GeometrySetNodes(_bme.geo.line, end_nodes)
-    return_set["left"] = _GeometrySetNodes(_bme.geo.line, left_nodes)
-    return_set["right"] = _GeometrySetNodes(_bme.geo.line, right_nodes)
     return_set["surface"] = _GeometrySetNodes(_bme.geo.surface, space_time_mesh.nodes)
 
     return space_time_mesh, return_set

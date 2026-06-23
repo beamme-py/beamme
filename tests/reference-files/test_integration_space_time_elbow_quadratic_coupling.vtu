@@ -397,52 +397,6 @@
           1
         </DataArray>
         <DataArray type="Int64" Name="geometry_set_12_line" format="ascii" RangeMin="0" RangeMax="1">
-          1 0 0 0 0 0
-          0 0 0 0 0 1
-          0 0 0 0 0 0
-          0 0 0 0 1 0
-          0 0 0 0 0 0
-          0 0 0 1 0 0
-          0 0 0 0 0 0
-          0 0 1 0 0 0
-          0 0 0 0 0 0
-          0 1 0 0 0 0
-          0 0 0 0 0 0
-          1 0 0 0 0 0
-          0 0 0 0 0 1
-          0 0 0 0 0 0
-          0 0 0 0 1 0
-          0 0 0 0 0 0
-          0 0 0 1 0 0
-          0 0 0 0 0 0
-          0 0 1 0 0 0
-          0 0 0 0 0 0
-          0
-        </DataArray>
-        <DataArray type="Int64" Name="geometry_set_13_line" format="ascii" RangeMin="0" RangeMax="1">
-          0 0 0 0 0 0
-          0 0 0 0 1 0
-          0 0 0 0 0 0
-          0 0 0 1 0 0
-          0 0 0 0 0 0
-          0 0 1 0 0 0
-          0 0 0 0 0 0
-          0 1 0 0 0 0
-          0 0 0 0 0 0
-          1 0 0 0 0 0
-          0 0 0 0 0 1
-          0 0 0 0 0 0
-          0 0 0 0 1 0
-          0 0 0 0 0 0
-          0 0 0 1 0 0
-          0 0 0 0 0 0
-          0 0 1 0 0 0
-          0 0 0 0 0 0
-          0 1 0 0 0 0
-          0 0 0 0 0 0
-          1
-        </DataArray>
-        <DataArray type="Int64" Name="geometry_set_14_line" format="ascii" RangeMin="0" RangeMax="1">
           1 1 1 1 1 1
           1 1 1 1 1 0
           0 0 0 0 0 0
@@ -465,7 +419,7 @@
           0 0 0 0 0 0
           0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_15_surface" format="ascii" RangeMin="1" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_13_surface" format="ascii" RangeMin="1" RangeMax="1">
           1 1 1 1 1 1
           1 1 1 1 1 1
           1 1 1 1 1 1
