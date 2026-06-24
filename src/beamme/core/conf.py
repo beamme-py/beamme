@@ -87,6 +87,7 @@ class ElementType(_Enum):
     beam = _auto()
     nurbs = _auto()
     solid = _auto()
+    space_time_beam = _auto()
 
 
 class NodeType(_Enum):

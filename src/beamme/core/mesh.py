@@ -55,9 +55,6 @@ from beamme.core.mesh_representation import (
 )
 from beamme.core.mesh_representation import GeometrySetInfo as _GeometrySetInfo
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
-from beamme.core.mesh_representation import (
-    string_to_geometry_set_info as _string_to_geometry_set_info,
-)
 from beamme.core.node import Node as _Node
 from beamme.core.node import NodeCosserat as _NodeCosserat
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
@@ -781,9 +778,15 @@ class Mesh:
         n_nodes = len(self.nodes)
         if n_nodes != len(set(self.nodes)):
             raise ValueError("Nodes are not unique!")
-        points = _np.zeros((n_nodes, 3))
-        point_types = _np.full(n_nodes, -1)
+
+        points = _np.empty((n_nodes, 3), dtype=float)
+        point_types = _np.empty(n_nodes, dtype=int)
+
+        # Optional node information, which is only extracted if it is actually needed.
         control_point_weights = None
+        point_arc_lengths = None
+        point_times = None
+
         for i_node, node in enumerate(self.nodes):
             node.i_global = i_node
             node_type = type(node).node_type
@@ -793,6 +796,15 @@ class Mesh:
                 if control_point_weights is None:
                     control_point_weights = _np.full(n_nodes, -1.0)
                 control_point_weights[i_node] = node.weight
+            if node_type == _bme.node_type.space_time_cosserat:
+                if point_times is None:
+                    point_times = _np.full(n_nodes, _np.nan)
+                point_times[i_node] = node.time
+                if node.arc_length is not None:
+                    if point_arc_lengths is None:
+                        point_arc_lengths = _np.full(n_nodes, _np.nan)
+                    point_arc_lengths[i_node] = node.arc_length
+
         # We don't get the rotation vectors in the loop, that would be very slow, instead
         # we get the global quaternion array and convert that directly using the numpy
         # quaternion library.
@@ -942,8 +954,10 @@ class Mesh:
             },
             point_data={
                 "point_type": point_types,
+                "arc_length": point_arc_lengths,
                 "control_point_weight": control_point_weights,
                 "rotation_vector": nodal_rotation_vectors,
+                "time": point_times,
             },
         )
 
@@ -964,6 +978,13 @@ class Mesh:
         # Get mesh representation.
         mesh_representation, _, _, _ = self.get_mesh_representation()
 
+        # Get the pyvista grid.
+        grid = mesh_representation.get_pyvista_grid(
+            cell_data_fields=["element_type_id", "beamme_id"],
+            point_data_fields=["point_type", "rotation_vector"],
+            add_geometry_sets=True,
+        )
+
         # Get data arrays for visualization, i.e., element type and the cross-section radius for beams.
         beamme_types = _np.empty(mesh_representation.n_cells, dtype=int)
         cross_section_radii = _np.full(mesh_representation.n_cells, -1.0)
@@ -982,27 +1003,6 @@ class Mesh:
                     node_value[i_node] = 0.5
                 else:
                     node_value[i_node] = 1.0
-
-        # Create a pyvista grid.
-        grid = _pv.UnstructuredGrid(
-            mesh_representation.cell_connectivity,
-            mesh_representation.cell_types,
-            mesh_representation.points,
-        )
-
-        # Add all data arrays required from the mesh representation
-        data_names_for_visualization = {
-            "cell_data": ["element_type_id", "beamme_id"],
-            "point_data": ["point_type", "rotation_vector"],
-        }
-        for field_name in ["cell_data", "point_data"]:
-            for name, data in getattr(mesh_representation, field_name).items():
-                geometry_set_info = _string_to_geometry_set_info(name)
-                if (
-                    name in data_names_for_visualization[field_name]
-                    or geometry_set_info is not None
-                ):
-                    getattr(grid, field_name)[name] = data
 
         # Add the data arrays created here.
         grid.cell_data["beamme_type"] = beamme_types

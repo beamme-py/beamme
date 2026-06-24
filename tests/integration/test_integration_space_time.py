@@ -31,7 +31,10 @@ from beamme.core.material import MaterialBeamBase
 from beamme.core.mesh import Mesh
 from beamme.mesh_creation_functions.beam_arc import create_beam_mesh_arc_segment_2d
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
-from beamme.space_time.beam_to_space_time import beam_to_space_time, mesh_to_data_arrays
+from beamme.space_time.beam_to_space_time import (
+    beam_to_space_time,
+    get_space_time_mesh_representation,
+)
 
 
 def get_name(beam_class):
@@ -66,12 +69,12 @@ def test_integration_space_time_straight(
 
     # Check the mesh data arrays
     additional_identifier = get_name(beam_type)
-    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    mesh_representation = get_space_time_mesh_representation(space_time_mesh)
     assert_results_close(
         get_corresponding_reference_file_path(
-            additional_identifier=additional_identifier, extension="json"
+            additional_identifier=additional_identifier, extension="vtu"
         ),
-        mesh_data_arrays,
+        mesh_representation,
     )
 
 
@@ -101,14 +104,13 @@ def test_integration_space_time_curved(
     # Add all sets to the mesh
     space_time_mesh.add(return_set)
 
-    # Check the mesh data arrays
     additional_identifier = get_name(beam_type)
-    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    mesh_representation = get_space_time_mesh_representation(space_time_mesh)
     assert_results_close(
         get_corresponding_reference_file_path(
-            additional_identifier=additional_identifier, extension="json"
+            additional_identifier=additional_identifier, extension="vtu"
         ),
-        mesh_data_arrays,
+        mesh_representation,
     )
 
 
@@ -140,12 +142,12 @@ def test_integration_space_time_elbow(
 
     # Check the mesh data arrays
     additional_identifier = get_name(beam_type) + ("_coupling" if couple_nodes else "")
-    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    mesh_representation = get_space_time_mesh_representation(space_time_mesh)
     assert_results_close(
         get_corresponding_reference_file_path(
-            additional_identifier=additional_identifier, extension="json"
+            additional_identifier=additional_identifier, extension="vtu"
         ),
-        mesh_data_arrays,
+        mesh_representation,
     )
 
 
@@ -210,12 +212,12 @@ def test_integration_space_time_varying_material_length(
         + ("_coupling" if couple_nodes else "")
         + ("_arc_length" if arc_length else "")
     )
-    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    mesh_representation = get_space_time_mesh_representation(space_time_mesh)
     assert_results_close(
         get_corresponding_reference_file_path(
-            additional_identifier=additional_identifier, extension="json"
+            additional_identifier=additional_identifier, extension="vtu"
         ),
-        mesh_data_arrays,
+        mesh_representation,
     )
 
 
@@ -242,8 +244,8 @@ def test_integration_space_time_named_node_set(
     space_time_mesh.add(return_set)
 
     # Check the mesh data arrays
-    mesh_data_arrays = mesh_to_data_arrays(space_time_mesh)
+    mesh_representation = get_space_time_mesh_representation(space_time_mesh)
     assert_results_close(
-        get_corresponding_reference_file_path(extension="json"),
-        mesh_data_arrays,
+        get_corresponding_reference_file_path(extension="vtu"),
+        mesh_representation,
     )
