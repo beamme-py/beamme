@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="24" NumberOfCells="15">
+      <PointData Scalars="point_type">
+        <DataArray type="Int64" Name="point_type" format="ascii" RangeMin="4" RangeMax="4">
+          4 4 4 4 4 4
+          4 4 4 4 4 4
+          4 4 4 4 4 4
+          4 4 4 4 4 4
+        </DataArray>
+        <DataArray type="Float64" Name="rotation_vector" NumberOfComponents="3" format="ascii" RangeMin="0" RangeMax="0">
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
+            <Value index="0">
+              0
+            </Value>
+            <Value index="1">
+              0
+            </Value>
+          </InformationKey>
+        </DataArray>
+        <DataArray type="Float64" Name="time" format="ascii" RangeMin="2.5" RangeMax="9.4">
+          2.5 2.5 2.5 2.5 3.88 3.88
+          3.88 3.88 5.26 5.26 5.26 5.26
+          6.640000000000001 6.640000000000001 6.640000000000001 6.640000000000001 8.02 8.02
+          8.02 8.02 9.4 9.4 9.4 9.4
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_0_point" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 1 1 1 1
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_1_point" format="ascii" RangeMin="0" RangeMax="1">
+          1 0 0 0 1 0
+          0 0 1 0 0 0
+          1 0 0 0 1 0
+          0 0 1 0 0 0
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_2_point" format="ascii" RangeMin="0" RangeMax="1">
+          0 0 0 1 0 0
+          0 1 0 0 0 1
+          0 0 0 1 0 0
+          0 1 0 0 0 1
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_3_point" format="ascii" RangeMin="0" RangeMax="1">
+          1 1 1 1 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+        </DataArray>
+        <DataArray type="Int64" Name="geometry_set_4_surface" format="ascii" RangeMin="1" RangeMax="1">
+          1 1 1 1 1 1
+          1 1 1 1 1 1
+          1 1 1 1 1 1
+          1 1 1 1 1 1
+        </DataArray>
+      </PointData>
+      <CellData Scalars="element_type_id">
+        <DataArray type="Int64" Name="element_type_id" format="ascii" RangeMin="0" RangeMax="0">
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0
+        </DataArray>
+        <DataArray type="Int64" Name="material_id" format="ascii" RangeMin="-1" RangeMax="-1">
+          -1 -1 -1 -1 -1 -1
+          -1 -1 -1 -1 -1 -1
+          -1 -1 -1
+        </DataArray>
+        <DataArray type="Int64" Name="beamme_id" format="ascii" RangeMin="0" RangeMax="14">
+          0 1 2 3 4 5
+          6 7 8 9 10 11
+          12 13 14
+        </DataArray>
+        <DataArray type="Float64" Name="rotation_vector" NumberOfComponents="12" format="ascii" RangeMin="0" RangeMax="0">
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 0 0
+          <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
+            <Value index="0">
+              0
+            </Value>
+            <Value index="1">
+              0
+            </Value>
+          </InformationKey>
+        </DataArray>
+      </CellData>
+      <Points>
+        <DataArray type="Float64" Name="Points" NumberOfComponents="3" format="ascii" RangeMin="0" RangeMax="6">
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          0 0 0 2 0 0
+          4 0 0 6 0 0
+          <InformationKey name="L2_NORM_RANGE" location="vtkDataArray" length="2">
+            <Value index="0">
+              0
+            </Value>
+            <Value index="1">
+              6
+            </Value>
+          </InformationKey>
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int64" Name="connectivity" format="ascii" RangeMin="0" RangeMax="23">
+          0 1 5 4 1 2
+          6 5 2 3 7 6
+          4 5 9 8 5 6
+          10 9 6 7 11 10
+          8 9 13 12 9 10
+          14 13 10 11 15 14
+          12 13 17 16 13 14
+          18 17 14 15 19 18
+          16 17 21 20 17 18
+          22 21 18 19 23 22
+        </DataArray>
+        <DataArray type="Int64" Name="offsets" format="ascii" RangeMin="4" RangeMax="60">
+          4 8 12 16 20 24
+          28 32 36 40 44 48
+          52 56 60
+        </DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii" RangeMin="9" RangeMax="9">
+          9 9 9 9 9 9
+          9 9 9 9 9 9
+          9 9 9
+        </DataArray>
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
