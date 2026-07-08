@@ -21,8 +21,6 @@
 # THE SOFTWARE.
 """This file contains the wrapper for the LocSys condition for 4c."""
 
-from typing import List as _List
-
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import bme as _bme
 from beamme.core.function import Function as _Function
@@ -45,7 +43,7 @@ class LocSysCondition(_BoundaryCondition):
         geometry_set: _GeometrySet,
         *,
         rotation: None | _Rotation = None,
-        function_array: None | _List[_Function | int] = None,
+        function_array: None | list[_Function | int] = None,
         update_node_position: bool = False,
         use_consistent_node_normal: bool = False,
         **kwargs,

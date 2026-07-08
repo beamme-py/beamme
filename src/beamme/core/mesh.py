@@ -26,7 +26,7 @@ import copy as _copy
 import warnings as _warnings
 from pathlib import Path as _Path
 from typing import Any as _Any
-from typing import List as _List
+from typing import Self as _Self
 from typing import cast as _cast
 
 import numpy as _np
@@ -205,7 +205,7 @@ class Mesh:
         for key in keys:
             self.add(geometry_name[key])
 
-    def add_list(self, add_list: _List, **kwargs) -> None:
+    def add_list(self, add_list: list, **kwargs) -> None:
         """Add a list of items to this mesh.
 
         Args:
@@ -230,7 +230,7 @@ class Mesh:
         elif len(types) == 1:
             list_type = types.pop()
 
-            def extend_internal_list(self_list: _List, new_list: _List) -> None:
+            def extend_internal_list(self_list: list, new_list: list) -> None:
                 """Extend an internal list with the new list.
 
                 It is checked that the final list does not have duplicate entries.
@@ -1141,7 +1141,7 @@ class Mesh:
         else:
             return plotter
 
-    def copy(self) -> "Mesh":
+    def copy(self) -> _Self:
         """Return a deep copy of this mesh.
 
         The internal mesh data (nodes, elements, boundary conditions, and

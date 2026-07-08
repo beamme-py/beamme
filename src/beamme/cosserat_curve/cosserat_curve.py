@@ -23,7 +23,6 @@
 objects."""
 
 from pathlib import Path as _Path
-from typing import Tuple as _Tuple
 from xml.etree import ElementTree as _ET  # nosec B405
 
 import numpy as _np
@@ -128,7 +127,7 @@ def get_quaternions_along_curve(
 
 def get_relative_distance_and_rotations(
     coordinates: _np.ndarray, quaternions: _NDArray[_quaternion.quaternion]
-) -> _Tuple[
+) -> tuple[
     _np.ndarray, _NDArray[_quaternion.quaternion], _NDArray[_quaternion.quaternion]
 ]:
     """Get relative distances and rotations that can be used to evaluate
@@ -294,14 +293,14 @@ class CosseratCurve(object):
 
     def get_centerline_position_and_rotation(
         self, arc_length: float, **kwargs
-    ) -> _Tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
+    ) -> tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
         """Return the position and rotation at a given centerline arc length."""
         pos, rot = self.get_centerline_positions_and_rotations([arc_length], **kwargs)
         return pos[0], rot[0]
 
     def get_centerline_positions_and_rotations(
         self, points_on_arc_length, *, factor=1.0
-    ) -> _Tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
+    ) -> tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
         """Return the position and rotation at given centerline arc lengths.
 
         If the points are outside of the valid interval, a linear extrapolation will be

@@ -22,10 +22,11 @@
 """This module defines the classes that are used to create an input file for 4C."""
 
 import os as _os
+from collections.abc import Callable as _Callable
 from datetime import datetime as _datetime
 from pathlib import Path as _Path
 from typing import Any as _Any
-from typing import Callable as _Callable
+from typing import Self as _Self
 
 from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
@@ -108,7 +109,7 @@ class InputFile:
     @classmethod
     def from_4C_yaml(
         cls, input_file_path: str | _Path, header_only: bool = False
-    ) -> "InputFile":
+    ) -> _Self:
         """Load 4C yaml file.
 
         Args:

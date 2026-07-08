@@ -21,10 +21,6 @@
 # THE SOFTWARE.
 """This module defines utility functions for meshes."""
 
-from typing import Dict as _Dict
-from typing import List as _List
-from typing import Tuple as _Tuple
-
 import numpy as _np
 
 from beamme.core.conf import bme as _bme
@@ -40,7 +36,7 @@ from beamme.core.node import Node as _Node
 
 def get_coupled_nodes_to_master_map(
     mesh: _Mesh, *, assign_i_global: bool = False
-) -> _Tuple[_Dict[_Node, _Node], _List[_Node]]:
+) -> tuple[dict[_Node, _Node], list[_Node]]:
     """Get a mapping of nodes in a mesh that should be "replaced" because they are
     coupled via a joint.
 
@@ -101,7 +97,7 @@ def get_coupled_nodes_to_master_map(
 
 def apply_nodal_coupling_to_mesh_representation(
     mesh_representation: _MeshRepresentation,
-    geometry_sets_to_i_global: _Dict[_GeometrySetBase, int],
+    geometry_sets_to_i_global: dict[_GeometrySetBase, int],
     coupling_conditions: list[_Coupling],
 ):
     """Modify a mesh representation such that coupled nodes are represented by a single

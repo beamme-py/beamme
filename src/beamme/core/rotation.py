@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 """This module defines a class that represents a rotation in 3D."""
 
+from typing import Self as _Self
+
 import numpy as _np
 import quaternion as _quaternion
 from numpy.typing import NDArray as _NDArray
@@ -75,7 +77,7 @@ class Rotation:
             raise ValueError(f"The given arguments {args} are invalid!")
 
     @classmethod
-    def from_quaternion(cls, q, *, normalized=False):
+    def from_quaternion(cls, q, *, normalized=False) -> _Self:
         """Create the object from a quaternion float array (4x1)
 
         Args
@@ -100,7 +102,7 @@ class Rotation:
         return rotation
 
     @classmethod
-    def from_rotation_matrix(cls, R):
+    def from_rotation_matrix(cls, R) -> _Self:
         """Create the object from a rotation matrix.
 
         The code is based on Spurriers algorithm:
@@ -131,7 +133,7 @@ class Rotation:
         return cls.from_quaternion(q)
 
     @classmethod
-    def from_basis(cls, t1, t2):
+    def from_basis(cls, t1, t2) -> _Self:
         """Create the object from two basis vectors t1, t2.
 
         t2 will be orthogonalized on t1, and t3 will be calculated with the cross
@@ -155,7 +157,7 @@ class Rotation:
         return cls.from_rotation_matrix(R)
 
     @classmethod
-    def from_rotation_vector(cls, rotation_vector):
+    def from_rotation_vector(cls, rotation_vector) -> _Self:
         """Create the object from a rotation vector."""
         q = _np.zeros(4)
         rotation_vector = _np.asarray(rotation_vector)

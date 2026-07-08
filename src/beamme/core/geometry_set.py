@@ -21,8 +21,8 @@
 # THE SOFTWARE.
 """This module implements a basic class to manage geometry in the input file."""
 
-from typing import KeysView as _KeysView
-from typing import Sequence as _Sequence
+from collections.abc import KeysView as _KeysView
+from collections.abc import Sequence as _Sequence
 from typing import cast as _cast
 
 import beamme.core.conf as _conf

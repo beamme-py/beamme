@@ -21,9 +21,8 @@
 # THE SOFTWARE.
 """Generic function for beam creation."""
 
+from collections.abc import Callable as _Callable
 from typing import Any as _Any
-from typing import Callable as _Callable
-from typing import Type as _Type
 
 import numpy as _np
 
@@ -274,7 +273,7 @@ def _check_given_node_and_return_relative_twist(
 def create_beam_mesh_generic(
     mesh: _Mesh,
     *,
-    beam_class: _Type[_Beam],
+    beam_class: type[_Beam],
     material: _MaterialBeamBase,
     beam_function: _Any,
     interval: tuple[float, float],

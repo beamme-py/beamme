@@ -21,8 +21,6 @@
 # THE SOFTWARE.
 """This file contains functionality to warp an existing mesh along a 1D curve."""
 
-from typing import Tuple as _Tuple
-
 import numpy as _np
 import quaternion as _quaternion
 from numpy.typing import NDArray as _NDArray
@@ -45,7 +43,7 @@ from beamme.geometric_search.find_close_points import (
 
 def get_arc_length_and_cross_section_coordinates(
     coordinates: _np.ndarray, origin: _np.ndarray, reference_rotation: _Rotation
-) -> _Tuple[float, _np.ndarray]:
+) -> tuple[float, _np.ndarray]:
     """Return the arc length and the cross section coordinates for a coordinate system
     defined by the reference rotation and the origin.
 
@@ -74,7 +72,7 @@ def get_mesh_transformation(
     n_steps: int = 10,
     initial_configuration: bool = True,
     **kwargs,
-) -> _Tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
+) -> tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
     """Generate a list of positions for each node that describe the transformation of
     the nodes from the given configuration to the Cosserat curve.
 

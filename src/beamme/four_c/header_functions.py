@@ -23,7 +23,6 @@
 file."""
 
 from typing import Any as _Any
-from typing import List as _List
 
 from beamme.core.conf import bme as _bme
 from beamme.four_c.input_file import InputFile as _InputFile
@@ -553,8 +552,8 @@ def set_beam_contact_section(
 
 def add_result_description(
     input_file: _InputFile,
-    displacements: _List,
-    node_ids: _List[int],
+    displacements: list,
+    node_ids: list[int],
     *,
     tol: float = 1e-10,
 ):

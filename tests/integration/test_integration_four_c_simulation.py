@@ -23,8 +23,8 @@
 
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Tuple
 
 import numpy as np
 import pytest
@@ -112,7 +112,7 @@ def run_four_c_test(tmp_path: Path) -> Callable:
         n_proc: int = 2,
         restart: list[int | str | None] = [None, None],
         **kwargs,
-    ) -> Tuple[Path, str]:
+    ) -> tuple[Path, str]:
         """Runs a 4C simulation inside a temporary test directory.
 
         The function asserts that ``run_four_c`` returns 0.

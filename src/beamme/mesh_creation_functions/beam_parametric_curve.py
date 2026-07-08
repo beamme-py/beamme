@@ -21,8 +21,7 @@
 # THE SOFTWARE.
 """This file has functions to create a beam from a parametric curve."""
 
-from typing import Callable as _Callable
-from typing import Type as _Type
+from collections.abc import Callable as _Callable
 
 import numpy as _np
 import scipy.integrate as _integrate
@@ -279,7 +278,7 @@ class _ArcLengthEvaluation:
 
 def create_beam_mesh_parametric_curve(
     mesh: _Mesh,
-    beam_class: _Type[_Beam],
+    beam_class: type[_Beam],
     material: _MaterialBeamBase,
     function: _Callable,
     interval: tuple[float, float],

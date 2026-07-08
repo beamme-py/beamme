@@ -22,8 +22,6 @@
 """This function allows to reorder the connectivity of solid shell elements such that
 the solid shell direction is correctly represented."""
 
-from typing import List as _List
-
 import numpy as _np
 import pyvista as _pv
 
@@ -159,7 +157,7 @@ def get_reordering_index_director_projection(
 
 
 def set_solid_shell_thickness_direction(
-    elements: _List[_Element],
+    elements: list[_Element],
     *,
     selection_type="thickness",
     director=None,

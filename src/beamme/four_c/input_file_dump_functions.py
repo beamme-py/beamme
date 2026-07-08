@@ -22,9 +22,8 @@
 """This file defines functions to dump mesh items for 4C."""
 
 from collections import defaultdict as _defaultdict
+from collections.abc import KeysView as _KeysView
 from typing import Any as _Any
-from typing import KeysView as _KeysView
-from typing import List as _List
 
 import numpy as _np
 import pyvista as _pv
@@ -260,7 +259,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         lambda _, obj: nurbs_patch_to_i_global[obj] + 1 + start_index_nurbs_patches,
     )
 
-    def _dump(section_name: str, items: _List | _KeysView) -> None:
+    def _dump(section_name: str, items: list | _KeysView) -> None:
         """Dump list of items to a section in the input file.
 
         This function ensures that the dumped items will be appended to the
@@ -349,7 +348,7 @@ def dump_mesh_representation_to_input_file_yaml(
         for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
     )
 
-    def _dump(section_name: str, dictionary_list: _List):
+    def _dump(section_name: str, dictionary_list: list):
         """Append the given list of dictionaries to the section in the input file."""
         if len(dictionary_list) == 0:
             return

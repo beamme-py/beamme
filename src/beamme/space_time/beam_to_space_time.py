@@ -21,9 +21,7 @@
 # THE SOFTWARE.
 """Convert a beam to a space time surface mesh."""
 
-from typing import Callable as _Callable
-from typing import Tuple as _Tuple
-from typing import Type as _Type
+from collections.abc import Callable as _Callable
 from typing import cast as _cast
 
 import numpy as _np
@@ -87,7 +85,7 @@ def beam_to_space_time(
     number_of_elements_in_time: int,
     *,
     time_start: float = 0.0,
-) -> _Tuple[_Mesh, _GeometryName]:
+) -> tuple[_Mesh, _GeometryName]:
     """Convert a beam mesh to a surface space-time mesh.
 
     Args:
@@ -128,7 +126,7 @@ def beam_to_space_time(
     # Calculate global mesh properties
     number_of_nodes_in_space = len(mesh_space_reference.nodes)
     number_of_elements_in_space = len(mesh_space_reference.elements)
-    space_time_element_type: _Type[SpaceTimeElementQuad4] | _Type[SpaceTimeElementQuad9]
+    space_time_element_type: type[SpaceTimeElementQuad4] | type[SpaceTimeElementQuad9]
 
     if len(element_type.nodes_create) == 2:
         number_of_copies_in_time = number_of_elements_in_time + 1

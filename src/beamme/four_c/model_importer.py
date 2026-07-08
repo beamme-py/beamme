@@ -24,7 +24,6 @@
 import tempfile as _tempfile
 from collections import defaultdict as _defaultdict
 from pathlib import Path as _Path
-from typing import Tuple as _Tuple
 
 import numpy as _np
 
@@ -109,7 +108,7 @@ class UniqueDataTracker:
 
 def import_cubitpy_model(
     cubit, convert_input_to_mesh: bool = False
-) -> _Tuple[_InputFile, _Mesh]:
+) -> tuple[_InputFile, _Mesh]:
     """Convert a CubitPy instance to a BeamMe InputFile.
 
     Args:
@@ -139,7 +138,7 @@ def import_cubitpy_model(
 
 def import_four_c_model(
     input_file_path: _Path, convert_input_to_mesh: bool = False
-) -> _Tuple[_InputFile, _Mesh]:
+) -> tuple[_InputFile, _Mesh]:
     """Import an existing 4C input file and optionally convert it into a BeamMe mesh.
 
     Args:

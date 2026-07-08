@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 """This file provides generators for commonly used test objects."""
 
-from typing import Callable, Dict
+from collections.abc import Callable
 
 import autograd.numpy as npAD
 import numpy as np
@@ -48,7 +48,7 @@ def get_bc_data() -> Callable:
         A function to create a dummy boundary condition definition.
     """
 
-    def _get_bc_data(*, identifier=None, num_dof: int = 3) -> Dict:
+    def _get_bc_data(*, identifier=None, num_dof: int = 3) -> dict:
         """Return a dummy definition for a boundary condition in 4C that can be used for
         testing purposes.
 

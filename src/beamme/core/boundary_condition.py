@@ -22,7 +22,6 @@
 """This module implements a class to represent boundary conditions."""
 
 import warnings as _warnings
-from typing import Dict as _Dict
 
 import beamme.core.conf as _conf
 from beamme.core.base_mesh_item import BaseMeshItem as _BaseMeshItem
@@ -59,7 +58,7 @@ class BoundaryCondition(BoundaryConditionBase):
     def __init__(
         self,
         geometry_set: _GeometrySetBase,
-        data: _Dict,
+        data: dict,
         bc_type: _conf.BoundaryCondition | str,
         *,
         double_nodes: _conf.DoubleNodes | None = None,

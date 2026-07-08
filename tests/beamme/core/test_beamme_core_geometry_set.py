@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 """This script is used to unittest the functionality of the geometry sets."""
 
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
 

@@ -21,10 +21,10 @@
 # THE SOFTWARE.
 """This module defines the mesh representation data structure."""
 
+from collections.abc import Iterable as _Iterable
 from dataclasses import dataclass as _dataclass
 from itertools import repeat as _repeat
 from typing import Any as _Any
-from typing import Iterable as _Iterable
 
 import numpy as _np
 import pyvista as _pv

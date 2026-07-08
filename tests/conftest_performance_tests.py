@@ -23,7 +23,7 @@
 
 import time
 import warnings
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
 

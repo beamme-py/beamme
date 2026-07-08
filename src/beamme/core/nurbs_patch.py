@@ -22,7 +22,7 @@
 """This module implements NURBS patches for the mesh."""
 
 from abc import abstractmethod as _abstractmethod
-from typing import Iterator as _Iterator
+from collections.abc import Iterator as _Iterator
 
 import numpy as _np
 import pyvista as _pv

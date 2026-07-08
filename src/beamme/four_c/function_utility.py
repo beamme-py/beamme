@@ -21,15 +21,13 @@
 # THE SOFTWARE.
 """This module implements utility functions to create 4C space time function."""
 
-from typing import List as _List
-
 import numpy as _np
 
 from beamme.core.function import Function as _Function
 
 
 def create_linear_interpolation_dict(
-    times: _List[float], values: _List[float], *, variable_name="var", variable_index=0
+    times: list[float], values: list[float], *, variable_name="var", variable_index=0
 ):
     """Create a string that describes a variable that is linear interpolated over time.
 
@@ -64,8 +62,8 @@ def create_linear_interpolation_dict(
 
 
 def create_linear_interpolation_function(
-    times: _List[float],
-    values: _List[float],
+    times: list[float],
+    values: list[float],
     *,
     function_type="SYMBOLIC_FUNCTION_OF_SPACE_TIME",
 ):
@@ -81,7 +79,7 @@ def create_linear_interpolation_function(
     return _Function([{function_type: "var"}, function_dict])
 
 
-def ensure_length_of_function_array(function_array: _List, length: int = 3):
+def ensure_length_of_function_array(function_array: list, length: int = 3):
     """Performs size check of a function array and appends the function array to the
     given length, if a list with only one item is provided.
 
