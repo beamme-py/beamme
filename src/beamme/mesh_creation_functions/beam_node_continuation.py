@@ -36,8 +36,9 @@ from beamme.utils.nodes import get_single_node as _get_single_node
 def create_beam_mesh_line_at_node(
     mesh, beam_class, material, start_node, length, **kwargs
 ):
-    """Generate a straight line at a given node. The tangent will be the same
-    as at that node.
+    """Generate a straight line at a given node.
+
+    The tangent will be the same as at that node.
 
     Args
     ----
@@ -68,7 +69,6 @@ def create_beam_mesh_line_at_node(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     if length < 0:
         raise ValueError("Length has to be positive!")
 
@@ -92,8 +92,9 @@ def create_beam_mesh_line_at_node(
 def create_beam_mesh_arc_at_node(
     mesh, beam_class, material, start_node, arc_axis_normal, radius, angle, **kwargs
 ):
-    """Generate a circular segment starting at a given node. The arc will be
-    tangent to the given node.
+    """Generate a circular segment starting at a given node.
+
+    The arc will be tangent to the given node.
 
     Args
     ----
@@ -129,7 +130,6 @@ def create_beam_mesh_arc_at_node(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     # If the angle is negative, the normal is switched
     arc_axis_normal = _np.asarray(arc_axis_normal)
     if angle < 0:

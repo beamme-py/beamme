@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This function converts the DBC monitor log files to Neumann boundary
-conditions in a mesh."""
+"""This function converts the DBC monitor log files to Neumann boundary conditions in a
+mesh."""
 
 import numpy as _np
 import yaml as _yaml
@@ -41,8 +41,8 @@ from beamme.four_c.function_utility import (
 def linear_time_transformation(
     time, values, time_span, *, flip=False, valid_start_and_end_point=False
 ):
-    """Performs a transformation of the time to a new interval with an
-    appropriate value vector.
+    """Performs a transformation of the time to a new interval with an appropriate value
+    vector.
 
     Args
     ----
@@ -58,7 +58,6 @@ def linear_time_transformation(
     valid_start_and_end_point: Bool
         optionally adds a valid starting point at t=0 and timespan[3] if provided
     """
-
     # flip values if desired and adjust time
     if flip is True:
         values = _np.flipud(values)
@@ -100,8 +99,8 @@ def linear_time_transformation(
 
 
 def read_dbc_monitor_file(file_path):
-    """Load the Dirichlet boundary condition monitor log and return the data as
-    well as the nodes of this boundary condition.
+    """Load the Dirichlet boundary condition monitor log and return the data as well as
+    the nodes of this boundary condition.
 
     Args
     ----
@@ -112,7 +111,6 @@ def read_dbc_monitor_file(file_path):
     ----
     [node_ids], [time], [force], [moment]
     """
-
     with open(file_path, "r") as f:
         dbc_monitor_file = _yaml.safe_load(f)
 
@@ -142,8 +140,8 @@ def add_point_neuman_condition_to_mesh(
     *,
     n_dof: int = 3,
 ):
-    """Adds a Neumann boundary condition to a mesh for the given node_ids with
-    the function_array and force values by creating a new geometry set.
+    """Adds a Neumann boundary condition to a mesh for the given node_ids with the
+    function_array and force values by creating a new geometry set.
 
     Args
     ----
@@ -158,7 +156,6 @@ def add_point_neuman_condition_to_mesh(
     n_dof: int
         Number of DOFs per node.
     """
-
     # check if the dimensions of force and functions match
     if force.size != 3:
         raise ValueError(
@@ -200,14 +197,13 @@ def dbc_monitor_to_mesh_all_values(
     functions: list[_Function] = [],
     **kwargs,
 ):
-    """Extracts all the force values of the monitored Dirichlet boundary
-    condition and converts them into a Function with a Neumann boundary
-    condition for a given mesh. The monitor log force values must be obtained
-    from a previous simulation with constant step size. The discretization of
-    the previous simulation must be identical to the one within the mesh. The
-    extracted force values are passed to a linear interpolation 4C-function. It
-    is advisable to only call this function once all nodes have been added to
-    the mesh.
+    """Extracts all the force values of the monitored Dirichlet boundary condition and
+    converts them into a Function with a Neumann boundary condition for a given mesh.
+    The monitor log force values must be obtained from a previous simulation with
+    constant step size. The discretization of the previous simulation must be identical
+    to the one within the mesh. The extracted force values are passed to a linear
+    interpolation 4C-function. It is advisable to only call this function once all nodes
+    have been added to the mesh.
 
     Args
     ----
@@ -233,7 +229,6 @@ def dbc_monitor_to_mesh_all_values(
     functions: [Function, Function, Function]
         Array consisting of 3 custom functions(x,y,z). The value for boundary condition is selected from the last steps.
     """
-
     nodes, time, force, _ = read_dbc_monitor_file(file_path)
 
     # The forces are the negative reactions at the Dirichlet boundaries.
@@ -333,8 +328,8 @@ def dbc_monitor_to_mesh(
     function: _Function,
     **kwargs,
 ):
-    """Converts the last value of a Dirichlet boundary condition monitor log to
-    a Neumann boundary condition in the mesh.
+    """Converts the last value of a Dirichlet boundary condition monitor log to a
+    Neumann boundary condition in the mesh.
 
     Args
     ----
@@ -350,7 +345,6 @@ def dbc_monitor_to_mesh(
     function: Function
         Function for the Neumann boundary condition.
     """
-
     # read the force
     nodes, _, force, _ = read_dbc_monitor_file(file_path)
 

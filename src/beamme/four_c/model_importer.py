@@ -24,7 +24,6 @@
 import tempfile as _tempfile
 from collections import defaultdict as _defaultdict
 from pathlib import Path as _Path
-from typing import Tuple as _Tuple
 
 import numpy as _np
 
@@ -35,6 +34,7 @@ from beamme.core.boundary_condition import (
 from beamme.core.conf import Geometry as _Geometry
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
+from beamme.core.element import Element as _Element
 from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import (
@@ -76,18 +76,19 @@ if _cubitpy_is_available():
 class UniqueDataTracker:
     """Helper class to track unique data dictionaries and assign IDs to them.
 
-    When importing input files, we need to identify elements of the same
-    type. The type information is given in dictionaries. This class
-    provides a tracker that can be queried with a given element data and
-    return an already matching element type ID or create a new one.
+    When importing input files, we need to identify elements of the same type. The type
+    information is given in dictionaries. This class provides a tracker that can be
+    queried with a given element data and return an already matching element type ID or
+    create a new one.
     """
 
     def __init__(self) -> None:
         self.unique_id_to_data: dict[int, _FourCElementData] = {}
 
     def get_unique_id(self, data: _FourCElementData) -> int:
-        """Get the unique ID for the given data. If the data has not been seen
-        before, a new ID will be assigned to it.
+        """Get the unique ID for the given data.
+
+        If the data has not been seen before, a new ID will be assigned to it.
 
         Args:
             data: The data dictionary to get the ID for.
@@ -107,7 +108,7 @@ class UniqueDataTracker:
 
 def import_cubitpy_model(
     cubit, convert_input_to_mesh: bool = False
-) -> _Tuple[_InputFile, _Mesh]:
+) -> tuple[_InputFile, _Mesh]:
     """Convert a CubitPy instance to a BeamMe InputFile.
 
     Args:
@@ -137,9 +138,8 @@ def import_cubitpy_model(
 
 def import_four_c_model(
     input_file_path: _Path, convert_input_to_mesh: bool = False
-) -> _Tuple[_InputFile, _Mesh]:
-    """Import an existing 4C input file and optionally convert it into a BeamMe
-    mesh.
+) -> tuple[_InputFile, _Mesh]:
+    """Import an existing 4C input file and optionally convert it into a BeamMe mesh.
 
     Args:
         input_file_path: A file path to an existing 4C input file that will be
@@ -152,7 +152,6 @@ def import_four_c_model(
         False, the mesh will be empty. Note that the input sections which are
         converted to a BeamMe mesh are removed from the input file object.
     """
-
     input_file = _InputFile().from_4C_yaml(input_file_path=input_file_path)
     base_path = input_file_path.parent
 
@@ -192,8 +191,8 @@ def import_four_c_model(
 def _extract_mesh_representation(
     input_file: _InputFile,
 ) -> tuple[_MeshRepresentation, dict[int, _FourCElementData], dict[int, int]]:
-    """Extract the mesh representation from mesh data directly contained in the
-    input file.
+    """Extract the mesh representation from mesh data directly contained in the input
+    file.
 
     This will do an inplace removal of the mesh data from the provided input file.
 
@@ -208,7 +207,6 @@ def _extract_mesh_representation(
         - `node_set_id_mesh_representation_to_input_file`: A mapping that can be used
             to map the IDs in the mesh representation to the IDs in the input file.
     """
-
     # extract nodes
     nodes = input_file.pop("NODE COORDS", [])
     n_nodes = len(nodes)
@@ -342,7 +340,6 @@ def _get_exodus_path_from_input_file(input_file: _InputFile, base_path: _Path) -
     Returns:
         The path to the exodus file linked in the input file.
     """
-
     if "STRUCTURE GEOMETRY" in input_file.fourc_input:
         structure_geometry_section = input_file.fourc_input["STRUCTURE GEOMETRY"]
         if "FILE" in structure_geometry_section:
@@ -388,7 +385,6 @@ def _extract_mesh_representation_from_exo(
         - `node_set_id_mesh_representation_to_input_file`: A mapping that can be used to map the
            geometry set IDs in the mesh representation to the ones in the input file.
     """
-
     # Load the exodus file.
     with _netCDF4.Dataset(
         _get_exodus_path_from_input_file(input_file, base_path)
@@ -552,7 +548,6 @@ def _create_mesh_from_mesh_representation(
         A tuple (input_file, mesh). The input_file is modified in place to remove
         sections converted into the BeamMe mesh.
     """
-
     # convert all sections to native objects and add to a new mesh
     mesh = _Mesh()
 
@@ -572,7 +567,7 @@ def _create_mesh_from_mesh_representation(
             )
 
     # extract element types
-    element_type_id_to_element_type: dict[int, type] = {}
+    element_type_id_to_element_type: dict[int, type[_Element]] = {}
     for (
         element_type_id,
         element_data,
@@ -666,8 +661,7 @@ def _create_mesh_from_mesh_representation(
 def _extract_materials_from_input_file(
     input_file: _InputFile,
 ) -> dict[int, _MaterialSolid]:
-    """Extract all materials from the input file and convert them to BeamMe
-    materials.
+    """Extract all materials from the input file and convert them to BeamMe materials.
 
     Args:
         input_file: The input file containing the material sections.
@@ -675,7 +669,6 @@ def _extract_materials_from_input_file(
     Returns:
         A mapping of material IDs to BeamMe material objects.
     """
-
     material_id_map_all = {}
 
     for mat in input_file.pop("MATERIALS", []):

@@ -31,7 +31,6 @@ from beamme.geometric_search.utils import (
 
 def test_beamme_geometric_search_utils_is_arborx_available() -> None:
     """Test is_arborx_available function."""
-
     with patch("beamme.geometric_search.utils._find_spec", return_value=True):
         assert arborx_is_available() is True
 
@@ -41,7 +40,6 @@ def test_beamme_geometric_search_utils_is_arborx_available() -> None:
 
 def test_beamme_geometric_search_utils_is_cython_available() -> None:
     """Test is_cython_available function."""
-
     with patch("beamme.geometric_search.utils._find_spec", return_value=True):
         assert cython_is_available() is True
 

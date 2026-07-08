@@ -39,7 +39,6 @@ def test_integration_mesh_creation_functions_beam_node_continuation_line_and_arc
     get_corresponding_reference_file_path,
 ):
     """Test that the node continuation function work as expected."""
-
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)

@@ -62,7 +62,6 @@ class Node:
             If this node has a linked target node, then this target node is returned,
             otherwise this node is returned.
         """
-
         if self.target_node is None:
             return self
         else:
@@ -74,8 +73,8 @@ class Node:
 
 
 class NodeCosserat(Node):
-    """This object represents a Cosserat node in the mesh, i.e., it contains
-    three positions and three rotations."""
+    """This object represents a Cosserat node in the mesh, i.e., it contains three
+    positions and three rotations."""
 
     node_type = _bme.node_type.cosserat
 
@@ -111,7 +110,6 @@ class NodeCosserat(Node):
             only_rotate_triads: If True, only the rotation of this node will be
                 affected, the position of the node stays the same.
         """
-
         self.rotation = rotation * self.rotation
 
         # Rotate the positions (around origin).

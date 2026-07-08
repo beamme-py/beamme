@@ -53,9 +53,8 @@ def test_integration_mesh_creation_functions_beam_generic_close_beam_manual(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Create a circle mesh manually by creating the nodes and connecting them
-    to the elements."""
-
+    """Create a circle mesh manually by creating the nodes and connecting them to the
+    elements."""
     # Parameters for this test case.
     n_el = 3
     R = 1.235
@@ -125,7 +124,6 @@ def test_integration_mesh_creation_functions_beam_generic_close_beam_full_circle
 
     Close the circle such that it is connected to its beginning.
     """
-
     # Parameters for this test case.
     R = 1.235
     n_el = 3
@@ -193,12 +191,11 @@ def test_integration_mesh_creation_functions_beam_generic_close_beam_two_circles
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Create a full circle with different mesh creation methods, each creates
-    a half circle twice.
+    """Create a full circle with different mesh creation methods, each creates a half
+    circle twice.
 
     Close the circle such that it is connected to its beginning.
     """
-
     # Parameters for this test case.
     R = 1.235
     n_el = 3
@@ -277,7 +274,6 @@ def test_integration_mesh_creation_functions_beam_generic_node_positions_of_elem
 ):
     """Creates a line, a circular segments in 2D and a helix by setting the
     node_positions_of_elements."""
-
     # Create a mesh
     mesh = Mesh()
 
@@ -343,9 +339,7 @@ def test_integration_mesh_creation_functions_beam_generic_element_length_option(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test that the element length can be specified in the beam creation
-    functions."""
-
+    """Test that the element length can be specified in the beam creation functions."""
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
 

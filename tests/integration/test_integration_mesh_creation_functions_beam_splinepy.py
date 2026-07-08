@@ -48,7 +48,6 @@ def test_integration_mesh_creation_functions_beam_splinepy(
 ):
     """Test the create_beam_mesh_from_splinepy function with different splinepy
     curves."""
-
     curve = get_splinepy_object(splinepy_type)
     mat = get_default_test_beam_material(material_type="reissner")
     mesh = Mesh()

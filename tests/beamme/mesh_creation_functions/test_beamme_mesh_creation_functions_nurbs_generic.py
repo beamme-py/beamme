@@ -213,9 +213,8 @@ from beamme.mesh_creation_functions.nurbs_geometries import (
 def test_beamme_mesh_creation_functions_nurbs_generic_sets(
     nurbs_patch, solid_type_string, get_default_test_solid_element, reference_values
 ):
-    """Test that the add NURBS to mesh functionality returns the correct
-    geometry sets."""
-
+    """Test that the add NURBS to mesh functionality returns the correct geometry
+    sets."""
     # Add the nurbs to a mesh
     mesh = Mesh()
     element_type = get_default_test_solid_element(solid_type_string)

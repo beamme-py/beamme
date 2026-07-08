@@ -40,9 +40,8 @@ def test_integration_four_c_beam_potential_helix(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test the correct creation of input files for simulations including beam
-    to beam potential interactions."""
-
+    """Test the correct creation of input files for simulations including beam to beam
+    potential interactions."""
     mesh = Mesh()
     input_file = InputFile()
 

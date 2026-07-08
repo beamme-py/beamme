@@ -30,8 +30,7 @@ from beamme.four_c.run_four_c import clean_simulation_directory
 
 @pytest.fixture
 def create_simulation_dir(tmp_path):
-    """Fixture to create a dummy simulation directory with a file and
-    subdirectory."""
+    """Fixture to create a dummy simulation directory with a file and subdirectory."""
     simulation_dir = tmp_path / "existing_dir"
     simulation_dir.mkdir()
     simulation_sub_dir = simulation_dir / "sub"

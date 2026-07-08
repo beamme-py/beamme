@@ -183,8 +183,8 @@ def test_beamme_mesh_creation_functions_beam_parametric_curve_arc_length_evaluat
     def function_derivative(t):
         """A C0 continuous function to test the arc length integration.
 
-        The first part is a sinus, and then constant. Thus the
-        analytical integral is easy to compute.
+        The first part is a sinus, and then constant. Thus the analytical integral is
+        easy to compute.
         """
         if t < 2.0 * np.pi:
             return [2.0 + np.sin(t), 0.0, 0.0]
@@ -220,7 +220,6 @@ def test_beamme_mesh_creation_functions_beam_parametric_curve_arc_length_evaluat
 
 def test_beamme_mesh_creation_functions_beam_parametric_curve_arc_length_evaluation_arguments():
     """Check that an error is raised for wrong combination of arguments."""
-
     with pytest.raises(
         ValueError,
         match=re.escape(
@@ -234,7 +233,6 @@ def test_beamme_mesh_creation_functions_beam_parametric_curve_arc_length_evaluat
 
 def test_beamme_mesh_creation_functions_beam_parametric_curve_interval():
     """Check that an error is raised if wrong intervals are given."""
-
     with pytest.raises(
         ValueError,
         match=re.escape(
@@ -257,8 +255,8 @@ def test_beamme_mesh_creation_functions_beam_parametric_curve_interval():
 
 
 def test_beamme_mesh_creation_functions_beam_parametric_curve_vectorized():
-    """Check that an error is raised if wrong combination of vectorized
-    functions is given."""
+    """Check that an error is raised if wrong combination of vectorized functions is
+    given."""
 
     def function_vectorized(dummy):
         """A dummy function for testing."""

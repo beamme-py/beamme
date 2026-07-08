@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""Find unique points in a point cloud, i.e., points that are within a certain
-tolerance of each other will be considered as unique."""
+"""Find unique points in a point cloud, i.e., points that are within a certain tolerance
+of each other will be considered as unique."""
 
 from enum import Enum as _Enum
 from enum import auto as _auto
@@ -51,8 +51,8 @@ class FindClosePointAlgorithm(_Enum):
 
 
 def point_partners_to_unique_indices(point_partners):
-    """Convert the partner indices to lists that can be used for converting
-    between the full and unique coordinates.
+    """Convert the partner indices to lists that can be used for converting between the
+    full and unique coordinates.
 
     Returns
     ----
@@ -61,7 +61,6 @@ def point_partners_to_unique_indices(point_partners):
     inverse_indices: list(int)
         Indices of the unique array that can be used to reconstruct of the original points coordinates.
     """
-
     unique_indices = []
     inverse_indices = [-1 for i in range(len(point_partners))]
     partner_id_to_unique_map = {}
@@ -91,8 +90,8 @@ def point_partners_to_unique_indices(point_partners):
 
 
 def point_partners_to_partner_indices(point_partners, n_partners):
-    """Convert the partner indices for each point to a list of lists with the
-    indices for all partners."""
+    """Convert the partner indices for each point to a list of lists with the indices
+    for all partners."""
     partner_indices = [[] for i in range(n_partners)]
     for i, partner_index in enumerate(point_partners):
         if partner_index != -1:
@@ -101,8 +100,8 @@ def point_partners_to_partner_indices(point_partners, n_partners):
 
 
 def partner_indices_to_point_partners(partner_indices, n_points):
-    """Convert the list of lists with the indices for all partners to the
-    partner indices for each point."""
+    """Convert the list of lists with the indices for all partners to the partner
+    indices for each point."""
     point_partners = [-1 for _i in range(n_points)]
     for i_partner, partners in enumerate(partner_indices):
         for index in partners:
@@ -111,8 +110,8 @@ def partner_indices_to_point_partners(partner_indices, n_points):
 
 
 def find_close_points(point_coordinates, *, algorithm=None, tol=1e-8, **kwargs):
-    """Find unique points in a point cloud, i.e., points that are within a
-    certain tolerance of each other will be considered as unique.
+    """Find unique points in a point cloud, i.e., points that are within a certain
+    tolerance of each other will be considered as unique.
 
     Args
     ----
@@ -136,7 +135,6 @@ def find_close_points(point_coordinates, *, algorithm=None, tol=1e-8, **kwargs):
     partner: int
         Largest partner index.
     """
-
     n_points = len(point_coordinates)
 
     if algorithm is None:

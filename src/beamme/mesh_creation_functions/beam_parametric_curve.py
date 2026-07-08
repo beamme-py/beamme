@@ -21,8 +21,7 @@
 # THE SOFTWARE.
 """This file has functions to create a beam from a parametric curve."""
 
-from typing import Callable as _Callable
-from typing import Type as _Type
+from collections.abc import Callable as _Callable
 
 import numpy as _np
 import scipy.integrate as _integrate
@@ -42,12 +41,11 @@ from beamme.mesh_creation_functions.beam_generic import (
 
 
 class _ArcLengthEvaluation:
-    """Class to allow evaluation of the arc length S(t) and the inverse mapping
-    t(S).
+    """Class to allow evaluation of the arc length S(t) and the inverse mapping t(S).
 
-    This class uses precomputed samples to interpolate between arc
-    length values. This is much more efficient than root finding
-    algorithms and should provide a suitable accuracy.
+    This class uses precomputed samples to interpolate between arc length values. This
+    is much more efficient than root finding algorithms and should provide a suitable
+    accuracy.
     """
 
     def __init__(
@@ -92,7 +90,6 @@ class _ArcLengthEvaluation:
                     space, but the middle nodes are placed such that the elements themselves are
                     not distorted.
         """
-
         if not scipy_integrate and scipy_integrate_points is not None:
             raise ValueError(
                 "scipy_integrate_points cannot be provided if scipy_integrate is False!"
@@ -111,11 +108,9 @@ class _ArcLengthEvaluation:
     def _compute_samples(self) -> None:
         """Compute the samples for the arc length mapping.
 
-        This function computes the arc length S(t) at a set of sample
-        points along the parameter coordinate t with the accumulative
-        Simpson integration.
+        This function computes the arc length S(t) at a set of sample points along the
+        parameter coordinate t with the accumulative Simpson integration.
         """
-
         if self.scipy_integrate:
             ds_dt = lambda t: _np.linalg.norm(self.function_derivative([t])[0])
             integral = _quad(
@@ -198,16 +193,16 @@ class _ArcLengthEvaluation:
     def approximate_total_arc_length(self) -> float:
         """Approximate the total arc length along the curve.
 
-        This value is only needed to choose the number of elements along
-        the curve.
+        This value is only needed to choose the number of elements along the curve.
         """
         return self.S_grid[-1]
 
     def get_total_arc_length(self) -> float:
         """Get the total arc length along the curve.
 
-        This function might return a different arc-length than `approximate_total_arc_length`,
-        if the integral is adaptively refined in `evaluate_all`.
+        This function might return a different arc-length than
+        `approximate_total_arc_length`, if the integral is adaptively refined in
+        `evaluate_all`.
         """
         return self.S_grid[-1]
 
@@ -230,7 +225,6 @@ class _ArcLengthEvaluation:
             S_evaluate:
                 Arc-length coordinates along the curve for each evaluation point.
         """
-
         # Todo: Check if it makes sense to adaptively refine the arc-length
         # integration here.
 
@@ -284,7 +278,7 @@ class _ArcLengthEvaluation:
 
 def create_beam_mesh_parametric_curve(
     mesh: _Mesh,
-    beam_class: _Type[_Beam],
+    beam_class: type[_Beam],
     material: _MaterialBeamBase,
     function: _Callable,
     interval: tuple[float, float],
@@ -296,9 +290,10 @@ def create_beam_mesh_parametric_curve(
     arc_length_integrator_kwargs: dict | None = None,
     **kwargs,
 ) -> _GeometryName | tuple[_GeometryName, float]:
-    """Generate a beam from a parametric curve. Integration along the beam is
-    performed with scipy, and if the gradient is not explicitly provided, it is
-    calculated with the numpy wrapper autograd.
+    """Generate a beam from a parametric curve.
+
+    Integration along the beam is performed with scipy, and if the gradient is
+    not explicitly provided, it is calculated with the numpy wrapper autograd.
 
     Args
     ----
@@ -352,7 +347,6 @@ def create_beam_mesh_parametric_curve(
         Set with the 'start' and 'end' node of the curve. Also a 'line' set
         with all nodes of the curve.
     """
-
     # Set default values for optional arguments.
     if arc_length_integrator_kwargs is None:
         arc_length_integrator_kwargs = {}
@@ -414,8 +408,7 @@ def create_beam_mesh_parametric_curve(
     )
 
     class _BeamFunctionGenerator:
-        """This class manages the creation the actual beam nodes and
-        rotations."""
+        """This class manages the creation the actual beam nodes and rotations."""
 
         def __init__(
             self,
@@ -443,8 +436,8 @@ def create_beam_mesh_parametric_curve(
         def evaluate_positions_and_rotations(
             self, evaluation_positions: _np.ndarray, middle_node_flags: _np.ndarray
         ) -> tuple[_np.ndarray, list[_Rotation], _np.ndarray]:
-            """This function evaluates the positions and rotations for given
-            node positions within the interval [0,1].
+            """This function evaluates the positions and rotations for given node
+            positions within the interval [0,1].
 
             Args:
                 evaluation_positions:
@@ -460,7 +453,6 @@ def create_beam_mesh_parametric_curve(
                 rotations:
                     Rotations at all nodes points along the curve.
             """
-
             # Get the nodal parameter coordinates and the nodal arc-lengths.
             t_evaluate, S_evaluate = arc_length_evaluator.evaluate_all(
                 evaluation_positions, middle_node_flags

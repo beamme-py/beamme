@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test general functionality of the core geometry set
-class with end-to-end integration tests."""
+"""This script is used to test general functionality of the core geometry set class with
+end-to-end integration tests."""
 
 import pytest
 
@@ -42,7 +42,6 @@ def test_integration_core_geometry_set_replace_nodes_geometry_set(
     get_corresponding_reference_file_path,
 ):
     """Test case for coupling of nodes, and reusing the identical nodes."""
-
     mat = get_default_test_beam_material(material_type="reissner")
     rot = Rotation([1, 2, 43], 213123)
 

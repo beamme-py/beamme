@@ -51,7 +51,6 @@ def create_nurbs_hollow_cylinder_segment_2d(
     surf: geomdl object
         geomdl object that contains the surface information
     """
-
     # Check the validity of the input values:
     if radius_in >= radius_out:
         raise ValueError(
@@ -145,6 +144,7 @@ def create_nurbs_cylindrical_shell_sector(
     radius: float, angle: float, length: float, *, n_ele_u: int = 1, n_ele_v: int = 1
 ) -> _NURBS.Surface:
     """Creates a NURBS surface representing a 3D sector of a cylindrical shell.
+
     The center of the cylindrical shell sector is located at [0, 0, 0].
 
     Args:
@@ -160,7 +160,6 @@ def create_nurbs_cylindrical_shell_sector(
     Returns:
         geomdl.NURBS.Surface: A geomdl object that contains the surface information.
     """
-
     # Check the validity of the input values:
     if (angle >= _np.pi) or (angle < 0):
         raise ValueError(
@@ -256,7 +255,6 @@ def create_nurbs_flat_plate_2d(width, length, *, n_ele_u=1, n_ele_v=1):
     surf: geomdl object
         geomdl object that contains the surface information
     """
-
     # Create a NURBS surface instance
     surf = _NURBS.Surface()
 
@@ -298,8 +296,9 @@ def create_nurbs_flat_plate_2d(width, length, *, n_ele_u=1, n_ele_v=1):
 
 
 def create_nurbs_sphere_surface(radius, n_ele_u=1, n_ele_v=1):
-    """Generates a patch of a sphere as a NURBS surface. This function
-    constructs a segment of a spherical surface using Non-Uniform Rational
+    """Generates a patch of a sphere as a NURBS surface.
+
+    This function constructs a segment of a spherical surface using Non-Uniform Rational
     B-Splines (NURBS) based on the specified radius and the number of elements
     in the parametric u and v directions.
 
@@ -317,7 +316,6 @@ def create_nurbs_sphere_surface(radius, n_ele_u=1, n_ele_v=1):
     surf: geomdl object
         geomdl object that contains the surface information
     """
-
     # Create a NURBS surface instance
     surf = _NURBS.Surface()
 
@@ -430,13 +428,14 @@ def create_nurbs_sphere_surface(radius, n_ele_u=1, n_ele_v=1):
 
 
 def create_nurbs_hemisphere_surface(radius, n_ele_uv=1):
-    """Generates a hemisphere as a NURBS surface. This function constructs five
-    segments that represent the surface of a hemisphere using Non-Uniform
-    Rational B-Splines (NURBS) based on the specified radius and the number of
-    elements in the parametric u and v directions. To secure the connectivity
-    between surfaces, all surfaces must have the same parametric representation
-    in any parametric direction. Therefore, the number of elements in u- and v-
-    directions must be the same.
+    """Generates a hemisphere as a NURBS surface.
+
+    This function constructs five segments that represent the surface of a
+    hemisphere using Non-Uniform Rational B-Splines (NURBS) based on the specified
+    radius and the number of elements in the parametric u and v directions.
+    To secure the connectivity between surfaces, all surfaces must have the same
+    parametric representation in any parametric direction. Therefore, the number
+    of elements in u- and v-directions must be the same.
 
     This function generates a list of five NURBS geomdl objects.
 
@@ -452,7 +451,6 @@ def create_nurbs_hemisphere_surface(radius, n_ele_uv=1):
     list: list(geomdl object)
         A list of geomdl objects that contains the surface information
     """
-
     # Create the first section of the hemisphere
     hemisphere_1 = create_nurbs_sphere_surface(radius, n_ele_u=1, n_ele_v=1)
 
@@ -697,7 +695,6 @@ def create_nurbs_brick(width, length, height, *, n_ele_u=1, n_ele_v=1, n_ele_w=1
     vol: geomdl object
         geomdl object that contains the volume information
     """
-
     # Create a NURBS volume instance
     vol = _NURBS.Volume()
 
@@ -761,8 +758,7 @@ def create_nurbs_brick(width, length, height, *, n_ele_u=1, n_ele_v=1, n_ele_w=1
 
 
 def do_uniform_knot_refinement_surface(surf, n_ele_u, n_ele_v):
-    """This function does an uniform knot refinement in the u- and v-
-    direction.
+    """This function does an uniform knot refinement in the u- and v- direction.
 
     Args
     ----
@@ -777,7 +773,6 @@ def do_uniform_knot_refinement_surface(surf, n_ele_u, n_ele_v):
     ----
     surf: geomdl object
     """
-
     size_of_knotvector_u = 1 / n_ele_u
     size_of_knotvector_v = 1 / n_ele_v
 
@@ -788,8 +783,7 @@ def do_uniform_knot_refinement_surface(surf, n_ele_u, n_ele_v):
 
 
 def do_uniform_knot_refinement_volume(vol, n_ele_u, n_ele_v, n_ele_w):
-    """This function does an uniform knot refinement in the u-, v- and w-
-    direction.
+    """This function does an uniform knot refinement in the u-, v- and w- direction.
 
     Args
     ----
@@ -806,7 +800,6 @@ def do_uniform_knot_refinement_volume(vol, n_ele_u, n_ele_v, n_ele_w):
     ----
     vol: geomdl object
     """
-
     size_of_knotvector_u = 1 / n_ele_u
     size_of_knotvector_v = 1 / n_ele_v
     size_of_knotvector_w = 1 / n_ele_w

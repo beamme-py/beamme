@@ -21,8 +21,6 @@
 # THE SOFTWARE.
 """This file contains the wrapper for the LocSys condition for 4c."""
 
-from typing import List as _List
-
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import bme as _bme
 from beamme.core.function import Function as _Function
@@ -36,8 +34,8 @@ from beamme.four_c.function_utility import (
 class LocSysCondition(_BoundaryCondition):
     """This object represents a locsys condition in 4C.
 
-    It allows to rotate the local coordinate system used to apply
-    Dirichlet boundary conditions.
+    It allows to rotate the local coordinate system used to apply Dirichlet boundary
+    conditions.
     """
 
     def __init__(
@@ -45,7 +43,7 @@ class LocSysCondition(_BoundaryCondition):
         geometry_set: _GeometrySet,
         *,
         rotation: None | _Rotation = None,
-        function_array: None | _List[_Function | int] = None,
+        function_array: None | list[_Function | int] = None,
         update_node_position: bool = False,
         use_consistent_node_normal: bool = False,
         **kwargs,
@@ -62,7 +60,6 @@ class LocSysCondition(_BoundaryCondition):
             update_node_position: Flag to enable the updated node position
             use_consistent_node_normal: Flag to use a consistent node normal
         """
-
         # Check for invalid input arguments
         if (
             function_array is not None

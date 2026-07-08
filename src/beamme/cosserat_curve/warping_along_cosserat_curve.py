@@ -19,10 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file contains functionality to warp an existing mesh along a 1D
-curve."""
-
-from typing import Tuple as _Tuple
+"""This file contains functionality to warp an existing mesh along a 1D curve."""
 
 import numpy as _np
 import quaternion as _quaternion
@@ -46,9 +43,9 @@ from beamme.geometric_search.find_close_points import (
 
 def get_arc_length_and_cross_section_coordinates(
     coordinates: _np.ndarray, origin: _np.ndarray, reference_rotation: _Rotation
-) -> _Tuple[float, _np.ndarray]:
-    """Return the arc length and the cross section coordinates for a coordinate
-    system defined by the reference rotation and the origin.
+) -> tuple[float, _np.ndarray]:
+    """Return the arc length and the cross section coordinates for a coordinate system
+    defined by the reference rotation and the origin.
 
     Args
     ----
@@ -60,7 +57,6 @@ def get_arc_length_and_cross_section_coordinates(
         Rotation of the coordinate system. The first basis vector is the arc
         length direction.
     """
-
     transformed_coordinates = reference_rotation.inv() * (coordinates - origin)
     centerline_position = transformed_coordinates[0]
     cross_section_coordinates = [0.0, *transformed_coordinates[1:]]
@@ -76,10 +72,9 @@ def get_mesh_transformation(
     n_steps: int = 10,
     initial_configuration: bool = True,
     **kwargs,
-) -> _Tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
-    """Generate a list of positions for each node that describe the
-    transformation of the nodes from the given configuration to the Cosserat
-    curve.
+) -> tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
+    """Generate a list of positions for each node that describe the transformation of
+    the nodes from the given configuration to the Cosserat curve.
 
     Args
     ----
@@ -109,7 +104,6 @@ def get_mesh_transformation(
         A list for each time step containing the relative rotations for all nodes at that
         time step
     """
-
     # Define the factors for which we will generate the positions and rotations
     factors = _np.linspace(0.0, 1.0, n_steps + 1)
     if initial_configuration:
@@ -243,8 +237,9 @@ def create_transform_boundary_conditions(
     n_dof_per_node: int = 3,
     **kwargs,
 ) -> None:
-    """Create the Dirichlet boundary conditions that enforce the warping. The
-    warped object is assumed to align with the x-axis in the reference
+    """Create the Dirichlet boundary conditions that enforce the warping.
+
+    The warped object is assumed to align with the x-axis in the reference
     configuration.
 
     Args
@@ -265,7 +260,6 @@ def create_transform_boundary_conditions(
     kwargs:
         Keyword arguments passed to get_mesh_transformation
     """
-
     # If no nodes are given, use all nodes in the mesh
     if nodes is None:
         nodes = mesh.nodes
@@ -318,11 +312,9 @@ def warp_mesh_along_curve(
 ) -> None:
     """Warp an existing mesh along the given curve.
 
-    The reference coordinates for the transformation are defined by the
-    given origin and rotation, where the first basis vector of the triad
-    defines the centerline axis.
+    The reference coordinates for the transformation are defined by the given origin and
+    rotation, where the first basis vector of the triad defines the centerline axis.
     """
-
     pos, rot = get_mesh_transformation(
         curve,
         mesh.nodes,

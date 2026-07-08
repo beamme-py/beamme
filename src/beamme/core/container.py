@@ -19,17 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module implements containers to manage boundary conditions and geometry
-sets in one object."""
+"""This module implements containers to manage boundary conditions and geometry sets in
+one object."""
+
+# This comment avoids docformatter's issue: https://github.com/PyCQA/docformatter/issues/350
 
 
 class ContainerBase(dict):
     """A base class for containers."""
 
     def append(self, key, item):
-        """Append item to this container and check if the item is already in
-        the list corresponding to key."""
-
+        """Append item to this container and check if the item is already in the list
+        corresponding to key."""
         type_ok = False
         for item_type in self.item_types:
             if isinstance(item, item_type):
@@ -49,7 +50,6 @@ class ContainerBase(dict):
 
     def extend(self, container):
         """Add all items of another container to this container."""
-
         if not isinstance(container, self.__class__):
             raise TypeError(
                 f"Only containers of type {self.__class__} can be merged here, you tried "

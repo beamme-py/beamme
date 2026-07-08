@@ -41,7 +41,6 @@ def print_rotation_matrix(name, rotation):
 
 def add_cube_plot(plotter, row, col, rotation, text, *, plot_outlines=True):
     """Add a cube to the plotter."""
-
     plotter.subplot(row, col)
 
     # Define and optionally plot the original cube
@@ -114,15 +113,13 @@ class PyVistaPlotter:
 
     def __enter__(self):
         """Return the plotter with the given arguments."""
-
         self.plotter = pv.Plotter(*self.args, **self.kwargs)
         return self.plotter
 
     def __exit__(self, exc_type, exc_value, traceback):
         """When exiting the with statement, call this function.
 
-        We show the plotter (except during testing and we reset the
-        console print out).
+        We show the plotter (except during testing and we reset the console print out).
         """
         if not is_testing():
             self.plotter.show()

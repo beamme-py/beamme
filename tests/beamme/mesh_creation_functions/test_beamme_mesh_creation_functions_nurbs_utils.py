@@ -35,8 +35,8 @@ from beamme.mesh_creation_functions.nurbs_utils import (
 class MockSpline:
     """Minimal mock class to mimic a splinepy object with control points.
 
-    By using this mock, we can test that the translate and rotate
-    functions only modify the control points.
+    By using this mock, we can test that the translate and rotate functions only modify
+    the control points.
     """
 
     def __init__(self, control_points):
@@ -66,8 +66,7 @@ def test_beamme_mesh_creation_functions_nurbs_utils_translate_splinepy_3d(
 
 
 def test_beamme_mesh_creation_functions_nurbs_utils_translate_invalid_dimension():
-    """Test that translation with a vector of incorrect dimension raises
-    error."""
+    """Test that translation with a vector of incorrect dimension raises error."""
     spline = MockSpline([[0.0, 0.0]])
     with pytest.raises(ValueError, match="Dimensions of translation"):
         translate_splinepy(spline, [1.0, 2.0, 3.0])
@@ -86,8 +85,8 @@ def test_beamme_mesh_creation_functions_nurbs_utils_rotate_splinepy_2d(
 
 
 def test_beamme_mesh_creation_functions_nurbs_utils_rotate_splinepy_invalid_2d_rotation():
-    """Test that a 2D splinepy object can only be rotated by a rotation around
-    the z-axis."""
+    """Test that a 2D splinepy object can only be rotated by a rotation around the
+    z-axis."""
     spline = MockSpline([[1.0, 0.0]])
     rotation = Rotation([1, 1, 0], np.pi / 3)
     with pytest.raises(ValueError, match="Rotation vector must be in"):
@@ -98,8 +97,7 @@ def test_beamme_mesh_creation_functions_nurbs_utils_rotate_splinepy_invalid_2d_r
 def test_beamme_mesh_creation_functions_nurbs_utils_rotate_splinepy_3d_origin(
     origin, assert_results_close
 ):
-    """Test rotation of a 3D splinepy object with and without given origin
-    argument."""
+    """Test rotation of a 3D splinepy object with and without given origin argument."""
     points = np.array([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0]])
     spline = MockSpline(points)
     rotation = Rotation([1.0, 2.0, 3.0], np.pi / 3.0)
@@ -128,8 +126,7 @@ def test_beamme_mesh_creation_functions_nurbs_utils_ensure_3d_splinepy_object_al
 def test_beamme_mesh_creation_functions_nurbs_utils_ensure_3d_splinepy_object_from_1d(
     assert_results_close,
 ):
-    """Ensure that a 1D splinepy object is converted to 3D by adding y=0 and
-    z=0."""
+    """Ensure that a 1D splinepy object is converted to 3D by adding y=0 and z=0."""
     original_points = np.array([[1.0], [3.0]])
     spline = MockSpline(original_points)
     ensure_3d_splinepy_object(spline)

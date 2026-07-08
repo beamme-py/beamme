@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test the functionality of the geometric_search
-module."""
+"""This script is used to test the functionality of the geometric_search module."""
 
 import random
 
@@ -65,9 +64,8 @@ def assert_unique_id_coordinates(
     inverse_indices_ref,
     assert_results_close,
 ):
-    """Test if the unique coordinates are really unique and that the inverse
-    indices result in the original array."""
-
+    """Test if the unique coordinates are really unique and that the inverse indices
+    result in the original array."""
     # Get the array with the unique indices.
     unique_indices, inverse_indices = point_partners_to_unique_indices(point_partners)
     unique_points = coords[unique_indices]
@@ -353,10 +351,9 @@ def test_integration_geometric_search_find_close_points_binning_flat(
 ):
     """Test case for coupling of points, when the nodes are all on a plane.
 
-    This is challenging for a binning based approach. However, this test
-    case can also be used for all find_close_point algorithms.
+    This is challenging for a binning based approach. However, this test case can also
+    be used for all find_close_point algorithms.
     """
-
     # Dummy material.
     material = MaterialBeamBase()
 
@@ -452,9 +449,8 @@ def test_integration_geometric_search_find_close_points_binning_flat(
 def test_integration_geometric_search_find_close_points_single_dimension(
     algorithm, assert_results_close
 ):
-    """Test that the find_close_points function works properly with a 1D
-    dimensional array (internally a n x 1 array is required)"""
-
+    """Test that the find_close_points function works properly with a 1D dimensional
+    array (internally a n x 1 array is required)"""
     # Create array with coordinates
     eps = 1e-10
     coords = np.array(
@@ -492,7 +488,6 @@ def test_integration_geometric_search_find_close_points_multi_dimension(
 ):
     """Test that the find_close_points function also works properly with
     multidimensional points."""
-
     # Create array with coordinates.
     coords = np.array(
         [
@@ -550,9 +545,8 @@ def test_integration_geometric_search_find_close_points_multi_dimension(
 def test_integration_geometric_search_find_close_points_tolerance_precision(
     algorithm, assert_results_close
 ):
-    """Test that the find_close_points tolerance works with a precision of at
-    least 12."""
-
+    """Test that the find_close_points tolerance works with a precision of at least
+    12."""
     n_points = 4
     delta = 1e-12
     coords = np.ones([n_points, 3])

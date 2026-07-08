@@ -27,7 +27,6 @@ from scipy.spatial import KDTree as _KDTree
 
 def pairs_to_partner_list(pairs, n_points):
     """Convert the pairs to a partner list."""
-
     # Sort the pairs by the first column
     pairs = pairs[pairs[:, 0].argsort()]
 
@@ -57,7 +56,6 @@ def pairs_to_partner_list(pairs, n_points):
 
 def find_close_points_scipy(point_coordinates, tol):
     """Call the Scipy implementation of find close_points."""
-
     kd_tree = _KDTree(point_coordinates)
     pairs = kd_tree.query_pairs(r=tol, output_type="ndarray")
     return pairs_to_partner_list(pairs, len(point_coordinates))

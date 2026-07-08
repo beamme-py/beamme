@@ -85,7 +85,6 @@ def add_splinepy_nurbs_to_mesh(
                 Surfaces: 'surf_w_min', 'surf_w_max', 'surf_v_min', 'surf_v_max', 'surf_v_max', 'surf_u_min'
                 Volume: 'vol'
     """
-
     # Make sure that the control points are 3D
     nurbs_cp_dim = splinepy_obj.control_points.shape[1]
     if not nurbs_cp_dim == 3:
@@ -153,7 +152,6 @@ def add_geomdl_nurbs_to_mesh(
                 Surfaces: 'surf_w_min', 'surf_w_max', 'surf_v_min', 'surf_v_max', 'surf_v_max', 'surf_u_min'
                 Volume: 'vol'
     """
-
     # Make sure the material is in the mesh
     mesh.add_material(material)
 
@@ -191,8 +189,7 @@ def add_geomdl_nurbs_to_mesh(
 
 
 def create_control_points_surface(geomdl_obj):
-    """Creates a list with the ControlPoint objects of a surface created with
-    geomdl."""
+    """Creates a list with the ControlPoint objects of a surface created with geomdl."""
     control_points = []
     for dir_v in range(geomdl_obj.ctrlpts_size_v):
         for dir_u in range(geomdl_obj.ctrlpts_size_u):
@@ -212,8 +209,7 @@ def create_control_points_surface(geomdl_obj):
 
 
 def create_control_points_volume(geomdl_obj):
-    """Creates a list with the ControlPoint objects of a volume created with
-    geomdl."""
+    """Creates a list with the ControlPoint objects of a volume created with geomdl."""
     control_points = []
     for dir_w in range(geomdl_obj.ctrlpts_size_w):
         for dir_v in range(geomdl_obj.ctrlpts_size_v):
@@ -249,7 +245,6 @@ def create_geometry_sets(element: _NURBSSurface | _NURBSVolume) -> _GeometryName
     Returns:
         The geometry set container for the given NURBS patch.
     """
-
     # Create return set
     return_set = _GeometryName()
 

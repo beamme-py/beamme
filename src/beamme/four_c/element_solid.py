@@ -60,7 +60,6 @@ def get_four_c_solid(
     Returns:
         A type that defines a solid element block for 4C solid elements.
     """
-
     if element_technology is None:
         element_technology = {}
     else:

@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 """This module defines a class that represents a rotation in 3D."""
 
+from typing import Self as _Self
+
 import numpy as _np
 import quaternion as _quaternion
 from numpy.typing import NDArray as _NDArray
@@ -57,7 +59,6 @@ class Rotation:
             - Rotation(axis, phi)
                 Create a rotation around the vector axis with the angle phi.
         """
-
         self.q = _np.zeros(4)
 
         if len(args) == 0:
@@ -76,7 +77,7 @@ class Rotation:
             raise ValueError(f"The given arguments {args} are invalid!")
 
     @classmethod
-    def from_quaternion(cls, q, *, normalized=False):
+    def from_quaternion(cls, q, *, normalized=False) -> _Self:
         """Create the object from a quaternion float array (4x1)
 
         Args
@@ -101,14 +102,13 @@ class Rotation:
         return rotation
 
     @classmethod
-    def from_rotation_matrix(cls, R):
+    def from_rotation_matrix(cls, R) -> _Self:
         """Create the object from a rotation matrix.
 
         The code is based on Spurriers algorithm:
             R. A. Spurrier (1978): “Comment on “Singularity-free extraction of a quaternion from a
             direction-cosine matrix”
         """
-
         R = _np.asarray(R)
         q = _np.zeros(4)
         trace = _np.trace(R)
@@ -133,13 +133,12 @@ class Rotation:
         return cls.from_quaternion(q)
 
     @classmethod
-    def from_basis(cls, t1, t2):
+    def from_basis(cls, t1, t2) -> _Self:
         """Create the object from two basis vectors t1, t2.
 
-        t2 will be orthogonalized on t1, and t3 will be calculated with
-        the cross product.
+        t2 will be orthogonalized on t1, and t3 will be calculated with the cross
+        product.
         """
-
         t1_norm = _np.linalg.norm(t1)
         if t1_norm < _bme.eps_quaternion:
             raise ValueError(f"The given vector t1 can not be a zero vector, got {t1}.")
@@ -158,9 +157,8 @@ class Rotation:
         return cls.from_rotation_matrix(R)
 
     @classmethod
-    def from_rotation_vector(cls, rotation_vector):
+    def from_rotation_vector(cls, rotation_vector) -> _Self:
         """Create the object from a rotation vector."""
-
         q = _np.zeros(4)
         rotation_vector = _np.asarray(rotation_vector)
         phi = _np.linalg.norm(rotation_vector)
@@ -178,9 +176,8 @@ class Rotation:
         self.check_quaternion_constraint()
 
     def check_uniqueness(self):
-        """We always want q0 to be positive -> the range for the rotational
-        angle is 0 <= phi <= pi."""
-
+        """We always want q0 to be positive -> the range for the rotational angle is 0
+        <= phi <= pi."""
         if self.q[0] < 0:
             self.q *= -1
 
@@ -211,13 +208,11 @@ class Rotation:
         return _np.array(self.q)
 
     def get_numpy_quaternion(self):
-        """Return a numpy quaternion object representing this rotation
-        (copy)."""
+        """Return a numpy quaternion object representing this rotation (copy)."""
         return _quaternion.from_float_array(self.q)
 
     def get_rotation_vector(self):
         """Return the rotation vector for this object."""
-
         self.check()
 
         norm = _np.linalg.norm(self.q[1:])
@@ -246,10 +241,9 @@ class Rotation:
     def get_transformation_matrix(self):
         """Return the transformation matrix for this rotation.
 
-        The transformation matrix maps the (infinitesimal)
-        multiplicative rotational increments onto the additive ones.
+        The transformation matrix maps the (infinitesimal) multiplicative rotational
+        increments onto the additive ones.
         """
-
         omega = self.get_rotation_vector()
         omega_norm = _np.linalg.norm(omega)
 
@@ -277,11 +271,9 @@ class Rotation:
     def get_transformation_matrix_inv(self):
         """Return the inverse of the transformation matrix for this rotation.
 
-        The inverse of the transformation matrix maps the
-        (infinitesimal) additive rotational increments onto the
-        multiplicative ones.
+        The inverse of the transformation matrix maps the (infinitesimal) additive
+        rotational increments onto the multiplicative ones.
         """
-
         omega = self.get_rotation_vector()
         omega_norm = _np.linalg.norm(omega)
 
@@ -306,14 +298,12 @@ class Rotation:
 
     def inv(self):
         """Return the inverse of this rotation."""
-
         tmp_quaternion = self.q.copy()
         tmp_quaternion[0] *= -1.0
         return Rotation.from_quaternion(tmp_quaternion)
 
     def __mul__(self, other):
         """Add this rotation to another, or apply it on a vector."""
-
         # Check if the other object is also a rotation.
         if isinstance(other, Rotation):
             # Get quaternions of the two objects.
@@ -331,7 +321,6 @@ class Rotation:
 
     def __eq__(self, other):
         """Check if the other rotation is equal to this one."""
-
         if isinstance(other, Rotation):
             return bool(
                 (_np.linalg.norm(self.q - other.q) < _bme.eps_quaternion)
@@ -346,7 +335,6 @@ class Rotation:
 
     def __str__(self):
         """String representation of object."""
-
         self.check()
         return f"Rotation:\n    q0: {self.q[0]}\n    q: {self.q[1:]}"
 
@@ -364,7 +352,6 @@ def add_rotations(
     Returns:
         An array with the compound quaternions.
     """
-
     # Transpose the arrays, to work with the following code.
     if isinstance(rotation_10, Rotation):
         rot1 = rotation_10.get_quaternion().transpose()
@@ -412,7 +399,6 @@ def rotate_coordinates(
     origin (3D vector):  If this is given, the mesh is rotated about this
         point. Defaults to (0, 0, 0).
     """
-
     if isinstance(rotation, Rotation):
         rotation = rotation.get_quaternion().transpose()
 
@@ -464,9 +450,9 @@ def rotate_coordinates(
 
 
 def smallest_rotation(q: Rotation, t):
-    """Get the triad that results from the smallest rotation (rotation without
-    twist) from the triad q such that the rotated first basis vector aligns
-    with t. For more details see Christoph Meier's dissertation chapter 2.1.2.
+    """Get the triad that results from the smallest rotation (rotation without twist)
+    from the triad q such that the rotated first basis vector aligns with t. For more
+    details see Christoph Meier's dissertation chapter 2.1.2.
 
     Args
     ----
@@ -479,7 +465,6 @@ def smallest_rotation(q: Rotation, t):
     q_sr: Rotation
         The triad that results from a smallest rotation.
     """
-
     R_old = q.get_rotation_matrix()
     g1_old = R_old[:, 0]
     g1 = _np.asarray(t) / _np.linalg.norm(t)
@@ -499,8 +484,8 @@ def smallest_rotation(q: Rotation, t):
 def get_rotation_vector_series(
     rotation_vectors: list | _NDArray | list[Rotation],
 ) -> _NDArray:
-    """Return an array containing the rotation vectors representing the given
-    rotation vectors.
+    """Return an array containing the rotation vectors representing the given rotation
+    vectors.
 
     The main feature of this function is, that the returned rotation
     vectors don't have jumps when the rotation angle exceeds 2*pi. We
@@ -517,7 +502,6 @@ def get_rotation_vector_series(
     Returns:
         An array containing the "continuous" rotation vectors.
     """
-
     if isinstance(rotation_vectors, list):
         rotation_vector_array = _np.zeros((len(rotation_vectors), 3))
         for i_rotation, rotation_entry in enumerate(rotation_vectors):
@@ -527,8 +511,7 @@ def get_rotation_vector_series(
                 rotation_vector_array[i_rotation] = rotation_entry
 
     def closest_multiple_of_two_pi(x: float) -> float:
-        """Given the value x, return the multiple of 2*pi that is closest to
-        it."""
+        """Given the value x, return the multiple of 2*pi that is closest to it."""
         return 2.0 * _np.pi * round(x / (2 * _np.pi))
 
     rotation_vectors_continuous = _np.zeros((len(rotation_vector_array), 3))

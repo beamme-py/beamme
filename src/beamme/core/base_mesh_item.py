@@ -19,13 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module implements the base class for boundary conditions, functions,
-geometry sets and materials."""
+"""This module implements the base class for boundary conditions, functions, geometry
+sets and materials."""
+
+# This comment avoids docformatter's issue: https://github.com/PyCQA/docformatter/issues/350
 
 
 class BaseMeshItem:
-    """Base class for boundary conditions, functions, geometry sets and
-    materials."""
+    """Base class for boundary conditions, functions, geometry sets and materials."""
 
     def __init__(self, data: dict | None = None):
         """Create the base object.
@@ -34,7 +35,6 @@ class BaseMeshItem:
             data: General data to be stored for this item. Defaults to
                 and empty dictionary.
         """
-
         if data is not None:
             self.data = data
         else:

@@ -52,7 +52,6 @@ def test_integration_mesh_creation_functions_nurbs_hollow_cylinder_segment_2d(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a two dimensional hollow cylinder segment."""
-
     # Create the surface of a quarter of a hollow cylinder
     surf_obj = create_nurbs_hollow_cylinder_segment_2d(
         1.74, 2.46, np.pi * 5 / 6, n_ele_u=2, n_ele_v=3
@@ -83,7 +82,6 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a two dimensional flat plate."""
-
     # Create the surface of a flat plate
     surf_obj = create_nurbs_flat_plate_2d(0.75, 0.91, n_ele_u=2, n_ele_v=5)
 
@@ -110,7 +108,6 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d_splinepy(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a two dimensional flat plate with splinepy."""
-
     # Create the surface of a flat plate
     n_ele_u = 2
     n_ele_v = 5
@@ -142,7 +139,6 @@ def test_integration_mesh_creation_functions_nurbs_flat_plate_2d_splinepy_copy(
     get_corresponding_reference_file_path,
 ):
     """Test that a mesh created from a splinepy NURBS can be copied."""
-
     # Create a flat plate
     surf_obj = splinepy.helpme.create.box(0.5, 1.0).nurbs
     surf_obj.elevate_degrees([0, 1])
@@ -169,7 +165,6 @@ def test_integration_mesh_creation_functions_nurbs_brick(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a brick."""
-
     # Create a brick
     vol_obj = create_nurbs_brick(1.5, 3.0, 2.4, n_ele_u=2, n_ele_v=3, n_ele_w=4)
 
@@ -198,7 +193,6 @@ def test_integration_mesh_creation_functions_nurbs_brick_splinepy(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a brick with splinepy."""
-
     # Create a brick
     n_el_dim = [2, 3, 4]
     box_dimensions = [1.5, 3.0, 2.4]
@@ -241,7 +235,6 @@ def test_integration_mesh_creation_functions_nurbs_rotation_nurbs_surface(
     get_corresponding_reference_file_path,
 ):
     """Test the rotation of a NURBS mesh."""
-
     # Create the surface
     surf_obj = create_nurbs_hollow_cylinder_segment_2d(
         1.74, 2.46, np.pi * 3 / 4, n_ele_u=5, n_ele_v=2
@@ -274,7 +267,6 @@ def test_integration_mesh_creation_functions_nurbs_translate_nurbs_surface(
     get_corresponding_reference_file_path,
 ):
     """Test the translation of a NURBS surface mesh."""
-
     # Create the surface
     surf_obj = create_nurbs_flat_plate_2d(0.87, 1.35, n_ele_u=2, n_ele_v=3)
 
@@ -305,7 +297,6 @@ def test_integration_mesh_creation_functions_nurbs_cylindrical_shell_sector(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a 3-dimensional cylindrical shell sector."""
-
     # Create the surface of a quarter of a hollow cylinder
     surf_obj = create_nurbs_cylindrical_shell_sector(
         2.3, np.pi / 3, 1.7, n_ele_u=3, n_ele_v=5
@@ -336,7 +327,6 @@ def test_integration_mesh_creation_functions_nurbs_couple_nurbs_meshes(
     get_corresponding_reference_file_path,
 ):
     """Test the coupling of NURBS surface meshes."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -376,7 +366,6 @@ def test_integration_mesh_creation_functions_nurbs_sphere_surface(
     get_corresponding_reference_file_path,
 ):
     """Test the creating of the base patch of the surface of a sphere."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -406,10 +395,8 @@ def test_integration_mesh_creation_functions_nurbs_string_types(
 ):
     """Test the creating of a NURBS with strings for the element and material
     definition."""
-
     # Create mesh
     mesh = Mesh()
-
     # Create the base of a sphere
     surf_obj = create_nurbs_flat_plate_2d(1, 3, n_ele_u=3, n_ele_v=2)
 
@@ -435,10 +422,8 @@ def test_integration_mesh_creation_functions_nurbs_hemisphere_surface(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of the surface of a hemisphere."""
-
     # Create mesh
     mesh = Mesh()
-
     # Create the base of a sphere
     surfs = create_nurbs_hemisphere_surface(2.5, n_ele_uv=2)
 
@@ -468,10 +453,8 @@ def test_integration_mesh_creation_functions_nurbs_torus_surface(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of a torus."""
-
     # Create mesh
     mesh = Mesh()
-
     # Create the surface of a torus
     surfs = create_nurbs_torus_surface(1, 0.5, n_ele_u=2, n_ele_v=3)
 
@@ -501,7 +484,6 @@ def test_integration_mesh_creation_functions_nurbs_empty_knot_spans(
     get_corresponding_reference_file_path,
 ):
     """Test that NURBS patches with empty knot spans are handled correctly."""
-
     # Create the pipe geometry with splinepy
     disk = splinepy.helpme.create.disk(
         outer_radius=2.3, inner_radius=1.7, angle=360, n_knot_spans=1

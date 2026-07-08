@@ -55,7 +55,6 @@ class Element:
 
     def replace_node(self, old_node, new_node):
         """Replace old_node with new_node."""
-
         # Look for old_node and replace it. If it is not found, throw error.
         for i, node in enumerate(self.nodes):
             if node == old_node:

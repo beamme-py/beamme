@@ -37,9 +37,7 @@ def test_integration_four_c_solid_shell_thickness_direction_block(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test the solid shell direction detection functionality for a block
-    geometry."""
-
+    """Test the solid shell direction detection functionality for a block geometry."""
     # Test the plates
     _, mesh_block = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
@@ -65,9 +63,7 @@ def test_integration_four_c_solid_shell_thickness_direction_block(
 def test_integration_four_c_solid_shell_thickness_direction_dome(
     assert_results_close, get_corresponding_reference_file_path
 ):
-    """Test the solid shell direction detection functionality for a dome
-    geometry."""
-
+    """Test the solid shell direction detection functionality for a dome geometry."""
     _, mesh_dome_original = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             reference_file_base_name="test_other_create_cubit_input_files_solid_shell_dome"
@@ -120,7 +116,6 @@ def test_integration_four_c_solid_shell_thickness_direction_visualization(
     assert_results_close, get_corresponding_reference_file_path, tmp_path
 ):
     """Test the solid shell direction visualization functionality."""
-
     _, mesh_dome = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             reference_file_base_name="test_other_create_cubit_input_files_solid_shell_dome"

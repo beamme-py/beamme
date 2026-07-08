@@ -36,4 +36,4 @@ RUN chown -R 1000 ${HOME}
 RUN chown -R 1000 ${HOME}/.*
 USER jovyan
 WORKDIR ${HOME}
-RUN pip install -e .[fourc,dev]
+RUN pip install -e .[dev]

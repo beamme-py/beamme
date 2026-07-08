@@ -21,9 +21,8 @@
 # THE SOFTWARE.
 """Generic function for beam creation."""
 
+from collections.abc import Callable as _Callable
 from typing import Any as _Any
-from typing import Callable as _Callable
-from typing import Type as _Type
 
 import numpy as _np
 
@@ -73,7 +72,6 @@ def _get_interval_node_positions_of_elements(
     Returns:
         Numpy array with the node positions within the interval.
     """
-
     # Check for mutually exclusive parameters
     n_given_arguments = sum(
         1
@@ -150,7 +148,6 @@ def _get_interval_nodal_positions(
         middle_node_flags:
             Numpy array with flags that indicate if a node is an element internal node.
     """
-
     if (
         _np.abs(nodes_create[0] + 1.0) > _bme.eps_parameter_space
         or _np.abs(nodes_create[-1] - 1.0) > _bme.eps_parameter_space
@@ -187,8 +184,8 @@ def _evaluate_positions_and_rotations(
     beam_function: _Callable[[float], tuple[_np.ndarray, _Rotation, float | None]],
     evaluation_positions: _np.ndarray,
 ) -> tuple[_np.ndarray, list[_Rotation], _np.ndarray]:
-    """Evaluate positions, rotations and arc lengths along the filament, also
-    return a flag indicating middle nodes.
+    """Evaluate positions, rotations and arc lengths along the filament, also return a
+    flag indicating middle nodes.
 
     Args:
         beam_function:
@@ -205,7 +202,6 @@ def _evaluate_positions_and_rotations(
         arc_lengths:
             Numpy array with the arc lengths of all nodes along the beam.
     """
-
     n_nodes = len(evaluation_positions)
     coordinates = _np.zeros((n_nodes, 3))
     rotations: list[_Rotation] = []
@@ -227,8 +223,7 @@ def _check_given_node_and_return_relative_twist(
     rotation_from_function: _Rotation,
     name: str,
 ) -> _Rotation | None:
-    """Perform some checks for given nodes and return relative twist if
-    necessary.
+    """Perform some checks for given nodes and return relative twist if necessary.
 
     If the rotations do not match, check if the first basis vector of the triads is the same. If that is the case, a simple relative twist can be applied to ensure that the triad field is continuous. This relative twist can lead to issues if the beam cross-section is not double symmetric.
 
@@ -248,7 +243,6 @@ def _check_given_node_and_return_relative_twist(
             be applied to the rotation field is returned. If no relative twist is
             necessary, None is returned.
     """
-
     if node not in mesh.nodes:
         raise ValueError("The given node is not in the current mesh")
 
@@ -279,7 +273,7 @@ def _check_given_node_and_return_relative_twist(
 def create_beam_mesh_generic(
     mesh: _Mesh,
     *,
-    beam_class: _Type[_Beam],
+    beam_class: type[_Beam],
     material: _MaterialBeamBase,
     beam_function: _Any,
     interval: tuple[float, float],
@@ -371,7 +365,6 @@ def create_beam_mesh_generic(
         Geometry sets with the 'start' and 'end' node of the curve. Also a 'line' set
         with all nodes of the curve.
     """
-
     if close_beam and end_node is not None:
         raise ValueError(
             'The arguments "close_beam" and "end_node" are mutually exclusive'

@@ -7,7 +7,7 @@ runs:
       shell: bash
       run: |
         cd ${GITHUB_WORKSPACE}
-        pip install -e .[dev,fourc]
+        pip install -e .[dev]
         pre-commit install --install-hooks
         if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
           SKIP=no-commit-to-branch pre-commit run --all-files

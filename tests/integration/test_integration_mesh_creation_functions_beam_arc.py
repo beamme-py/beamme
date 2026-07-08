@@ -40,9 +40,8 @@ def test_integration_mesh_creation_functions_beam_arc_segment_via_axis(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Create a circular segment via the axis method and compare it with the
-    reference file."""
-
+    """Create a circular segment via the axis method and compare it with the reference
+    file."""
     # Create mesh
     mesh = Mesh()
     radius = 2.0
@@ -67,13 +66,12 @@ def test_integration_mesh_creation_functions_beam_arc_segment_start_end_node(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Check that if start end nodes with non-matching positions or tangents
-    are provided we get an error.
+    """Check that if start end nodes with non-matching positions or tangents are
+    provided we get an error.
 
     TODO: Split this test into the arc functionality and a general unittest for
     the error messages.
     """
-
     angle = 1.0
     radius = 2.0
     start_node_pos = [0, 0, 0]
@@ -82,8 +80,7 @@ def test_integration_mesh_creation_functions_beam_arc_segment_start_end_node(
     end_node_rot = Rotation([0, 0, 1], angle)
 
     def create_beam(*, start_node=None, end_node=None):
-        """This is the base function we use to generate the beam in this test
-        case."""
+        """This is the base function we use to generate the beam in this test case."""
         mesh = Mesh()
         mat = get_default_test_beam_material(material_type="reissner")
         if start_node is not None:
@@ -148,9 +145,8 @@ def test_integration_mesh_creation_functions_beam_arc_segment_via_rotation(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Create a circular segment via the rotation method and compare it with
-    the reference file."""
-
+    """Create a circular segment via the rotation method and compare it with the
+    reference file."""
     # Create mesh
     mesh = Mesh()
 
@@ -182,7 +178,6 @@ def test_integration_mesh_creation_functions_beam_arc_segment_2d(
     get_corresponding_reference_file_path,
 ):
     """Create a circular segments in 2D."""
-
     # Create mesh
     mesh = Mesh()
 

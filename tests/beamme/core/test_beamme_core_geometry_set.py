@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 """This script is used to unittest the functionality of the geometry sets."""
 
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
 
@@ -36,14 +36,12 @@ from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
 @pytest.fixture()
 def assert_geometry_set_add_operator() -> Callable:
-    """Return a function to check the results in the geometry set operator
-    tests."""
+    """Return a function to check the results in the geometry set operator tests."""
 
     def _compare_results(
         mesh_objects, combined_geometry, set_1_geometry, set_2_geometry
     ):
         """Compare the results."""
-
         # Check that the added geometry set contains the combined geometry
         assert len(combined_geometry) == 5
         assert combined_geometry[0] is mesh_objects[2]
@@ -77,10 +75,9 @@ def test_beamme_core_geometry_set_add_operator(
 ):
     """Test that geometry sets can be added to each other.
 
-    We test this once with a point geometry set based on nodes and once
-    with a line geometry set based on beam elements.
+    We test this once with a point geometry set based on nodes and once with a line
+    geometry set based on beam elements.
     """
-
     mesh_objects = [mesh_object(*mesh_object_args) for _ in range(5)]
     set_1 = GeometrySet(mesh_objects[:3])
     set_2 = GeometrySet(mesh_objects[2:])
@@ -100,7 +97,6 @@ def test_beamme_core_geometry_set_nodes_add_operator(
     geometry_type, assert_geometry_set_add_operator
 ):
     """Test that node based geometry sets can be added to each other."""
-
     mesh_objects = [Node([1, 2, 3]) for _ in range(5)]
     set_1 = GeometrySetNodes(geometry_type, nodes=mesh_objects[:3])
     set_2 = GeometrySetNodes(geometry_type, nodes=mesh_objects[2:])
@@ -114,7 +110,6 @@ def test_beamme_core_geometry_set_nodes_add_operator(
 
 def test_beamme_core_geometry_set_add():
     """Test functionality of the GeometrySet add method."""
-
     mesh = Mesh()
     for i in range(6):
         mesh.add(NodeCosserat([i, 2 * i, 3 * i], Rotation()))
@@ -157,9 +152,8 @@ def test_beamme_core_geometry_set_add():
 def test_beamme_core_geometry_set_unique_ordering_of_get_all_nodes_for_line_condition(
     get_default_test_beam_material,
 ):
-    """This test ensures that the ordering of the nodes returned from the
-    function get_all_nodes is unique for line sets."""
-
+    """This test ensures that the ordering of the nodes returned from the function
+    get_all_nodes is unique for line sets."""
     # set up a beam mesh with material
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="base")
@@ -174,9 +168,7 @@ def test_beamme_core_geometry_set_unique_ordering_of_get_all_nodes_for_line_cond
 
 
 def test_beamme_core_geometry_set_get_geometry_objects(get_default_test_beam_material):
-    """Test if the geometry set returns the objects(elements) in the correct
-    order."""
-
+    """Test if the geometry set returns the objects(elements) in the correct order."""
     # Initialize material and mesh
     mat = get_default_test_beam_material(material_type="base")
     mesh = Mesh()

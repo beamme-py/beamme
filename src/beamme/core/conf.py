@@ -59,8 +59,7 @@ class BoundaryCondition(_Enum):
     point_coupling_indirect = _auto()
 
     def is_point_coupling_pairwise(self) -> bool:
-        """Check whether the point coupling condition should be applied
-        pairwise.
+        """Check whether the point coupling condition should be applied pairwise.
 
         Returns:
             bool: True if the coupling should be applied individually between pairs of nodes,
@@ -120,7 +119,6 @@ class BeamMe(object):
 
     def set_default_values(self):
         """Set the configuration to the default values."""
-
         # Set the epsilons for comparison of different types of values.
         self.eps_quaternion = 1e-10
         self.eps_knot_vector = 1e-10

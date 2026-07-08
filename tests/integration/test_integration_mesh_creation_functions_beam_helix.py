@@ -45,7 +45,6 @@ def test_integration_mesh_creation_functions_beam_helix_no_rotation(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
-
     ## Helix angle and height helix combination
     # Create mesh
     mesh = Mesh()
@@ -90,7 +89,6 @@ def test_integration_mesh_creation_functions_beam_helix_rotation_offset(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -125,7 +123,6 @@ def test_integration_mesh_creation_functions_beam_helix_radius_zero(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -162,7 +159,6 @@ def test_integration_mesh_creation_functions_beam_helix_right_angle(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and compare it with the reference file."""
-
     # Create mesh
     mesh = Mesh()
 

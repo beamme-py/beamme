@@ -40,7 +40,6 @@ def test_integration_four_c_header_functions_static(
     assert_results_close,
 ):
     """Test the default static header function."""
-
     # Create input file.
     input_file = InputFile()
 
@@ -84,7 +83,6 @@ def test_integration_four_c_header_functions_static_time(
     total_time,
 ):
     """Test the time setting options in the static header functions."""
-
     input_file = InputFile()
 
     set_header_static(
@@ -103,9 +101,7 @@ def test_integration_four_c_header_functions_static_prestress(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test the static header function with non default prestressing
-    parameter."""
-
+    """Test the static header function with non default prestressing parameter."""
     # Create input file.
     input_file = InputFile()
 
@@ -141,9 +137,7 @@ def test_integration_four_c_header_functions_stress_output(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test the static header function with non default stress output
-    parameter."""
-
+    """Test the static header function with non default stress output parameter."""
     # Create input file.
     input_file = InputFile()
 
@@ -166,7 +160,6 @@ def test_integration_four_c_header_functions_beam_interaction(
     get_corresponding_reference_file_path, assert_results_close
 ):
     """Test the beam-to-beam contact header function with default parameter."""
-
     # Create input file.
     input_file = InputFile()
 
@@ -199,7 +192,6 @@ def test_integration_four_c_header_functions_nonlinear_solver_parameters(
     tmp_path,
 ):
     """Test that the NOX xml is exported correctly."""
-
     input_file = InputFile()
     set_header_static(
         input_file,

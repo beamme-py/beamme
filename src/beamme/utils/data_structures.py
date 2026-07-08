@@ -21,8 +21,8 @@
 # THE SOFTWARE.
 """Helper functions for data structure related functionality."""
 
+from collections.abc import Callable as _Callable
 from typing import Any as _Any
-from typing import Callable as _Callable
 
 from fourcipp.utils.dict_utils import (
     compare_nested_dicts_or_lists as _compare_nested_dicts_or_lists,

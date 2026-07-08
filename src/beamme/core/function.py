@@ -34,10 +34,8 @@ class Function(_BaseMeshItem):
         self.i_global: None | int = None
 
     def __deepcopy__(self, memo):
-        """When deepcopy is called on a mesh, we do not want the same functions
-        to be copied, as this will result in multiple equal functions in the
-        input file."""
-
+        """When deepcopy is called on a mesh, we do not want the same functions to be
+        copied, as this will result in multiple equal functions in the input file."""
         # Add this object to the memo dictionary.
         memo[id(self)] = self
 

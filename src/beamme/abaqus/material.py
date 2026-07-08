@@ -28,9 +28,10 @@ class AbaqusBeamMaterial(_MaterialBeamBase):
     """A class representing an Abaqus beam material."""
 
     def __init__(self, name: str):
-        """Initialize the material. For now it is only supported to state the
-        name of the resulting element set here. The material and cross-section
-        lines in the input file have to be defined manually.
+        """Initialize the material.
+
+        For now it is only supported to state the name of the resulting element set here.
+        The material and cross-section lines in the input file have to be defined manually.
 
         Args
         ----

@@ -34,7 +34,6 @@ from beamme.utils.nodes import (
 
 def test_beamme_utils_nodes_adjusting_of_nodes(assert_results_close):
     """Test the mesh function adjust_close_nodes."""
-
     coordinates = np.array(
         [[0, 0, 0], [1, 0, 0], [2, 0, 0], [1.3, 0, 0], [1.0, 0.3, 0], [2, 0, 0.2]]
     )
@@ -55,7 +54,6 @@ def test_beamme_utils_nodes_adjusting_of_nodes(assert_results_close):
 
 def test_beamme_utils_nodes_is_node_on_plane():
     """Test if node on plane function works properly."""
-
     # node on plane with origin_distance
     node = Node([1.0, 1.0, 1.0])
     assert is_node_on_plane(node, normal=[0.0, 0.0, 1.0], origin_distance=1.0)
@@ -79,7 +77,6 @@ def test_beamme_utils_nodes_is_node_on_plane():
 
 def test_beamme_utils_nodes_get_min_max_coordinates(assert_results_close):
     """Test if the get_min_max_coordinates function works properly."""
-
     # Create the mesh.
     nodes = []
     nodes.append(Node([0.0, 0.0, 0.0]))

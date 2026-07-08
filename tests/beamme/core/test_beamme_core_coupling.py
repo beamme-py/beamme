@@ -33,7 +33,6 @@ from beamme.core.rotation import Rotation
 
 def test_beamme_core_coupling_factory():
     """Test that the coupling factory can be used with the desired inputs."""
-
     nodes = [Node([0, 0, 0]) for i in range(4)]
     node_set = GeometrySet(nodes)
 
@@ -75,13 +74,11 @@ def test_beamme_core_coupling_factory():
 def test_beamme_core_coupling_check_overlapping_coupling_nodes(
     within_tolerance, check_overlapping_nodes
 ):
-    """Per default, we check that coupling nodes are at the same physical
-    position.
+    """Per default, we check that coupling nodes are at the same physical position.
 
-    This check can be deactivated with the keyword
-    check_overlapping_nodes when creating a Coupling.
+    This check can be deactivated with the keyword check_overlapping_nodes when creating
+    a Coupling.
     """
-
     # Create the nodes
     factor = 0.5 if within_tolerance else 2.0
     ref_position = [0.0, 1.5, 3.0]

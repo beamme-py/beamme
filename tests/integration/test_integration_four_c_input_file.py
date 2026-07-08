@@ -48,7 +48,6 @@ def create_beam_mesh(
     n_el: int = 2,
 ) -> GeometryName:
     """Utility function to create a beam mesh for the tests."""
-
     if beam_type == Beam3eb:
         # For EB beams, we create a straight line.
         return create_beam_mesh_line(
@@ -84,7 +83,6 @@ def test_integration_four_c_input_file_vtu_element_blocks(
 ):
     """Test the grouping of elements with the same element data and material in
     blocks."""
-
     # Get materials
     material_1 = get_default_test_beam_material(
         material_type="reissner", interaction_radius=1.0
@@ -165,9 +163,8 @@ def test_integration_four_c_input_file_vtu_boundary_conditions(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test that boundary conditions are correctly written to the input file in
-    vtu format."""
-
+    """Test that boundary conditions are correctly written to the input file in vtu
+    format."""
     # Create mesh
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
@@ -220,9 +217,8 @@ def test_integration_four_c_input_file_vtu_boundary_conditions_user_defined_sect
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test that boundary conditions with user defined sections are correctly
-    written to the input file in vtu format."""
-
+    """Test that boundary conditions with user defined sections are correctly written to
+    the input file in vtu format."""
     # Create mesh
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
@@ -261,9 +257,8 @@ def test_integration_four_c_input_file_vtu_boundary_conditions_named_geometry_se
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test that boundary conditions with named geometry sets are correctly
-    written to the input file in vtu format."""
-
+    """Test that boundary conditions with named geometry sets are correctly written to
+    the input file in vtu format."""
     # Create mesh
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")

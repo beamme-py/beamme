@@ -39,8 +39,7 @@ from beamme.geometric_search.find_close_points import (
 
 
 def find_close_nodes(nodes: list[_Node], **kwargs) -> list[list[_Node]]:
-    """Find nodes in a point cloud that are within a certain tolerance of each
-    other.
+    """Find nodes in a point cloud that are within a certain tolerance of each other.
 
     Args:
         nodes: Nodes who are part of the point cloud.
@@ -51,7 +50,6 @@ def find_close_nodes(nodes: list[_Node], **kwargs) -> list[list[_Node]]:
         each element in the returned list contains nodes that are close
         to each other.
     """
-
     coords = _np.zeros([len(nodes), 3])
     for i, node in enumerate(nodes):
         coords[i, :] = node.coordinates
@@ -62,14 +60,13 @@ def find_close_nodes(nodes: list[_Node], **kwargs) -> list[list[_Node]]:
 
 
 def adjust_close_nodes(nodes: list[_Node], *, tol=_bme.eps_pos) -> None:
-    """Adjust the coordinates of nodes that are within the given tolerance by
-    setting all involved coordinates of the nodes to their common mean.
+    """Adjust the coordinates of nodes that are within the given tolerance by setting
+    all involved coordinates of the nodes to their common mean.
 
     Args:
         nodes: List of nodes whose coordinates need adjustment.
         tol: Distance tolerance used to detect partner nodes.
     """
-
     partner_nodes = find_close_nodes(nodes, tol=tol)
     for close_nodes in partner_nodes:
         average_coords = _np.mean([node.coordinates for node in close_nodes], axis=0)
@@ -96,8 +93,7 @@ def check_node_by_coordinate(node, axis, value, eps=_bme.eps_pos):
 
 
 def get_min_max_coordinates(nodes):
-    """Return an array with the minimal and maximal coordinates of the given
-    nodes.
+    """Return an array with the minimal and maximal coordinates of the given nodes.
 
     Return
     ----
@@ -144,8 +140,9 @@ def get_single_node(item: _Node | _GeometrySetBase) -> _NodeCosserat:
 
 
 def filter_nodes(nodes, *, middle_nodes=True) -> list[_Node]:
-    """Filter the list of the given nodes. Be aware that if no filters are
-    enabled the original list will be returned.
+    """Filter the list of the given nodes.
+
+    Be aware that if no filters are enabled the original list will be returned.
 
     Args
     ----
@@ -154,7 +151,6 @@ def filter_nodes(nodes, *, middle_nodes=True) -> list[_Node]:
     middle_nodes: bool
         If middle nodes should be returned or not.
     """
-
     if not middle_nodes:
         return [node for node in nodes if middle_nodes or not node.is_middle_node]
     else:
@@ -224,7 +220,6 @@ def get_min_max_nodes(nodes, *, middle_nodes=False):
     middle_nodes: bool
         If this is true, middle nodes of a beam are also returned.
     """
-
     node_list = filter_nodes(nodes, middle_nodes=middle_nodes)
     geometry = _GeometryName()
 
@@ -248,8 +243,8 @@ def get_min_max_nodes(nodes, *, middle_nodes=False):
 def is_node_on_plane(
     node, *, normal=None, origin_distance=None, point_on_plane=None, tol=_bme.eps_pos
 ):
-    """Query if a node lies on a plane defined by a point_on_plane or the
-    origin distance.
+    """Query if a node lies on a plane defined by a point_on_plane or the origin
+    distance.
 
     Args
     ----
@@ -269,7 +264,6 @@ def is_node_on_plane(
     ----
     True if the point lies on the plane, False otherwise.
     """
-
     if origin_distance is None and point_on_plane is None:
         raise ValueError("Either provide origin_distance or point_on_plane!")
     elif origin_distance is not None and point_on_plane is not None:

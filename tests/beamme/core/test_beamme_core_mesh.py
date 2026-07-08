@@ -57,9 +57,8 @@ def test_beamme_core_mesh_get_nodes_by_function(assert_results_close):
 
 
 def test_beamme_core_mesh_add_checks():
-    """This test checks that Mesh raises an error when double objects are added
-    to the mesh."""
-
+    """This test checks that Mesh raises an error when double objects are added to the
+    mesh."""
     # Mesh instance for this test.
     mesh = Mesh()
 
@@ -93,9 +92,8 @@ def test_beamme_core_mesh_add_checks():
 
 
 def test_beamme_core_mesh_multiple_couple_nodes():
-    """The current implementation can handle more than one coupling on a node
-    correctly, therefore we check this here."""
-
+    """The current implementation can handle more than one coupling on a node correctly,
+    therefore we check this here."""
     # Create mesh object
     mesh = Mesh()
     mat = MaterialBeamBase()
@@ -123,7 +121,6 @@ def test_beamme_core_mesh_multiple_couple_nodes():
 
 def test_beamme_core_mesh_get_named_geometry_sets():
     """Test the `get_named_geometry_sets` method."""
-
     mesh = Mesh()
     mat = MaterialBeamBase()
     beam_set_1 = create_beam_mesh_line(mesh, Beam3, mat, [0, 0, 0], [1, 0, 0])
@@ -153,9 +150,8 @@ def test_beamme_core_mesh_get_named_geometry_sets():
 
 
 def test_beamme_core_mesh_get_named_geometry_sets_error():
-    """Test that the `get_named_geometry_sets` method raises an error when
-    geometry sets have duplicate names."""
-
+    """Test that the `get_named_geometry_sets` method raises an error when geometry sets
+    have duplicate names."""
     mesh = Mesh()
     mat = MaterialBeamBase()
     beam_set = create_beam_mesh_line(mesh, Beam3, mat, [0, 0, 0], [1, 0, 0])

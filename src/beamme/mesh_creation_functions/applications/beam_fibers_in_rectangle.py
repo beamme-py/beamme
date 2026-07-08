@@ -19,11 +19,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file has functions to generate multiple parallel fibers within a
-rectangle.
+"""This file has functions to generate multiple parallel fibers within a rectangle.
 
-This can for example be used to create fiber reinforced composite
-plates.
+This can for example be used to create fiber reinforced composite plates.
 """
 
 import numpy as _np
@@ -65,7 +63,6 @@ def _intersect_line_with_rectangle(
     projection_found: bool
         True if intersection is valid.
     """
-
     # Convert the input values to np.arrays.
     start_line = _np.asarray(start_line)
     direction_line = _np.asarray(direction_line)
@@ -152,7 +149,6 @@ def create_fibers_in_rectangle(
         Minimum fiber length. If a fiber is shorter than this value, it will not be created.
         The default value is half of fiber_element_length.
     """
-
     if reference_point is None:
         reference_point = 0.5 * _np.array([length, width])
     else:

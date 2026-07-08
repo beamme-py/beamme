@@ -36,7 +36,6 @@ def ensure_3d_splinepy_object(splinepy_obj) -> None:
             3 dimensions, it will be converted to 3D by adding the missing
             coordinates with a value of 0.
     """
-
     control_points_dim = splinepy_obj.control_points.shape[1]
     if control_points_dim == 3:
         pass
@@ -58,7 +57,6 @@ def translate_splinepy(splinepy_obj, vector) -> None:
         vector: _np.array, list
             2D/3D vector to translate the splinepy object.
     """
-
     if not len(vector) == splinepy_obj.control_points.shape[1]:
         raise ValueError(
             f"Dimensions of translation vector and splinepy object do not match: {len(vector)} != {splinepy_obj.control_points.shape[1]}"
@@ -70,7 +68,6 @@ def translate_splinepy(splinepy_obj, vector) -> None:
 
 def rotate_splinepy(splinepy_obj, rotation: _Rotation, origin=None) -> None:
     """Rotate a splinepy object by a rotation object."""
-
     rotation_matrix = rotation.get_rotation_matrix()
 
     dimension = splinepy_obj.control_points.shape[1]

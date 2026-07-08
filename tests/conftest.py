@@ -22,8 +22,8 @@
 """Base testing framework infrastructure."""
 
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import pytest
 from _pytest.config import Config
@@ -39,8 +39,8 @@ pytest_plugins = [
 ]
 
 # Track used and unused reference files during testing if corresponding flag is enabled
-USED_REFERENCE_FILES = set()
-UNUSED_REFERENCE_FILES = set()
+USED_REFERENCE_FILES: set[str] = set()
+UNUSED_REFERENCE_FILES: set[str] = set()
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -49,7 +49,6 @@ def pytest_addoption(parser: Parser) -> None:
     Args:
         parser: Pytest parser
     """
-
     parser.addoption(
         "--4C",
         action="store_true",
@@ -94,10 +93,9 @@ def pytest_addoption(parser: Parser) -> None:
 
 
 def _check_naming_convention(item) -> None:
-    """Check that the test name aligns with the naming conventions, i.e., the
-    test file name has to be named according to the directory structure and the
-    test name must start with the test file name."""
-
+    """Check that the test name aligns with the naming conventions, i.e., the test file
+    name has to be named according to the directory structure and the test name must
+    start with the test file name."""
     test_name = item.name
 
     testing_root = Path(__file__).parent
@@ -138,7 +136,6 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
         config: Pytest config
         items: Pytest list of tests
     """
-
     # Get all active markers for this pytest run
     active_markers = set()
     for flag, marker in zip(
@@ -192,7 +189,6 @@ def reference_file_directory() -> Path:
     Returns:
         Path: A Path object representing the full path to the reference file directory.
     """
-
     testing_path = Path(__file__).resolve().parent
     return testing_path / "reference-files"
 
@@ -207,7 +203,6 @@ def current_test_name(request: pytest.FixtureRequest) -> str:
     Returns:
         str: The name of the current pytest test.
     """
-
     return request.node.originalname
 
 
@@ -215,8 +210,7 @@ def current_test_name(request: pytest.FixtureRequest) -> str:
 def get_corresponding_reference_file_path(
     reference_file_directory, current_test_name
 ) -> Callable:
-    """Return function to get path to corresponding reference file for each
-    test.
+    """Return function to get path to corresponding reference file for each test.
 
     Necessary to enable the function call through pytest fixtures.
     """
@@ -228,9 +222,10 @@ def get_corresponding_reference_file_path(
         additional_identifier_separator: str = "_",
         extension: str = "4C.yaml",
     ) -> Path:
-        """Get path to corresponding reference file for each test. Also check
-        if this file exists. Basename, additional identifier and extension can
-        be adjusted.
+        """Get path to corresponding reference file for each test.
+
+        Also check if this file exists. Basename, additional identifier and
+        extension can be adjusted.
 
         Args:
             reference_file_base_name: Basename of reference file, if none is
@@ -250,7 +245,6 @@ def get_corresponding_reference_file_path(
         Returns:
             Path to reference file.
         """
-
         if (
             reference_file_base_name is not None
             and test_name_suffix_trim_count is not None
@@ -293,11 +287,9 @@ def get_corresponding_reference_file_path(
 def sessionfinish_unused_reference_files(session):
     """Exit with exit code 1 if any unused reference files are detected.
 
-    This is utilized to ensure that the Github Actions workflow fails if
-    unused reference files are detected when the corresponding flag is
-    enabled.
+    This is utilized to ensure that the Github Actions workflow fails if unused
+    reference files are detected when the corresponding flag is enabled.
     """
-
     if session.config.getoption("--check-for-unused-reference-files"):
         # reference_file_directory fixture is not able to be used here (fixtures cannot be called directly)
         reference_file_directory = Path(__file__).resolve().parent / "reference-files"
@@ -313,9 +305,7 @@ def sessionfinish_unused_reference_files(session):
 
 
 def terminal_summary_unused_reference_files(terminalreporter):
-    """Print a summary of unused reference files at the end of the pytest
-    run."""
-
+    """Print a summary of unused reference files at the end of the pytest run."""
     if UNUSED_REFERENCE_FILES:
         terminalreporter.write_sep(
             "=", "Unused Reference Files Found", red=True, bold=True
@@ -325,14 +315,13 @@ def terminal_summary_unused_reference_files(terminalreporter):
 
 
 def pytest_sessionfinish(session):
-    """Exit with exit code 1 if any performance test failed or unused reference
-    files are detected.
+    """Exit with exit code 1 if any performance test failed or unused reference files
+    are detected.
 
-    This is utilized to ensure that the Github Actions workflow fails if
-    performance tests exceed their expected execution time or if unused
-    reference files are detected when the corresponding flag is enabled.
+    This is utilized to ensure that the Github Actions workflow fails if performance
+    tests exceed their expected execution time or if unused reference files are detected
+    when the corresponding flag is enabled.
     """
-
     # import here instead of at the top, otherwise pytest warns due to double import via pytest_plugins
     from tests.conftest_performance_tests import sessionfinish_performance_tests
 
@@ -341,9 +330,8 @@ def pytest_sessionfinish(session):
 
 
 def pytest_terminal_summary(terminalreporter):
-    """Print a summary of performance tests or unused reference files at the
-    end of the pytest run."""
-
+    """Print a summary of performance tests or unused reference files at the end of the
+    pytest run."""
     # import here instead of at the top, otherwise pytest warns due to double import via pytest_plugins
     from tests.conftest_performance_tests import terminal_summary_performance_tests
 

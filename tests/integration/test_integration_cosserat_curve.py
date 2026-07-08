@@ -43,7 +43,6 @@ def create_beam_solid_input_file(
     beam_type, material, get_corresponding_reference_file_path
 ):
     """Create a beam and solid input file for testing purposes."""
-
     _, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             reference_file_base_name="test_other_create_cubit_input_files_solid_brick"
@@ -82,7 +81,6 @@ def test_integration_cosserat_curve_translate_and_rotate(
     assert_results_close,
 ):
     """Test that a curve can be loaded, rotated and transformed."""
-
     if twist_type is None:
         curve = get_cosserat_curve()
     elif twist_type == "angle":
@@ -140,7 +138,6 @@ def test_integration_cosserat_curve_vtk_representation(
     assert_results_close,
 ):
     """Test the vtk representation of the Cosserat curve."""
-
     reference_path = get_corresponding_reference_file_path(extension="vtu")
     result_path = tmp_path / reference_path.name
 
@@ -164,7 +161,6 @@ def test_integration_cosserat_curve_pvd_series(
     assert_results_close,
 ):
     """Test the pvd series representation of the Cosserat curve."""
-
     reference_path = get_corresponding_reference_file_path(
         additional_identifier=reference_name, extension="pvd"
     )
@@ -189,7 +185,6 @@ def test_integration_cosserat_curve_mesh_transformation(
     assert_results_close,
 ):
     """Test that the get_mesh_transformation function works as expected."""
-
     curve = get_cosserat_curve()
     pos, rot = curve.get_centerline_position_and_rotation(0)
     rot = Rotation.from_quaternion(rot)
@@ -222,7 +217,6 @@ def test_integration_cosserat_curve_mesh_warp(
     assert_results_close,
 ):
     """Warp a balloon along a centerline."""
-
     # Load the curve
     curve = get_cosserat_curve()
     pos, rot = curve.get_centerline_position_and_rotation(0)
@@ -255,7 +249,6 @@ def test_integration_cosserat_curve_mesh_warp_transform_boundary_conditions(
     assert_results_close,
 ):
     """Test the transform boundary creation function."""
-
     # Load the curve
     curve = get_cosserat_curve()
     pos, rot = curve.get_centerline_position_and_rotation(0)

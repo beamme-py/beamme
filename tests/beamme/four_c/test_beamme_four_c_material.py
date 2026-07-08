@@ -37,7 +37,6 @@ from beamme.four_c.material import (
 
 def test_beamme_four_c_material_reissner(assert_results_close):
     """Test Reissner material."""
-
     mat = MaterialReissner(
         radius=0.5,
         youngs_modulus=1234.56,
@@ -67,7 +66,6 @@ def test_beamme_four_c_material_reissner(assert_results_close):
 
 def test_beamme_four_c_material_reissner_by_modes(assert_results_close):
     """Test Reissner material by modes with scaling factors."""
-
     mat = MaterialReissner(
         radius=0.5,
         youngs_modulus=1234.56,
@@ -104,7 +102,6 @@ def test_beamme_four_c_material_reissner_by_modes(assert_results_close):
 
 def test_beamme_four_c_material_reissner_elasto_plastic(assert_results_close):
     """Test the elasto plastic Reissner beam material."""
-
     kwargs = {
         "radius": 0.1,
         "nu": 1.0,
@@ -223,7 +220,6 @@ def test_beamme_four_c_material_kirchhoff_material(assert_results_close):
 
 def test_beamme_four_c_material_stvenantkirchhoff_solid(assert_results_close):
     """Test that the solid with St_Venant Kirchhoff material."""
-
     material = MaterialStVenantKirchhoff(youngs_modulus=157, nu=0.17, density=6.1e-7)
     assert_results_close(
         material.dump_to_list(),
@@ -240,7 +236,6 @@ def test_beamme_four_c_material_stvenantkirchhoff_solid(assert_results_close):
 
 def test_beamme_four_c_material_sub_materials():
     """Test that sub-materials are correctly returned from the material."""
-
     material_1_1 = MaterialSolid(material_string="mat_1_1")
     material_1_2 = MaterialSolid(material_string="mat_1_2")
     material_1 = MaterialSolid(
@@ -284,7 +279,6 @@ def test_beamme_four_c_material_sub_materials():
 
 def test_beamme_four_c_material_sub_materials_circular_loop():
     """Test that sub-materials containing circular loops are detected."""
-
     material_3 = MaterialSolid(material_string="mat_3", data={"MATIDS": [None]})
     material_2 = MaterialSolid(material_string="mat_2", data={"MATIDS": [material_3]})
     material_1 = MaterialSolid(material_string="mat_2", data={"MATIDS": [material_2]})
@@ -299,7 +293,6 @@ def test_beamme_four_c_material_sub_materials_circular_loop():
 
 def test_beamme_four_c_material_sub_materials_indexing():
     """Check the error for incorrectly added sub-materials."""
-
     mesh = Mesh()
     material_sub = MaterialSolid(
         material_string="ELAST_CoupSVK", data={"YOUNG": 1.0, "NUE": 0.0}

@@ -19,14 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module defines the Mesh class, which holds the content (nodes,
-elements, sets, ...) for a meshed geometry."""
+"""This module defines the Mesh class, which holds the content (nodes, elements, sets,
+...) for a meshed geometry."""
 
 import copy as _copy
 import warnings as _warnings
 from pathlib import Path as _Path
 from typing import Any as _Any
-from typing import List as _List
+from typing import Self as _Self
 from typing import cast as _cast
 
 import numpy as _np
@@ -73,12 +73,11 @@ from beamme.utils.nodes import get_nodes_by_function as _get_nodes_by_function
 
 
 class Mesh:
-    """A class that contains a full mesh, i.e. Nodes, Elements, Boundary
-    Conditions, Sets, Couplings, Materials and Functions."""
+    """A class that contains a full mesh, i.e. Nodes, Elements, Boundary Conditions,
+    Sets, Couplings, Materials and Functions."""
 
     def __init__(self):
         """Initialize all empty containers."""
-
         self.nodes = []
         self.elements = []
         self.materials = []
@@ -96,7 +95,6 @@ class Mesh:
         Args:
             item: The object we want to get the base type from.
         """
-
         for cls in (
             Mesh,
             _Function,
@@ -114,12 +112,10 @@ class Mesh:
     def add(self, *args, **kwargs):
         """Add an item to this mesh, depending on its type.
 
-        If an list is given each list element is added with this
-        function. If multiple arguments are given, each one is
-        individually added with this function. Keyword arguments are
-        passed through to the adding function.
+        If an list is given each list element is added with this function. If multiple
+        arguments are given, each one is individually added with this function. Keyword
+        arguments are passed through to the adding function.
         """
-
         match len(args):
             case 0:
                 raise ValueError("At least one argument is required!")
@@ -150,7 +146,6 @@ class Mesh:
 
     def add_mesh(self, mesh):
         """Add the content of another mesh to this mesh."""
-
         # Add each item from mesh to self.
         self.add(mesh.nodes)
         self.add(mesh.elements)
@@ -202,15 +197,15 @@ class Mesh:
     def add_geometry_name(self, geometry_name):
         """Add a set of geometry sets to this mesh.
 
-        Sort by the keys here to create a deterministic ordering,
-        especially for testing purposes
+        Sort by the keys here to create a deterministic ordering, especially for testing
+        purposes
         """
         keys = list(geometry_name.keys())
         keys.sort()
         for key in keys:
             self.add(geometry_name[key])
 
-    def add_list(self, add_list: _List, **kwargs) -> None:
+    def add_list(self, add_list: list, **kwargs) -> None:
         """Add a list of items to this mesh.
 
         Args:
@@ -227,7 +222,6 @@ class Mesh:
                 For all other types of items, we add each element individually
                 via the Mesh.add method.
         """
-
         types = {self.get_base_mesh_item_type(item) for item in add_list}
         if len(types) > 1:
             raise TypeError(
@@ -236,11 +230,10 @@ class Mesh:
         elif len(types) == 1:
             list_type = types.pop()
 
-            def extend_internal_list(self_list: _List, new_list: _List) -> None:
+            def extend_internal_list(self_list: list, new_list: list) -> None:
                 """Extend an internal list with the new list.
 
-                It is checked that the final list does not have
-                duplicate entries.
+                It is checked that the final list does not have duplicate entries.
                 """
                 self_list.extend(new_list)
                 if not len(set(self_list)) == len(self_list):
@@ -263,7 +256,6 @@ class Mesh:
             replace_nodes: A dictionary that maps source nodes to target nodes. The
                 source nodes will be replaced with the target nodes in the mesh.
         """
-
         # Nothing to do if the replacement map is empty.
         if len(replace_nodes) == 0:
             return
@@ -300,8 +292,8 @@ class Mesh:
     def get_unique_geometry_sets(
         self, *, coupling_sets: bool = True
     ) -> _GeometrySetContainer:
-        """Return a geometry set container that contains geometry sets
-        explicitly added to the mesh, as well as sets for boundary conditions.
+        """Return a geometry set container that contains geometry sets explicitly added
+        to the mesh, as well as sets for boundary conditions.
 
         The i_global values are set in the returned geometry sets.
 
@@ -312,7 +304,6 @@ class Mesh:
         Returns:
             A geometry set container that contains all geometry sets of this mesh.
         """
-
         # Make a copy of the sets in this mesh.
         mesh_sets = self.geometry_sets.copy()
 
@@ -341,7 +332,6 @@ class Mesh:
             object. Only named geometry sets are returned. This function throws an
             error if there are multiple geometry sets with the same name.
         """
-
         named_geometry_sets = {}
         for geometry_set_list in self.get_unique_geometry_sets().values():
             for geometry_set in geometry_set_list:
@@ -384,7 +374,6 @@ class Mesh:
             only_rotate_triads: If this is true, the nodal positions are not
                 changed.
         """
-
         # Get array with all quaternions for the nodes.
         rot1 = _get_nodal_quaternions(self.nodes)
 
@@ -486,11 +475,12 @@ class Mesh:
     def wrap_around_cylinder(
         self, radius: float | None = None, advanced_warning: bool = True
     ) -> None:
-        """Wrap the geometry around a cylinder. The y-z plane gets morphed into
-        the z-axis of symmetry. If all nodes are on the same y-z plane, the
-        radius of the created cylinder is the x coordinate of that plane. If
-        the nodes are not on the same y-z plane, the radius has to be given
-        explicitly.
+        """Wrap the geometry around a cylinder.
+
+        The y-z plane gets morphed into the z-axis of symmetry. If all nodes are
+        on the same y-z plane, the radius of the created cylinder is the x coordinate
+        of that plane. If the nodes are not on the same y-z plane, the radius has to
+        be given explicitly.
 
         Args:
             radius: If this value is given AND not all nodes are on the same y-z
@@ -500,7 +490,6 @@ class Mesh:
             to the y-z or x-z plane. This is computationally expensive, but in most
             cases (up to 100,000 elements) this check can be left activated.
         """
-
         pos = _get_nodal_coordinates(self.nodes)
         quaternions = _np.zeros([len(self.nodes), 4])
 
@@ -599,8 +588,7 @@ class Mesh:
         coupling_type=_bme.bc.point_coupling,
         coupling_dof_type=_bme.coupling_dof.fix,
     ) -> None:
-        """Search through nodes and connect all nodes with the same
-        coordinates.
+        """Search through nodes and connect all nodes with the same coordinates.
 
         Args:
             nodes:
@@ -619,7 +607,6 @@ class Mesh:
                 `bme.coupling_dof.joint`: Fix all positional DOFs of the nodes
                     together.
         """
-
         # Check that a coupling BC is given.
         if coupling_type not in (
             _bme.bc.point_coupling,
@@ -760,7 +747,6 @@ class Mesh:
             nurbs_patch_to_i_global: A dictionary that maps each NURBS patch to the
                 global ID of that patch.
         """
-
         if material_to_i_global is None:
             material_to_i_global = {}
 
@@ -921,7 +907,7 @@ class Mesh:
                                 )
                             )
                         else:
-                            element_set_indices.append(element.i_global)
+                            element_set_indices.append(_cast(int, element.i_global))
                     element_set_flag[element_set_indices] = 1
 
                 else:
@@ -974,7 +960,6 @@ class Mesh:
         Returns:
             A pyvista UnstructuredGrid object that represents this mesh.
         """
-
         # Get mesh representation.
         mesh_representation, _, _, _ = self.get_mesh_representation()
 
@@ -1071,7 +1056,6 @@ class Mesh:
         parallel_projection: bool
             Flag to change camera view to parallel projection.
         """
-
         grid = self.get_vtu_representation()
 
         plotter = _pv.Plotter()
@@ -1157,7 +1141,7 @@ class Mesh:
         else:
             return plotter
 
-    def copy(self) -> "Mesh":
+    def copy(self) -> _Self:
         """Return a deep copy of this mesh.
 
         The internal mesh data (nodes, elements, boundary conditions, and

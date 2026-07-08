@@ -46,8 +46,9 @@ def create_beam_mesh_honeycomb_flat(
     closed_height=True,
     create_couplings=True,
 ):
-    """Add a flat honeycomb structure. The structure will be created in the x-y
-    plane.
+    """Add a flat honeycomb structure.
+
+    The structure will be created in the x-y plane.
 
     Args
     ----
@@ -169,8 +170,9 @@ def create_beam_mesh_honeycomb(
     closed_top=True,
     vertical=True,
 ):
-    """Wrap a honeycomb structure around a cylinder. The cylinder axis will be
-    the z-axis.
+    """Wrap a honeycomb structure around a cylinder.
+
+    The cylinder axis will be the z-axis.
 
     Args
     ----
@@ -201,7 +203,6 @@ def create_beam_mesh_honeycomb(
         contains end nodes of lines, not the middle ones. The set "all"
         contains all nodes.
     """
-
     # Calculate the input values for the flat honeycomb mesh.
     if vertical:
         width = diameter * _np.pi / n_circumference

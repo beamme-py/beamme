@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test the create parametric curve mesh creation
-functions."""
+"""This script is used to test the create parametric curve mesh creation functions."""
 
 import autograd.numpy as npAD
 import numpy as np
@@ -72,10 +71,8 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Create a helix from a parametric curve where the parameter is
-    transformed so the arc length along the beam is not proportional to the
-    parameter."""
-
+    """Create a helix from a parametric curve where the parameter is transformed so the
+    arc length along the beam is not proportional to the parameter."""
     # Create mesh
     mesh = Mesh()
 
@@ -109,9 +106,8 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_helix_leng
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Create a helix from a parametric curve where and check that the correct
-    length is returned."""
-
+    """Create a helix from a parametric curve where and check that the correct length is
+    returned."""
     mesh_1 = Mesh()
     mesh_2 = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
@@ -162,7 +158,6 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_2d_sin(
     get_corresponding_reference_file_path,
 ):
     """Create a sin from a parametric curve."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -199,7 +194,6 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_rotation(
     get_corresponding_reference_file_path,
 ):
     """Create a line from a parametric curve and prescribe the rotation."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -254,7 +248,6 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_line(
     get_corresponding_reference_file_path,
 ):
     """Create a line from a parametric curve."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -262,8 +255,7 @@ def test_integration_mesh_creation_functions_beam_parametric_curve_3d_line(
     mat = get_default_test_beam_material(material_type="reissner")
 
     def line(t):
-        """Create a line with a parametric curve (and a transformed
-        parameter)."""
+        """Create a line with a parametric curve (and a transformed parameter)."""
         factor = 2
         t_trans = npAD.exp(factor * t / (2.0 * np.pi)) * t / npAD.exp(factor)
         return npAD.array([t_trans, 0, 0])

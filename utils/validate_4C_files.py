@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script validates all 4C input files with FourCIPP in this
-repository."""
+"""This script validates all 4C input files with FourCIPP in this repository."""
 
 import sys as _sys
 from dataclasses import dataclass as _dataclass
@@ -46,7 +45,6 @@ def validate_file(filename: str) -> list[Error]:
     Returns:
         List of errors found in the 4C input file or None.
     """
-
     try:
         inputfile = FourCInput.from_4C_yaml(_Path(filename))
         inputfile.validate(sections_only=True)
@@ -58,7 +56,6 @@ def validate_file(filename: str) -> list[Error]:
 
 def main() -> None:
     """Validate all 4C input files with FourCIPP."""
-
     errors: list[Error] = []
 
     for filename in _sys.argv[1:]:

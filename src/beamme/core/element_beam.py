@@ -49,7 +49,6 @@ class Beam(_Element):
     @classmethod
     def get_coupling_dict(cls, coupling_dof_type):
         """Return the dict to couple this beam to another beam."""
-
         match coupling_dof_type:
             case _bme.coupling_dof.joint:
                 if cls.coupling_joint_dict is None:
@@ -81,7 +80,6 @@ def generate_beam_class(n_nodes: int):
     Returns:
         A beam object that has n_nodes along the centerline.
     """
-
     # Define the class variable responsible for creating the nodes.
     nodes_create = _np.linspace(-1, 1, num=n_nodes)
 

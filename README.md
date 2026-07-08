@@ -219,11 +219,11 @@ interaction, <https://athene-forschung.unibw.de/143755>, (2022)</span>
 
 ### Python environment
 
-BeamMe is tested with, and supports Python versions 3.10-3.13. It is recommended to use a virtual Python environment such as [Conda](https://anaconda.org/anaconda/conda)/[Miniforge](https://conda-forge.org/download/) or [venv](https://docs.python.org/3/library/venv.html).
+BeamMe is tested with, and supports Python versions 3.11-3.14. It is recommended to use a virtual Python environment such as [Conda](https://anaconda.org/anaconda/conda)/[Miniforge](https://conda-forge.org/download/) or [venv](https://docs.python.org/3/library/venv.html).
 - A [Conda](https://anaconda.org/anaconda/conda)/[Miniforge](https://conda-forge.org/download/) environment can be created and loaded with
   ```bash
   # Create the environment (this only has to be done once)
-  conda create -n beamme python=3.13
+  conda create -n beamme python=3.14
   # Activate the environment
   conda activate beamme
   ```
@@ -243,7 +243,7 @@ You can quickly install BeamMe into your current environment using pip:
 pip install beamme
 ```
 
-Optional dependencies (for development and extra features) can be installed with: `pip install "beamme[cubitpy,dev,fourc]"`
+Optional dependencies (for development and extra features) can be installed with: `pip install "beamme[dev]"`
 > **Note:** On Zsh, you may need to quote the brackets as shown to avoid shell expansion.
 
 ### Install BeamMe from GitHub (most recent version)
@@ -315,9 +315,9 @@ make -j4
 
 ## Developing BeamMe
 
-If you want to actively develop BeamMe or run the test suite, you must install BeamMe in _editable_ (`-e`) mode and with our optional developer dependencies (`[dev,fourc]`) like
+If you want to actively develop BeamMe or run the test suite, you must install BeamMe in _editable_ (`-e`) mode and with our optional developer dependencies (`[dev]`) like
 ```bash
-pip install -e ".[dev,fourc]" # Quotation marks are required for some shells
+pip install -e ".[dev]" # Quotation marks are required for some shells
 ```
 You can now run the BeamMe test suite to check that everything worked as expected
 ```bash

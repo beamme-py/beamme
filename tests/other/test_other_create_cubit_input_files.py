@@ -42,7 +42,6 @@ def test_other_create_cubit_input_files_tube(
     assert_results_close,
 ):
     """Test that the solid tube reference file is up to date."""
-
     cubit = create_tube_cubit()
 
     for additional_identifier, mesh_in_exo in (("yaml", False), ("exo", True)):
@@ -61,7 +60,6 @@ def test_other_create_cubit_input_files_block(
     assert_results_close,
 ):
     """Test that the solid block reference file is up to date."""
-
     result_path = tmp_path / get_corresponding_reference_file_path().name
 
     cubit = create_block_cubit()
@@ -77,7 +75,6 @@ def test_other_create_cubit_input_files_solid_shell_blocks(
     assert_results_close,
 ):
     """Test that the solid shell reference files are up to date."""
-
     reference_path_blocks = get_corresponding_reference_file_path()
     result_path_blocks = tmp_path / reference_path_blocks.name
 
@@ -96,7 +93,6 @@ def test_other_create_cubit_input_files_solid_shell_dome(
     assert_results_close,
 ):
     """Test that the solid shell reference files are up to date."""
-
     reference_path_dome = get_corresponding_reference_file_path()
     result_path_dome = tmp_path / reference_path_dome.name
 
@@ -113,9 +109,7 @@ def test_other_create_cubit_input_files_single_solid_element_brick(
     get_default_test_solid_material,
     assert_results_close,
 ):
-    """Test that the single solid element brick reference files are up to
-    date."""
-
+    """Test that the single solid element brick reference files are up to date."""
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 
@@ -133,7 +127,6 @@ def test_other_create_cubit_input_files_solid_brick(
     assert_results_close,
 ):
     """Test that the solid brick reference files are up to date."""
-
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 
@@ -147,7 +140,6 @@ def test_other_create_cubit_input_files_multiple_solid_bricks(
     tmp_path, get_corresponding_reference_file_path, assert_results_close
 ):
     """Test that the solid brick reference files are up to date."""
-
     cubit = create_multiple_solid_bricks()
 
     for additional_identifier, mesh_in_exo in (("yaml", False), ("exo", True)):
@@ -164,7 +156,6 @@ def test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids(
     tmp_path, get_corresponding_reference_file_path, assert_results_close
 ):
     """Test that the solid brick reference files are up to date."""
-
     reference_file = get_corresponding_reference_file_path()
     result_path = tmp_path / reference_file.name
 

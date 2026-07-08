@@ -50,7 +50,9 @@ def create_stent_cell(
     S3=True,
     n_el=1,
 ):
-    """Create a cell of the stent. This cell is on the x-y plane.
+    """Create a cell of the stent.
+
+    This cell is on the x-y plane.
 
     Args
     ----
@@ -82,7 +84,6 @@ def create_stent_cell(
     mesh: Mesh
         A mesh with this structure
     """
-
     mesh = _Mesh()
 
     def add_line(pointa, pointb, n_el_line):
@@ -155,8 +156,10 @@ def create_stent_cell(
 def create_stent_column(
     beam_class, material, width, height, n_height, n_el=1, **kwargs
 ):
-    """Create a column of completed cells. A completed cell consists of one
-    cell, that is created with the create cell function and it's reflection.
+    """Create a column of completed cells.
+
+    A completed cell consists of one cell, that is created with the create cell
+    function and it's reflection.
 
     Args
     ----
@@ -179,7 +182,6 @@ def create_stent_column(
     mesh: Mesh
         A mesh with this structure.
     """
-
     mesh_column = _Mesh()
     for i in range(n_height):
         S1 = True
@@ -244,7 +246,6 @@ def create_beam_mesh_stent_flat(
     mesh: Mesh
         A mesh with this structure
     """
-
     mesh_flat = _Mesh()
     width = width_flat / n_column / 2
     height = height_flat / n_height
@@ -287,8 +288,7 @@ def create_beam_mesh_stent(
     n_circumference,
     **kwargs,
 ):
-    """Create a stent structure around cylinder, The cylinder axis will be the
-    z-axis.
+    """Create a stent structure around cylinder, The cylinder axis will be the z-axis.
 
     Args
     ----
@@ -315,7 +315,6 @@ def create_beam_mesh_stent(
         sets only contains end nodes of lines, not the middle ones.
         The set 'all' contains all nodes.
     """
-
     # Only allow even number of columns.
     if n_circumference % 2 == 1:
         raise ValueError("has to be even even number!")

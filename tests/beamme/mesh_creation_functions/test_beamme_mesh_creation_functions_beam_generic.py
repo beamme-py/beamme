@@ -41,9 +41,8 @@ from beamme.mesh_creation_functions.beam_parametric_curve import (
 def test_beamme_mesh_creation_functions_beam_generic_start_end_node_error(
     get_default_test_beam_material,
 ):
-    """Check that an error is raised if wrong start and end nodes are given to
-    a mesh creation function."""
-
+    """Check that an error is raised if wrong start and end nodes are given to a mesh
+    creation function."""
     # Create mesh object.
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="base")
@@ -63,7 +62,6 @@ def test_beamme_mesh_creation_functions_beam_generic_start_end_node_error(
 
 def test_beamme_mesh_creation_functions_beam_generic_argument_checks():
     """Test that wrong input values leads to failure."""
-
     dummy_arg = "dummy"
 
     # Check error messages for input parameters
@@ -201,7 +199,6 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length_argument_checks(
     get_default_test_beam_material,
 ):
     """Test that wrong input values leads to failure."""
-
     dummy_arg = "dummy"
 
     # Check error messages for input parameters
@@ -374,9 +371,7 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length(
     get_default_test_beam_material,
     assert_results_close,
 ):
-    """Test that the arc length can be stored in the nodes when creating a
-    filament."""
-
+    """Test that the arc length can be stored in the nodes when creating a filament."""
     node_positions_of_elements = [0, 0.25, 1]
     mat = get_default_test_beam_material(material_type="reissner")
     offset = 3.0
@@ -389,9 +384,7 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length(
         end_rot = Rotation()
 
         def create_beam(mesh, **kwargs):
-            """Wrapper for the common arguments in the call to create the
-            line."""
-
+            """Wrapper for the common arguments in the call to create the line."""
             create_beam_mesh_line(
                 mesh,
                 Beam3,
@@ -410,9 +403,7 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length(
         end_rot = Rotation([0, 0, 1], 1.5 * np.pi)
 
         def create_beam(mesh, **kwargs):
-            """Wrapper for the common arguments in the call to create the
-            arc."""
-
+            """Wrapper for the common arguments in the call to create the arc."""
             create_beam_mesh_arc_segment_2d(
                 mesh,
                 Beam3,
@@ -443,9 +434,8 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length(
         n = 0.5
 
         def create_beam(mesh, **kwargs):
-            """Wrapper for the common arguments in the call to create the
-            parametric curve beam mesh (helix)."""
-
+            """Wrapper for the common arguments in the call to create the parametric
+            curve beam mesh (helix)."""
             create_beam_mesh_parametric_curve(
                 mesh,
                 Beam3,
@@ -476,8 +466,7 @@ def test_beamme_mesh_creation_functions_beam_generic_arc_length(
         return (start_node, end_node)
 
     def check_arc_length(mesh, arc_length_ref):
-        """Compare the arc lengths of the nodes in mesh with reference
-        values."""
+        """Compare the arc lengths of the nodes in mesh with reference values."""
         arc_length_from_mesh = np.array([node.arc_length for node in mesh.nodes])
         assert_results_close(
             {"arc_length": arc_length_from_mesh}, {"arc_length": arc_length_ref}

@@ -21,9 +21,8 @@
 # THE SOFTWARE.
 """Convert a beam to a space time surface mesh."""
 
-from typing import Callable as _Callable
-from typing import Tuple as _Tuple
-from typing import Type as _Type
+from collections.abc import Callable as _Callable
+from typing import cast as _cast
 
 import numpy as _np
 import pyvista as _pv
@@ -86,7 +85,7 @@ def beam_to_space_time(
     number_of_elements_in_time: int,
     *,
     time_start: float = 0.0,
-) -> _Tuple[_Mesh, _GeometryName]:
+) -> tuple[_Mesh, _GeometryName]:
     """Convert a beam mesh to a surface space-time mesh.
 
     Args:
@@ -110,7 +109,6 @@ def beam_to_space_time(
             The nodes sets to be returned for the space time mesh:
                 "start", "end", "surface"
     """
-
     # Get the "reference" spatial mesh
     if callable(mesh_space_or_generator):
         mesh_space_reference = mesh_space_or_generator(time_start)
@@ -128,7 +126,7 @@ def beam_to_space_time(
     # Calculate global mesh properties
     number_of_nodes_in_space = len(mesh_space_reference.nodes)
     number_of_elements_in_space = len(mesh_space_reference.elements)
-    space_time_element_type: _Type[SpaceTimeElementQuad4] | _Type[SpaceTimeElementQuad9]
+    space_time_element_type: type[SpaceTimeElementQuad4] | type[SpaceTimeElementQuad9]
 
     if len(element_type.nodes_create) == 2:
         number_of_copies_in_time = number_of_elements_in_time + 1
@@ -277,7 +275,7 @@ def beam_to_space_time(
                     for i_element_row_in_time in range(number_of_elements_in_time):
                         raised_geometry_set_elements.append(
                             space_time_elements[
-                                element.i_global
+                                _cast(int, element.i_global)
                                 + i_element_row_in_time * number_of_elements_in_space
                             ]
                         )
@@ -337,7 +335,6 @@ def get_space_time_mesh_representation(mesh: _Mesh) -> _MeshRepresentation:
     Returns:
         The mesh representation for the space time mesh.
     """
-
     element_types = list(set([type(element) for element in mesh.elements]))
     if len(element_types) > 1:
         raise ValueError("Got more than a single element type, this is not supported")

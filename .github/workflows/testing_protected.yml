@@ -48,7 +48,7 @@ jobs:
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
         with:
-          install-command: "-e .[cubitpy,dev,fourc]"
+          install-command: "-e .[dev]"
       - name: Setup cubit
         id: cubit
         uses: ./.github/actions/cubit_setup

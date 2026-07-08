@@ -34,8 +34,9 @@ from beamme.utils.nodes import check_node_by_coordinate as _check_node_by_coordi
 def create_wire_fibers(
     mesh, beam_class, material, length, *, radius=None, layers=1, n_el=1
 ):
-    """Create a steel wire consisting of multiple filaments. The wire will be
-    oriented in x-direction.
+    """Create a steel wire consisting of multiple filaments.
+
+    The wire will be oriented in x-direction.
 
     Args
     ----
@@ -61,7 +62,6 @@ def create_wire_fibers(
         Set with the 'start' and 'end' nodes of the wire. Also a 'all' set
         with all nodes of the wire.
     """
-
     if len(mesh.nodes) != 0:
         raise ValueError(
             "The create_wire_fibers function can only be used with an empty mesh."
@@ -73,8 +73,7 @@ def create_wire_fibers(
         wire_beam_radius = radius
 
     def create_line(pos_yz):
-        """Create a line starting at the yz-plane with the 2D coordinates
-        pos_yz."""
+        """Create a line starting at the yz-plane with the 2D coordinates pos_yz."""
         _create_beam_mesh_line(
             mesh,
             beam_class,

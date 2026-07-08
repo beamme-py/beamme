@@ -21,10 +21,6 @@
 # THE SOFTWARE.
 """This module defines utility functions for meshes."""
 
-from typing import Dict as _Dict
-from typing import List as _List
-from typing import Tuple as _Tuple
-
 import numpy as _np
 
 from beamme.core.conf import bme as _bme
@@ -40,9 +36,9 @@ from beamme.core.node import Node as _Node
 
 def get_coupled_nodes_to_master_map(
     mesh: _Mesh, *, assign_i_global: bool = False
-) -> _Tuple[_Dict[_Node, _Node], _List[_Node]]:
-    """Get a mapping of nodes in a mesh that should be "replaced" because they
-    are coupled via a joint.
+) -> tuple[dict[_Node, _Node], list[_Node]]:
+    """Get a mapping of nodes in a mesh that should be "replaced" because they are
+    coupled via a joint.
 
     In some finite element (FE) solvers, nodes coupled via joints are resolved
     by assigning a "master" node to represent the joint. This function identifies
@@ -64,7 +60,6 @@ def get_coupled_nodes_to_master_map(
         A list containing all unique nodes in the mesh, i.e., all nodes which
         are not coupled and the master nodes.
     """
-
     # Get a dictionary that maps the "replaced" nodes to the "master" ones
     replaced_node_to_master_map = {}
     for coupling in mesh.boundary_conditions[_bme.bc.point_coupling, _bme.geo.point]:
@@ -102,11 +97,11 @@ def get_coupled_nodes_to_master_map(
 
 def apply_nodal_coupling_to_mesh_representation(
     mesh_representation: _MeshRepresentation,
-    geometry_sets_to_i_global: _Dict[_GeometrySetBase, int],
+    geometry_sets_to_i_global: dict[_GeometrySetBase, int],
     coupling_conditions: list[_Coupling],
 ):
-    """Modify a mesh representation such that coupled nodes are represented by
-    a single node.
+    """Modify a mesh representation such that coupled nodes are represented by a single
+    node.
 
     Args:
         mesh_representation: The mesh representation where coupling nodes should
@@ -116,7 +111,6 @@ def apply_nodal_coupling_to_mesh_representation(
         coupling_conditions: A list of coupling conditions that define which
             nodes should be coupled.
     """
-
     # Get a dictionary that maps the "replaced" nodes to the "master" ones
     replaced_node_to_master_map = {}
     for coupling in coupling_conditions:

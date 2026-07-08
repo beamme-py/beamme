@@ -33,10 +33,8 @@ class Material(_BaseMeshItem):
         super().__init__(**kwargs)
 
     def __deepcopy__(self, memo):
-        """When deepcopy is called on a mesh, we do not want the materials to
-        be copied, as this will result in multiple equal materials in the input
-        file."""
-
+        """When deepcopy is called on a mesh, we do not want the materials to be copied,
+        as this will result in multiple equal materials in the input file."""
         # Add this object to the memo dictionary.
         memo[id(self)] = self
 
@@ -58,7 +56,6 @@ class MaterialBeamBase(Material):
         **kwargs,
     ):
         """Set the material values that all beams have."""
-
         super().__init__(**kwargs)
 
         self.radius = radius
@@ -73,8 +70,7 @@ class MaterialBeamBase(Material):
         self.polar = None
 
     def calc_area_stiffness(self):
-        """Calculate the relevant stiffness terms and the area for the given
-        beam."""
+        """Calculate the relevant stiffness terms and the area for the given beam."""
         area = 4 * self.radius**2 * _np.pi * 0.25
         mom2 = self.radius**4 * _np.pi * 0.25
         mom3 = mom2

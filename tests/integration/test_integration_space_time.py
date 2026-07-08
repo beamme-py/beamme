@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test general functionality of the BeamMe space-time
-module with end-to-end integration tests."""
+"""This script is used to test general functionality of the BeamMe space-time module
+with end-to-end integration tests."""
 
 import numpy as np
 import pytest
@@ -53,7 +53,6 @@ def test_integration_space_time_straight(
     n_nodes, assert_results_close, get_corresponding_reference_file_path
 ):
     """Create the straight beam for the tests."""
-
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
     mesh = Mesh()
@@ -83,7 +82,6 @@ def test_integration_space_time_curved(
     n_nodes, assert_results_close, get_corresponding_reference_file_path
 ):
     """Create a curved beam for the tests."""
-
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
     mesh = Mesh()
@@ -120,7 +118,6 @@ def test_integration_space_time_elbow(
     n_nodes, couple_nodes, assert_results_close, get_corresponding_reference_file_path
 ):
     """Create an elbow beam for the tests."""
-
     # Create the beam mesh in space
     beam_type = generate_beam_class(n_nodes)
     mesh = Mesh()
@@ -162,7 +159,6 @@ def test_integration_space_time_varying_material_length(
     get_corresponding_reference_file_path,
 ):
     """Create an elbow beam for the tests."""
-
     beam_type = generate_beam_class(n_nodes)
 
     def beam_mesh_in_space_generator(time):
@@ -224,9 +220,7 @@ def test_integration_space_time_varying_material_length(
 def test_integration_space_time_named_node_set(
     assert_results_close, get_corresponding_reference_file_path
 ):
-    """Create a straight beam and check that named node sets are handled
-    correctly."""
-
+    """Create a straight beam and check that named node sets are handled correctly."""
     # Create the beam mesh in space
     mesh = Mesh()
     beam_type = generate_beam_class(2)
@@ -257,7 +251,6 @@ def test_integration_space_time_node_sets(
     n_nodes, couple_nodes, assert_results_close, get_corresponding_reference_file_path
 ):
     """Check that geometry sets are correctly ported to space-time meshes."""
-
     mesh = Mesh()
     beam_type = generate_beam_class(n_nodes)
     beam_set_1 = create_beam_mesh_line(
