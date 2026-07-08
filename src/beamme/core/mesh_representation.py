@@ -127,8 +127,7 @@ class MeshRepresentation:
             default_shape: tuple[int, ...],
             dtype: type,
         ) -> _NDArray:
-            """Convert given array arguments so we can store them in this
-            object."""
+            """Convert given array arguments so we can store them in this object."""
             if argument is None:
                 return _np.empty(default_shape, dtype=dtype)
             else:
@@ -137,8 +136,8 @@ class MeshRepresentation:
         def _filter_none_entries(
             argument: dict[str, _NDArray | None] | None, expected_size: int
         ) -> dict[str, _NDArray]:
-            """Check if a dictionary is given, and if so, filter None entries
-            from it."""
+            """Check if a dictionary is given, and if so, filter None entries from
+            it."""
             if argument is None:
                 return {}
             else:
@@ -252,8 +251,7 @@ class MeshRepresentation:
             yield self.cell_connectivity[start:end]
 
     def data_iterator(self, data_field: str, data_name: str) -> _Iterable:
-        """This method returns an iterator for the given data field and data
-        name.
+        """This method returns an iterator for the given data field and data name.
 
         This is useful, when looping over the data, as accessing the data field in each
         loop iteration can be expensive. If the data field is not present, a iterator
@@ -297,7 +295,6 @@ class MeshRepresentation:
             material_offset: The offset to add to the material IDs.
             geometry_set_offset: The offset to add to the geometry set IDs.
         """
-
         if element_type_id_offset is not None:
             if "element_type_id" in self.cell_data:
                 self.cell_data["element_type_id"] += element_type_id_offset
@@ -336,8 +333,7 @@ class MeshRepresentation:
         point_data_fields: bool | list[str] = False,
         add_geometry_sets: bool = False,
     ) -> _pv.UnstructuredGrid:
-        """Return a PyVista UnstructuredGrid representation of this mesh
-        representation.
+        """Return a PyVista UnstructuredGrid representation of this mesh representation.
 
         Args:
             cell_data_fields: The cell data fields to add to the grid. This can be
@@ -453,8 +449,8 @@ def merge_mesh_representations(
         """Merge the given data dictionaries and fill in non-existing data."""
 
         def _ensure_array_size(size: int, reference_array: _NDArray) -> _NDArray:
-            """Create an empty array that matches the columns of the reference
-            array and has the given size, i.e., number of rows."""
+            """Create an empty array that matches the columns of the reference array and
+            has the given size, i.e., number of rows."""
             new_shape = reference_array.shape
             if len(new_shape) == 1:
                 new_shape = (size,)

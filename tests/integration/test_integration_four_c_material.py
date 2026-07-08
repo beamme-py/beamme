@@ -31,7 +31,6 @@ def test_integration_four_c_material_sub_materials(
     assert_results_close,
 ):
     """Check if sub-materials are handled correctly."""
-
     # Add a nested material to the mesh and check the result.
     mesh = Mesh()
     material = get_default_test_solid_material(material_type="solid_nested")
@@ -48,10 +47,9 @@ def test_integration_four_c_material_sub_materials_material_numbering(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test that materials can be added as structured data (dictionaries) to an
-    input file (as is done when importing input files) and that the numbering
-    with other added materials does not lead to materials with double IDs."""
-
+    """Test that materials can be added as structured data (dictionaries) to an input
+    file (as is done when importing input files) and that the numbering with other added
+    materials does not lead to materials with double IDs."""
     input_file = InputFile()
     input_file.add(
         {

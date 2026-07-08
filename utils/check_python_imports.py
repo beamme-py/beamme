@@ -19,9 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script checks if all Python imports within provided files align with
-our coding style, as described in the section "Coding guidelines" in the
-repository README.md."""
+"""This script checks if all Python imports within provided files align with our coding
+style, as described in the section "Coding guidelines" in the repository README.md."""
 
 import ast as _ast
 import sys as _sys
@@ -48,18 +47,16 @@ class ImportChecker(_ast.NodeVisitor):
         Args:
             filename: The filename of the current file (to store for errors)
         """
-
         self.errors: list[Error] = []
         self.filename = filename
 
     def visit_Import(self, node: _ast.Import) -> None:
-        """Visit an import statement and check if the import aligns with our
-        coding style.
+        """Visit an import statement and check if the import aligns with our coding
+        style.
 
         Args:
             node: The import node to check.
         """
-
         for alias in node.names:
             if alias.asname is None:
                 self.errors.append(
@@ -82,13 +79,12 @@ class ImportChecker(_ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: _ast.ImportFrom) -> None:
-        """Visit an import from statement and check if the import aligns with
-        our coding style.
+        """Visit an import from statement and check if the import aligns with our coding
+        style.
 
         Args:
             node: The import from node to check.
         """
-
         for alias in node.names:
             # Check for wildcard imports
             if alias.name == "*":
@@ -167,7 +163,6 @@ def check_file(filename: str) -> list[Error]:
     Returns:
         List of errors found in the Python file.
     """
-
     with open(filename, "r") as file:
         content = file.read()
     tree = _ast.parse(content, filename=filename)
@@ -179,7 +174,6 @@ def check_file(filename: str) -> list[Error]:
 
 def main() -> None:
     """Check all provided Python files for import errors."""
-
     errors: list[Error] = []
 
     for filename in _sys.argv[1:]:

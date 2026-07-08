@@ -38,7 +38,6 @@ from beamme.utils.environment import (
 
 def test_beamme_utils_environment_is_cubitpy_available() -> None:
     """Test is_cubitpy_available function."""
-
     with patch("beamme.utils.environment._find_spec", return_value=True):
         assert cubitpy_is_available() is True
 
@@ -48,7 +47,6 @@ def test_beamme_utils_environment_is_cubitpy_available() -> None:
 
 def test_beamme_utils_environment_is_mybinder() -> None:
     """Test is_mybinder function."""
-
     with patch.dict(os.environ, {"BINDER_LAUNCH_HOST": "some_value"}):
         assert is_mybinder() is True
 
@@ -58,7 +56,6 @@ def test_beamme_utils_environment_is_mybinder() -> None:
 
 def test_beamme_utils_environment_is_testing() -> None:
     """Test is_testing function."""
-
     with patch.dict(os.environ, {"PYTEST_CURRENT_TEST": "some_value"}):
         assert is_testing() is True
 
@@ -68,7 +65,6 @@ def test_beamme_utils_environment_is_testing() -> None:
 
 def test_beamme_utils_environment_get_env_variable() -> None:
     """Test get_env_variable function."""
-
     with patch.dict(os.environ, {"TEST_VAR": "test_value"}):
         assert get_env_variable("TEST_VAR") == "test_value"
 
@@ -86,7 +82,6 @@ def test_beamme_utils_environment_get_env_variable() -> None:
 @patch("beamme.utils.environment._subprocess.run")
 def test_beamme_utils_environment_get_git_data_success(mock_run, mock_which):
     """Test get_git_data function with successful git command execution."""
-
     mock_which.return_value = "/usr/bin/git"
 
     mock_sha_process = MagicMock()
@@ -109,7 +104,6 @@ def test_beamme_utils_environment_get_git_data_success(mock_run, mock_which):
 @patch("beamme.utils.environment._shutil.which")
 def test_beamme_utils_environment_get_git_data_git_not_found(mock_which):
     """Test get_git_data function when git executable is not found."""
-
     mock_which.return_value = None
 
     with pytest.raises(RuntimeError, match="Git executable not found"):
@@ -120,7 +114,6 @@ def test_beamme_utils_environment_get_git_data_git_not_found(mock_which):
 @patch("beamme.utils.environment._subprocess.run")
 def test_beamme_utils_environment_get_git_data_subprocess_failure(mock_run, mock_which):
     """Test get_git_data function with subprocess command failure."""
-
     mock_which.return_value = "/usr/bin/git"
 
     mock_failed_process = MagicMock()

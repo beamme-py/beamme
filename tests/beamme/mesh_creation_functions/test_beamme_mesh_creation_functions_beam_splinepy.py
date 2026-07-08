@@ -29,9 +29,8 @@ from beamme.mesh_creation_functions.beam_splinepy import (
 def test_beamme_mesh_creation_functions_beam_splinepy_function_and_jacobian(
     get_splinepy_object, assert_results_close
 ):
-    """Unittest the function and jacobian creation in the
-    create_beam_mesh_from_splinepy function."""
-
+    """Unittest the function and jacobian creation in the create_beam_mesh_from_splinepy
+    function."""
     curve = get_splinepy_object("curve_nurbs")
     r, dr, _, _ = get_curve_function_and_jacobian_for_integration(curve)
 

@@ -38,7 +38,6 @@ def test_performance_mesh_creation_functions_beam_parametric_curve(
     evaluate_execution_time, get_parametric_function
 ):
     """Test the performance of the parametric curve creation function."""
-
     mesh = Mesh()
     material = MaterialBeamBase()
 
@@ -65,14 +64,13 @@ def test_performance_mesh_creation_functions_beam_parametric_curve_splinepy(
     get_splinepy_object,
     evaluate_execution_time,
 ):
-    """Test the performance of the parametric curve creation function with a
-    splinepy object.
+    """Test the performance of the parametric curve creation function with a splinepy
+    object.
 
-    Compared to a pure given function, this method does not have the
-    overhead of evaluating the Jacobian with automated differentiation,
-    as splinepy provides the derivatives explicitly.
+    Compared to a pure given function, this method does not have the overhead of
+    evaluating the Jacobian with automated differentiation, as splinepy provides the
+    derivatives explicitly.
     """
-
     mesh = Mesh()
     material = MaterialBeamBase()
 

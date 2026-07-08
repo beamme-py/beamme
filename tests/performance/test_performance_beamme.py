@@ -46,7 +46,6 @@ def shared_tmp_path(tmp_path_factory):
 
 def create_solid_block(cubit, file_path, nx, ny, nz):
     """Create a solid block (1 x 1 x 1) with (nx * ny * nz) elements."""
-
     # Create brick.
     brick = cubit.brick(1)
 
@@ -133,9 +132,7 @@ def create_solid_block(cubit, file_path, nx, ny, nz):
 
 
 def create_beam_mesh(n_x, n_y, n_z, n_el):
-    """Create a beam grid on the domain (1 x 1 x 1) with (nx * ny * nz) "grid
-    cells"."""
-
+    """Create a beam grid on the domain (1 x 1 x 1) with (nx * ny * nz) "grid cells"."""
     mesh = Mesh()
     material = MaterialReissner(
         radius=0.25 / np.max([n_x, n_y, n_z]), youngs_modulus=1.0
@@ -178,8 +175,8 @@ def create_beam_mesh(n_x, n_y, n_z, n_el):
 def medium_solid_block(shared_tmp_path, evaluate_execution_time):
     """Provide a solid mesh from cubit.
 
-    The version of Cubit we use in testing only allows for 50,000, so we
-    create a mesh with exactly that.
+    The version of Cubit we use in testing only allows for 50,000, so we create a mesh
+    with exactly that.
     """
     cubit = CubitPy()
     input_file_path = shared_tmp_path / "performance_testing_solid_half.4C.yaml"
@@ -203,16 +200,15 @@ def medium_solid_block(shared_tmp_path, evaluate_execution_time):
 def test_performance_beamme_cubitpy_create_solid(medium_solid_block):
     """Test the performance of creating a solid block using CubitPy.
 
-    The test is run in the fixture, so we don't need to do anything
-    here.
+    The test is run in the fixture, so we don't need to do anything here.
     """
     pass
 
 
 @pytest.fixture(scope="module")
 def large_solid_block(evaluate_execution_time, medium_solid_block, shared_tmp_path):
-    """The version of Cubit we use in testing only allows for 50,000 elements,
-    our goal is 100,000 so we double the block with 50,000 elements here."""
+    """The version of Cubit we use in testing only allows for 50,000 elements, our goal
+    is 100,000 so we double the block with 50,000 elements here."""
 
     def double_block():
         """Load the block with 50,000 elements and double the mesh."""
@@ -239,8 +235,7 @@ def large_solid_block(evaluate_execution_time, medium_solid_block, shared_tmp_pa
 def test_performance_beamme_double_solid_block(large_solid_block):
     """Test the performance of doubling a solid block from an input file.
 
-    The test is run in the fixture, so we don't need to do anything
-    here.
+    The test is run in the fixture, so we don't need to do anything here.
     """
     pass
 
@@ -258,7 +253,6 @@ def test_performance_beamme_load_solid(
     evaluate_execution_time, large_solid_block, log_name, full_import, expected_time
 ):
     """Test the performance of loading a solid mesh."""
-
     evaluate_execution_time(
         log_name,
         import_four_c_model,
@@ -273,7 +267,6 @@ def test_performance_beamme_load_solid(
 @pytest.fixture(scope="module")
 def large_beam_mesh(evaluate_execution_time):
     """Provide a large beam mesh."""
-
     return evaluate_execution_time(
         "BeamMe: Create large beam mesh",
         create_beam_mesh,
@@ -291,8 +284,7 @@ def large_beam_mesh(evaluate_execution_time):
 def test_performance_beamme_create_beams(large_beam_mesh):
     """Test the performance of creating a large beam mesh.
 
-    The test is run in the fixture, so we don't need to do anything
-    here.
+    The test is run in the fixture, so we don't need to do anything here.
     """
     pass
 
@@ -300,7 +292,6 @@ def test_performance_beamme_create_beams(large_beam_mesh):
 @pytest.mark.performance
 def test_performance_beamme_copy_beams(large_beam_mesh, evaluate_execution_time):
     """Test the performance of copying a large beam mesh."""
-
     evaluate_execution_time(
         "BeamMe: Copy large beam mesh",
         large_beam_mesh.copy,
@@ -312,7 +303,6 @@ def test_performance_beamme_copy_beams(large_beam_mesh, evaluate_execution_time)
 @pytest.mark.performance
 def test_performance_beamme_add_beams_to_mesh(large_beam_mesh, evaluate_execution_time):
     """Test the performance of adding a large beam mesh to another."""
-
     # To avoid modifying the original mesh, we make a copy and add to that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
@@ -326,7 +316,6 @@ def test_performance_beamme_add_beams_to_mesh(large_beam_mesh, evaluate_executio
 @pytest.mark.performance
 def test_performance_beamme_rotate(large_beam_mesh, evaluate_execution_time):
     """Test the performance of rotating a large beam mesh."""
-
     # To avoid an expensive copy, we rotate the mesh back at the end of the test.
     rotation = Rotation([1, 1, 0], np.pi / 3)
     evaluate_execution_time(
@@ -341,7 +330,6 @@ def test_performance_beamme_rotate(large_beam_mesh, evaluate_execution_time):
 @pytest.mark.performance
 def test_performance_beamme_translate(large_beam_mesh, evaluate_execution_time):
     """Test the performance of translating a large beam mesh."""
-
     # To avoid an expensive copy, we move the mesh back at the end of the test.
     distance = np.array([0.5, 0, 0])
     evaluate_execution_time(
@@ -356,7 +344,6 @@ def test_performance_beamme_translate(large_beam_mesh, evaluate_execution_time):
 @pytest.mark.performance
 def test_performance_beamme_reflect(large_beam_mesh, evaluate_execution_time):
     """Test the performance of reflecting a large beam mesh."""
-
     # To avoid modifying the original mesh, we make a copy and reflect that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
@@ -372,7 +359,6 @@ def test_performance_beamme_wrap_around_cylinder(
     large_beam_mesh, evaluate_execution_time
 ):
     """Test the performance of wrapping a large beam mesh around a cylinder."""
-
     # To avoid modifying the original mesh, we make a copy and wrap that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
@@ -387,9 +373,8 @@ def test_performance_beamme_wrap_around_cylinder(
 def test_performance_beamme_wrap_around_cylinder_without_check(
     large_beam_mesh, evaluate_execution_time
 ):
-    """Test the performance of wrapping a large beam mesh around a cylinder
-    without checking for advanced warnings."""
-
+    """Test the performance of wrapping a large beam mesh around a cylinder without
+    checking for advanced warnings."""
     # To avoid modifying the original mesh, we make a copy and wrap that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
@@ -403,7 +388,6 @@ def test_performance_beamme_wrap_around_cylinder_without_check(
 @pytest.mark.performance
 def test_performance_beamme_find_close_nodes(large_beam_mesh, evaluate_execution_time):
     """Test the performance of finding close nodes in a large beam mesh."""
-
     evaluate_execution_time(
         "BeamMe: Find close nodes in large beam mesh",
         find_close_nodes,
@@ -418,7 +402,6 @@ def test_performance_beamme_couple_nodes(large_beam_mesh, evaluate_execution_tim
 
     We add the mesh to itself, to have matching nodes to replace.
     """
-
     # To avoid modifying the original mesh, we make a copies and add them to each
     # other.
     large_beam_mesh_copy_1 = large_beam_mesh.copy()
@@ -435,7 +418,6 @@ def test_performance_beamme_couple_nodes(large_beam_mesh, evaluate_execution_tim
 @pytest.fixture(scope="module")
 def large_beam_input_file(large_beam_mesh, evaluate_execution_time):
     """Provide a large input file containing a beam mesh."""
-
     input_file = InputFile()
     evaluate_execution_time(
         "BeamMe: Add large beam mesh to input file",
@@ -450,8 +432,7 @@ def large_beam_input_file(large_beam_mesh, evaluate_execution_time):
 def test_performance_beamme_add_mesh_to_input_file(large_beam_input_file):
     """Test the performance of adding a mesh to an input file.
 
-    The test is run in the fixture, so we don't need to do anything
-    here.
+    The test is run in the fixture, so we don't need to do anything here.
     """
     pass
 
@@ -473,7 +454,6 @@ def test_performance_beamme_dump_input_file(
     tmp_path,
 ):
     """Test the performance of dumping an input file with a large beam mesh."""
-
     evaluate_execution_time(
         log_name,
         large_beam_input_file.dump,
@@ -491,7 +471,6 @@ def test_performance_beamme_write_vtu(
     large_beam_mesh, evaluate_execution_time, tmp_path
 ):
     """Test the performance of writing a beam mesh to VTU format."""
-
     evaluate_execution_time(
         "BeamMe: Write beam mesh to VTU",
         large_beam_mesh.write_vtu,

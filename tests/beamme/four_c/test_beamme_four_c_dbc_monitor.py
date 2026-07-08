@@ -30,7 +30,6 @@ def test_beamme_four_c_dbc_monitor_read_dbc_monitor_file(
     assert_results_close, get_corresponding_reference_file_path
 ):
     """Test that a dbc monitor file can be read correctly."""
-
     nodes, time, force, moment = read_dbc_monitor_file(
         get_corresponding_reference_file_path(extension="yaml")
     )
@@ -43,10 +42,8 @@ def test_beamme_four_c_dbc_monitor_read_dbc_monitor_file(
 def test_beamme_four_c_dbc_monitor_linear_time_transformation_scaling():
     """Test the scaling of the interval for the function.
 
-    Starts with a function within the interval [0,1] and transforms
-    them.
+    Starts with a function within the interval [0,1] and transforms them.
     """
-
     # starting time array
     time = np.array([0, 0.5, 0.75, 1.0])
 
@@ -93,7 +90,6 @@ def test_beamme_four_c_dbc_monitor_linear_time_transformation_scaling():
 def test_beamme_four_c_dbc_monitor_linear_time_transformation_flip():
     """Test the flip flag option of linear_time_transformation to mirror the
     function."""
-
     # base case no scaling no end points should be attached
     # starting time array
     time = np.array([0, 0.5, 0.75, 1.0])

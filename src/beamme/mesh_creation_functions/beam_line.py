@@ -65,7 +65,6 @@ def create_beam_mesh_line(mesh, beam_class, material, start_point, end_point, **
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     # Get geometrical values for this line.
     start_point = _np.asarray(start_point)
     end_point = _np.asarray(end_point)

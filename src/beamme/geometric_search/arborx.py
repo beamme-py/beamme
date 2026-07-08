@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file defines the interface to the ArborX geometric search
-functionality."""
+"""This file defines the interface to the ArborX geometric search functionality."""
 
 from beamme.geometric_search.utils import arborx_is_available as _arborx_is_available
 
@@ -44,8 +43,8 @@ class KokkosScopeGuardWrapper:
         _kokkos_initialize()
 
     def __del__(self):
-        """Finalize Kokkos after this object goes out of scope, i.e., at the
-        end of this modules lifetime."""
+        """Finalize Kokkos after this object goes out of scope, i.e., at the end of this
+        modules lifetime."""
         _kokkos_finalize()
 
 

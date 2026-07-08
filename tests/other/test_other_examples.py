@@ -35,10 +35,9 @@ from testbook import testbook
 def test_other_examples_notebooks(notebook_path):
     """Parameterized test case for multiple Jupyter notebooks.
 
-    The notebook is run and it is checked that it runs through without
-    any errors/assertions.
+    The notebook is run and it is checked that it runs through without any
+    errors/assertions.
     """
-
     with testbook(notebook_path) as tb:
         # we do not define the examples as modules, therefore we need to add the
         # examples folder to the current sys path so examples/utils can be imported

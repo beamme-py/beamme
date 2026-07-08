@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module defines the classes that are used to create an input file for
-4C."""
+"""This module defines the classes that are used to create an input file for 4C."""
 
 import os as _os
 from datetime import datetime as _datetime
@@ -58,7 +57,6 @@ class InputFile:
 
     def __init__(self) -> None:
         """Initialize the input file."""
-
         self.fourc_input = _FourCInput()
 
         # Register converters to directly convert non-primitive types
@@ -83,7 +81,6 @@ class InputFile:
         Returns:
             True if section is set
         """
-
         return key in self.fourc_input
 
     def __setitem__(self, key: str, value: _Any) -> None:
@@ -93,7 +90,6 @@ class InputFile:
             key: Section name
             value: Section entry
         """
-
         self.fourc_input[key] = value
 
     def __getitem__(self, key: str) -> _Any:
@@ -107,7 +103,6 @@ class InputFile:
         Returns:
             The section content
         """
-
         return self.fourc_input[key]
 
     @classmethod
@@ -123,7 +118,6 @@ class InputFile:
         Returns:
             Initialised object
         """
-
         obj = cls()
         obj.fourc_input = _FourCInput.from_4C_yaml(input_file_path, header_only)
         return obj
@@ -135,7 +129,6 @@ class InputFile:
         Returns:
             dict: Set sections
         """
-
         return self.fourc_input.sections
 
     def pop(self, key: str, default_value: _Any = _NOT_SET) -> _Any:
@@ -147,7 +140,6 @@ class InputFile:
         Returns:
             The section content
         """
-
         return self.fourc_input.pop(key, default_value)
 
     def add(self, object_to_add, **kwargs):
@@ -157,7 +149,6 @@ class InputFile:
             object: The object to be added. This can be a mesh or a dictionary.
             **kwargs: Additional arguments to be passed to the add method.
         """
-
         if isinstance(object_to_add, _Mesh):
             _dump_mesh_to_input_file(self, mesh=object_to_add, **kwargs)
 
@@ -165,8 +156,8 @@ class InputFile:
             self.fourc_input.combine_sections(object_to_add)
 
     def get_fourcipp_input_with_mesh(self) -> _FourCInput:
-        """Return a copy of the FourCIPP input file with the contents of the
-        mesh representation dumped to the yaml sections."""
+        """Return a copy of the FourCIPP input file with the contents of the mesh
+        representation dumped to the yaml sections."""
         fourc_input = self.fourc_input.copy()
         _dump_mesh_representation_to_input_file_yaml(
             fourc_input,
@@ -224,7 +215,6 @@ class InputFile:
             fourcipp_yaml_style:
                 If True, the input file is written in the fourcipp yaml style.
         """
-
         # Make sure the given input file is a Path instance.
         input_file_path = _Path(input_file_path)
 
@@ -305,7 +295,6 @@ class InputFile:
         Returns:
             A dictionary with the header information.
         """
-
         header: dict = {"BeamMe": {}}
 
         header["BeamMe"]["creation_date"] = _datetime.now().isoformat(
@@ -360,7 +349,6 @@ class InputFile:
         Returns:
             A list of strings with the script that created this input file.
         """
-
         application_script_lines = [
             "# Application script which created this input file:\n"
         ]

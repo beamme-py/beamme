@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test general functionality of the 4C module with end-
-to-end integration tests."""
+"""This script is used to test general functionality of the 4C module with end- to-end
+integration tests."""
 
 import numpy as np
 import pytest
@@ -69,7 +69,6 @@ def test_integration_four_c_point_coupling(
     get_corresponding_reference_file_path,
 ):
     """Test the creation of point couplings for 4C."""
-
     # Create material and mesh
     material = get_default_test_beam_material(
         material_type="reissner", interaction_radius=2.0
@@ -107,7 +106,6 @@ def test_integration_four_c_point_coupling_indirect(
     get_corresponding_reference_file_path,
 ):
     """Test that indirect point coupling works as expected."""
-
     material = get_default_test_beam_material(material_type="reissner")
     mesh = Mesh()
 
@@ -143,7 +141,6 @@ def test_integration_four_c_fluid_element_section(
     get_corresponding_reference_file_path,
 ):
     """Add beam elements to an input file containing fluid elements."""
-
     input_file, _ = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             additional_identifier="import"
@@ -172,9 +169,7 @@ def test_integration_four_c_fluid_element_section(
 def test_integration_four_c_surface_to_surface_contact_import(
     assert_results_close, get_corresponding_reference_file_path
 ):
-    """Test that surface-to-surface contact problems can be imported as
-    expected."""
-
+    """Test that surface-to-surface contact problems can be imported as expected."""
     input_file, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             additional_identifier="solid_mesh"
@@ -209,7 +204,6 @@ def test_integration_four_c_nurbs_import(
     working 4C test case. So this case should be moved to the 4C tests and
     we should add a very basic unit test case if we can import NURBS.
     """
-
     # Create a third of the NURBS hollow cylinder
     base = splinepy.helpme.create.disk(
         outer_radius=0.3, inner_radius=0.2, angle=120, n_knot_spans=1
@@ -394,16 +388,15 @@ def test_integration_four_c_nurbs_multiple_additions_to_input_file(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """In this test, we add a NURBS patch to an input file, then a beam and
-    then a second NURBS patch.
+    """In this test, we add a NURBS patch to an input file, then a beam and then a
+    second NURBS patch.
 
-    This checks that we can add multiple NURBS patches to the input file
-    and that the patch IDs are represented correctly.
+    This checks that we can add multiple NURBS patches to the input file and that the
+    patch IDs are represented correctly.
     """
 
     def create_nurbs_brick(n_el_dim):
-        """Create a NURBS brick with the given number of elements in each
-        direction."""
+        """Create a NURBS brick with the given number of elements in each direction."""
         box_dimensions = [1.5, 3.0, 2.4]
         vol_obj = splinepy.helpme.create.box(*box_dimensions).nurbs
         vol_obj.elevate_degrees([0, 1, 2])
@@ -458,7 +451,6 @@ def test_integration_four_c_user_defined_boundary_condition(
     get_corresponding_reference_file_path,
 ):
     """Check if a user-defined boundary condition can be added."""
-
     mesh = Mesh()
 
     mat = get_default_test_beam_material(material_type="reissner")
@@ -480,13 +472,11 @@ def test_integration_four_c_check_multiple_node_penalty_coupling(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """For point penalty coupling constraints, we add multiple coupling
-    conditions.
+    """For point penalty coupling constraints, we add multiple coupling conditions.
 
-    This is checked in this test case. The flag reuse_nodes decides
-    whether equal nodes are unified to a single node.
+    This is checked in this test case. The flag reuse_nodes decides whether equal nodes
+    are unified to a single node.
     """
-
     # Create mesh object
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")

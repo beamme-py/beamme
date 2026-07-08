@@ -27,7 +27,7 @@ from typing import Callable
 
 import pytest
 
-PERFORMANCE_LOG = {}
+PERFORMANCE_LOG: dict[str, dict[str, float]] = {}
 
 
 @pytest.fixture(scope="module")
@@ -57,7 +57,6 @@ def evaluate_execution_time() -> Callable:
             kwargs: Keyword arguments for the function.
             expected_time: Expected execution time in seconds.
         """
-
         start_time = time.time()
         result = function(*args, **kwargs)
         elapsed_time = time.time() - start_time
@@ -81,10 +80,9 @@ def evaluate_execution_time() -> Callable:
 def sessionfinish_performance_tests(session):
     """Exit with exit code 1 if any performance test failed.
 
-    This is utilized to ensure that the Github Actions workflow fails if
-    performance tests exceed their expected execution time.
+    This is utilized to ensure that the Github Actions workflow fails if performance
+    tests exceed their expected execution time.
     """
-
     if PERFORMANCE_LOG:
         for data in PERFORMANCE_LOG.values():
             if data["execution_time"] > data["expected_time"]:
@@ -94,7 +92,6 @@ def sessionfinish_performance_tests(session):
 
 def terminal_summary_performance_tests(terminalreporter):
     """Print a summary of performance tests at the end of the pytest run."""
-
     if PERFORMANCE_LOG:
         terminalreporter.write_sep("=", "Performance Test Summary")
 

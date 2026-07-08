@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This file contains a function to add the beam interaction conditions for
-4C."""
+"""This file contains a function to add the beam interaction conditions for 4C."""
 
 import beamme.core.conf as _conf
 from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
@@ -34,8 +33,8 @@ def get_next_possible_id_for_boundary_condition(
     geometry_type: _conf.Geometry,
     condition_string: str,
 ) -> int:
-    """Returns the next possible id, which can be used for a boundary condition
-    based on all previous added boundary conditions within a mesh.
+    """Returns the next possible id, which can be used for a boundary condition based on
+    all previous added boundary conditions within a mesh.
 
     It returns the first ID which is not yet occupied within the existing boundary conditions
     w.r.t. to the given search_string and regex group index.
@@ -49,7 +48,6 @@ def get_next_possible_id_for_boundary_condition(
     Returns:
         id: Smallest available ID
     """
-
     found_conditions = []
 
     # loop through every possible geometry and find the conditions
@@ -84,9 +82,9 @@ def add_beam_interaction_condition(
     *,
     id: int | None = None,
 ) -> int:
-    """Adds a pair of beam interaction boundary conditions to the given mesh
-    and estimates automatically the id of them based on all previously added
-    boundary conditions of the mesh.
+    """Adds a pair of beam interaction boundary conditions to the given mesh and
+    estimates automatically the id of them based on all previously added boundary
+    conditions of the mesh.
 
     Args:
         mesh: Mesh to which the boundary conditions will be added.
@@ -97,7 +95,6 @@ def add_beam_interaction_condition(
     Returns:
         id: Used id for the created condition.
     """
-
     condition_string = "COUPLING_ID"
     if id is None:
         id = get_next_possible_id_for_boundary_condition(

@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module implements a basic class to manage geometry in the input
-file."""
+"""This module implements a basic class to manage geometry in the input file."""
 
 from typing import KeysView as _KeysView
 from typing import Sequence as _Sequence
@@ -57,7 +56,6 @@ class GeometrySetBase(_BaseMeshItem):
 
         We need to do this for explicitly contained nodes in this set.
         """
-
         explicit_nodes_in_this_set = self.get_node_dict()
         nodes_replaced = {
             current_node.get_target_node(): None
@@ -67,8 +65,8 @@ class GeometrySetBase(_BaseMeshItem):
         explicit_nodes_in_this_set.update(nodes_replaced)
 
     def get_node_dict(self) -> dict[_Node, None]:
-        """Determine the explicitly added nodes for this set, i.e., nodes
-        contained in elements are not returned.
+        """Determine the explicitly added nodes for this set, i.e., nodes contained in
+        elements are not returned.
 
         Returns:
             A dictionary containing the explicitly added nodes for this set.
@@ -103,8 +101,8 @@ class GeometrySetBase(_BaseMeshItem):
         )
 
     def __add__(self, other):
-        """Create a new geometry set with the combined geometries from this set
-        and the other set.
+        """Create a new geometry set with the combined geometries from this set and the
+        other set.
 
         Args:
             other: Geometry set to be added to this one. This has to be of the same geometry type as this set.
@@ -129,7 +127,6 @@ class GeometrySet(GeometrySetBase):
         Args:
             geometry: Geometry entries to be contained in this set.
         """
-
         # This is ok, we check every single type in the add method
         if isinstance(geometry, list):
             geometry_type = self._get_geometry_type(geometry[0])
@@ -152,7 +149,6 @@ class GeometrySet(GeometrySetBase):
         Returns:
             Geometry type of the geometry set.
         """
-
         if isinstance(item, _Node):
             return _bme.geo.point
         elif isinstance(item, _Beam):
@@ -170,7 +166,6 @@ class GeometrySet(GeometrySetBase):
         self, item: _Node | _Element | _Sequence[_Node | _Element] | "GeometrySet"
     ) -> None:
         """Add geometry item(s) to this object."""
-
         if isinstance(item, list):
             for sub_item in item:
                 self.add(sub_item)
@@ -191,8 +186,8 @@ class GeometrySet(GeometrySetBase):
             raise TypeError(f"Got unexpected geometry type {type(item)}")
 
     def get_node_dict(self) -> dict[_Node, None]:
-        """Determine the explicitly added nodes for this set, i.e., nodes
-        contained in elements for element sets are not returned.
+        """Determine the explicitly added nodes for this set, i.e., nodes contained in
+        elements for element sets are not returned.
 
         Thus, for non-point sets an empty dict is returned.
 
@@ -229,7 +224,6 @@ class GeometrySet(GeometrySetBase):
         Returns:
             A list containing all associated nodes.
         """
-
         if self.geometry_type is _bme.geo.point:
             return list(
                 _cast(_KeysView[_Node], self.geometry_objects[_bme.geo.point].keys())
@@ -259,8 +253,8 @@ class GeometrySet(GeometrySetBase):
         return list(self.geometry_objects[self.geometry_type].keys())
 
     def copy(self) -> "GeometrySet":
-        """Create a shallow copy of this object, the reference to the nodes
-        will be the same, but the containers storing them will be copied.
+        """Create a shallow copy of this object, the reference to the nodes will be the
+        same, but the containers storing them will be copied.
 
         Returns:
             A shallow copy of the geometry set.
@@ -284,7 +278,6 @@ class GeometrySetNodes(GeometrySetBase):
                 and input file depend on that type.
             nodes: Node(s) or list of nodes to be added to this geometry set.
         """
-
         if geometry_type not in _bme.geo:
             raise TypeError(f"Expected geometry enum, got {geometry_type}")
 
@@ -299,7 +292,6 @@ class GeometrySetNodes(GeometrySetBase):
         Args:
             nodes: Node(s) or list of nodes to be added to this geometry set.
         """
-
         if isinstance(value, list):
             # Loop over items and check if they are either Nodes or integers.
             # This improves the performance considerably when large list of
@@ -359,8 +351,8 @@ class GeometrySetNodes(GeometrySetBase):
         return list(self.get_node_dict().keys())
 
     def copy(self) -> "GeometrySetNodes":
-        """Create a shallow copy of this object, the reference to the nodes
-        will be the same, but the containers storing them will be copied.
+        """Create a shallow copy of this object, the reference to the nodes will be the
+        same, but the containers storing them will be copied.
 
         Returns:
             A shallow copy of the geometry set.
@@ -374,15 +366,13 @@ class GeometrySetNodes(GeometrySetBase):
 class GeometryName(dict):
     """Group node geometry sets together.
 
-    This is mainly used for export from mesh functions. The sets can be
-    accessed by a unique name. There is no distinction between different
-    types of geometry, every name can only be used once -> use
-    meaningful names.
+    This is mainly used for export from mesh functions. The sets can be accessed by a
+    unique name. There is no distinction between different types of geometry, every name
+    can only be used once -> use meaningful names.
     """
 
     def __setitem__(self, key, value):
         """Set a geometry set in this container."""
-
         if not isinstance(key, str):
             raise TypeError(f"Expected string, got {type(key)}!")
         if isinstance(value, GeometrySetBase):
@@ -392,8 +382,7 @@ class GeometryName(dict):
 
 
 class GeometrySetContainer(_ContainerBase):
-    """A class to group geometry sets together with the key being the geometry
-    type."""
+    """A class to group geometry sets together with the key being the geometry type."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the container and create the default keys in the map."""
@@ -405,9 +394,8 @@ class GeometrySetContainer(_ContainerBase):
             self[geometry_key] = []
 
     def copy(self):
-        """When creating a copy of this object, all lists in this object will
-        be copied also."""
-
+        """When creating a copy of this object, all lists in this object will be copied
+        also."""
         # Create a new geometry set container.
         copy = GeometrySetContainer()
 

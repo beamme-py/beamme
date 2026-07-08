@@ -42,7 +42,6 @@ def test_integration_four_c_model_importer_import_exodus_model(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
     """Check that an input file with exodus mesh can be imported correctly."""
-
     input_file, mesh = import_four_c_model(
         get_corresponding_reference_file_path(
             reference_file_base_name="test_other_create_cubit_input_files_tube_exo"
@@ -66,9 +65,8 @@ def test_integration_four_c_model_importer_import_exodus_model(
 def test_integration_four_c_model_importer_solid_element_types_from_cubitpy(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
-    """Check that all supported solid element types are imported correctly from
-    a CubitPy instance."""
-
+    """Check that all supported solid element types are imported correctly from a
+    CubitPy instance."""
     cubit = create_multiple_solid_bricks()
     input_file, mesh = import_cubitpy_model(cubit, convert_input_to_mesh=full_import)
     if full_import:
@@ -84,9 +82,8 @@ def test_integration_four_c_model_importer_solid_element_types_from_cubitpy(
 def test_integration_four_c_model_importer_solid_element_types_from_input_file_yaml(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
-    """Check that all supported solid element types are imported correctly from
-    a text based input file."""
-
+    """Check that all supported solid element types are imported correctly from a text
+    based input file."""
     reference_file = get_corresponding_reference_file_path(
         reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_yaml"
     )
@@ -103,9 +100,8 @@ def test_integration_four_c_model_importer_solid_element_types_from_input_file_y
 def test_integration_four_c_model_importer_solid_element_types_from_input_file_exo(
     full_import, assert_results_close, get_corresponding_reference_file_path
 ):
-    """Check that all supported solid element types are imported correctly from
-    an input file with an exodus mesh."""
-
+    """Check that all supported solid element types are imported correctly from an input
+    file with an exodus mesh."""
     input_file_path = get_corresponding_reference_file_path(
         reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_exo"
     )
@@ -127,7 +123,6 @@ def test_integration_four_c_model_importer_import_nested_materials(
     assert_results_close,
 ):
     """Check if nested materials are imported correctly."""
-
     # Create a minimal solid input file.
     mesh = Mesh()
     material = get_default_test_solid_material(material_type="solid_nested")
@@ -157,9 +152,7 @@ def test_integration_four_c_model_importer_import_nested_materials(
 
 
 def test_integration_four_c_model_importer_import_nested_materials_error():
-    """Check that an error is raised when importing nested materials with bad
-    IDs."""
-
+    """Check that an error is raised when importing nested materials with bad IDs."""
     # Create an input file with "bad" material IDs.
     input_file = InputFile()
     input_file["MATERIALS"] = [
@@ -185,7 +178,6 @@ def test_integration_four_c_model_importer_non_consecutive_geometry_sets(
     assert_results_close,
 ):
     """Test that we can import non-consecutively numbered geometry sets."""
-
     input_file, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
             additional_identifier="input"
@@ -220,7 +212,6 @@ def test_integration_four_c_model_importer_user_defined_node_set_and_block_ids(
     full_import, get_corresponding_reference_file_path, assert_results_close
 ):
     """Test that user-defined node set and block IDs work as expected."""
-
     reference_file_base_name = (
         "test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids"
     )

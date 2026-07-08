@@ -95,8 +95,7 @@ PYTEST_4C_SIMULATION_PARAMETRIZE_SOLID_IMPORT = [
 
 @pytest.fixture
 def run_four_c_test(tmp_path: Path) -> Callable:
-    """Provides a helper function to run a 4C simulation in a temporary
-    directory.
+    """Provides a helper function to run a 4C simulation in a temporary directory.
 
     Args:
         tmp_path: The pytest temporary directory for the current test.
@@ -104,7 +103,6 @@ def run_four_c_test(tmp_path: Path) -> Callable:
     Returns:
         Callable: A function that runs a 4C simulation.
     """
-
     # Counter that will track the number of calls to the _run_four_c_test function
     # for each test case (it is reset for each test case).
     run_four_c_counter = 0
@@ -130,7 +128,6 @@ def run_four_c_test(tmp_path: Path) -> Callable:
             run_dir: The directory where the simulation ran.
             run_name: The name of the 4C run.
         """
-
         # Since the counter is of a base type, we have to use nonlocal to modify it.
         nonlocal run_four_c_counter
         run_four_c_counter += 1
@@ -169,7 +166,6 @@ def create_cantilever_model(n_steps, time_step=0.5):
     time_step: float
         Time step size.
     """
-
     input_file = InputFile()
     set_header_static(input_file, time_step=time_step, n_steps=n_steps)
     input_file["IO"]["OUTPUT_BIN"] = True
@@ -205,13 +201,12 @@ def test_integration_four_c_simulation_honeycomb_sphere(
 ):
     """Create the same honeycomb mesh as defined in 4C/tests/input_files/beam3r
     _herm2lin3_static_point_coupling_BTSPH_contact_stent_honeycomb_stretch_r01_
-    circ10.4C.yaml The honeycomb beam is in contact with a rigid sphere, the
-    sphere is moved compared to the original test file, since there are some
-    problems with the contact convergence.
+    circ10.4C.yaml The honeycomb beam is in contact with a rigid sphere, the sphere is
+    moved compared to the original test file, since there are some problems with the
+    contact convergence.
 
     The sphere is imported as an existing mesh.
     """
-
     # Read input file with information of the sphere and simulation.
     input_file, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
@@ -339,7 +334,6 @@ def test_integration_four_c_simulation_beam_and_solid_tube(
     run_four_c_test,
 ):
     """Merge a solid tube with a beam tube and simulate them together."""
-
     # Create the input file and read solid mesh data. We use the exo mesh here,
     # thus we will run the simulation with referencing the solid node sets by
     # name.
@@ -444,7 +438,6 @@ def test_integration_four_c_simulation_honeycomb_variants(
     run_four_c_test,
 ):
     """Create a few different honeycomb structures."""
-
     # Create input file.
     input_file = InputFile()
 
@@ -621,7 +614,6 @@ def test_integration_four_c_simulation_rotated_beam_axis(
     - The third case uses two nodes at the connection between the lines,
         and couples them with a coupling.
     """
-
     # Create input file
     input_file = InputFile()
 
@@ -742,8 +734,8 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
     get_corresponding_reference_file_path,
     run_four_c_test,
 ):
-    """Common driver to simulate a cantilever beam with Dirichlet boundary
-    conditions and then apply those as Neumann boundaries.
+    """Common driver to simulate a cantilever beam with Dirichlet boundary conditions
+    and then apply those as Neumann boundaries.
 
     This can be used to test the two different functions
     by selecting one of the appropriate initial run_names:
@@ -756,7 +748,6 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
         the force are used. This function explicitly tests
         dbc_monitor_to_input_all_values.
     """
-
     # Create and run the initial simulation.
     initial_input_file, initial_mesh, mesh_beam_set = create_cantilever_model(n_steps=2)
 
@@ -889,13 +880,11 @@ def test_integration_four_c_simulation_dirichlet_boundary_to_neumann_boundary_wi
     get_corresponding_reference_file_path,
     run_four_c_test,
 ):
-    """First simulate a cantilever beam with Dirichlet boundary conditions and
-    then apply those as Neumann boundaries.
+    """First simulate a cantilever beam with Dirichlet boundary conditions and then
+    apply those as Neumann boundaries.
 
-    For the application of the boundary conditions, all values of the
-    force are used.
+    For the application of the boundary conditions, all values of the force are used.
     """
-
     # Define Parameters.
     n_steps = 5  # number of simulation steps
     dt = 0.1  # time step size from create_cantilever_model
@@ -903,7 +892,7 @@ def test_integration_four_c_simulation_dirichlet_boundary_to_neumann_boundary_wi
     # Create and run the initial simulation.
     initial_simulation, mesh, beam_set = create_cantilever_model(n_steps, dt)
 
-    # Add simple lienar interpolation function.
+    # Add simple linear interpolation function.
     mesh.add(
         Function(
             [
@@ -1051,7 +1040,6 @@ def test_integration_four_c_simulation_cantilever_convergence(
 
     def create_and_run_cantilever(n_el, mesh_format, *, n_proc=1):
         """Create a cantilever beam for a convergence analysis."""
-
         input_file = InputFile()
         set_header_static(input_file, time_step=0.25, n_steps=4)
         set_runtime_output(input_file, output_energy=True)
@@ -1124,15 +1112,14 @@ def test_integration_four_c_simulation_beam_to_beam_contact_example(
     get_corresponding_reference_file_path,
     run_four_c_test,
 ):
-    """Small test example to show how a beam contact example with beam penalty
-    contact can be set up.
+    """Small test example to show how a beam contact example with beam penalty contact
+    can be set up.
 
     The test case consists of two beams: one beam is allocated along the x-axis and
     the other beam is located along the y-axis.
     The beam along the y-axis is placed above the other beam by an additional offset in z-Directions.
     Due to prescribed displacements at the tips of beam in y-axis, the two beams get in contact around the origin.
     """
-
     # Define Parameters for example
     l_beam = 2
     r_beam = 0.1
@@ -1264,10 +1251,8 @@ def test_integration_four_c_simulation_locsys(
     """Create a star like structure made out of 3 beams to test complex locsys
     conditions.
 
-    We first rotate the star and then apply a prescribed displacemet to
-    its center.
+    We first rotate the star and then apply a prescribed displacemet to its center.
     """
-
     # Define Parameters for example
     l_beam = 2
     r_beam = 0.05
@@ -1413,7 +1398,6 @@ def test_integration_four_c_simulation_beam_types(
     run_four_c_test,
 ):
     """Create an input file with many possible beam elements in 4C."""
-
     # Parameters for example
     l_beam = 2
     r_beam = 0.05

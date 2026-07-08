@@ -53,7 +53,6 @@ def test_beamme_core_node_coordinates_data_types(
     coordinates, increment, assert_results_close
 ):
     """Test that different data types for coordinates are handled correctly."""
-
     node = Node(coordinates=coordinates)
     node.coordinates += increment
 

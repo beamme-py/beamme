@@ -37,7 +37,6 @@ def test_integration_four_c_beam_interaction_conditions_beam_to_beam_contact(
     get_corresponding_reference_file_path,
 ):
     """Test the beam-to-beam contact boundary conditions."""
-
     # Create the mesh.
     mesh = Mesh()
 
@@ -78,9 +77,7 @@ def test_integration_four_c_beam_interaction_conditions_beam_to_solid(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Test that the automatic ID creation for beam-to-solid conditions
-    works."""
-
+    """Test that the automatic ID creation for beam-to-solid conditions works."""
     # Load a solid
     _, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(

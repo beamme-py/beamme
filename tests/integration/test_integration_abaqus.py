@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test general functionality of the BeamMe Abaqus
-module with end-to-end integration tests."""
+"""This script is used to test general functionality of the BeamMe Abaqus module with
+end-to-end integration tests."""
 
 import numpy as np
 import pytest
@@ -50,7 +50,6 @@ def test_integration_abaqus_helix(
     get_corresponding_reference_file_path,
 ):
     """Create a helix and check the created Abaqus input file."""
-
     # Helix parameters
     n_el = 10
     turns = 1.5
@@ -100,7 +99,6 @@ def test_integration_abaqus_frame(
     get_corresponding_reference_file_path,
 ):
     """Create a frame out of connected beams with different materials."""
-
     mesh = Mesh()
     mat_1 = AbaqusBeamMaterial("beam_material_1")
     mat_2 = AbaqusBeamMaterial("beam_material_2")

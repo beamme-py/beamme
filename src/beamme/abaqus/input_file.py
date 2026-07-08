@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module defines the class that is used to create an input file for
-Abaqus."""
+"""This module defines the class that is used to create an input file for Abaqus."""
 
 from enum import Enum as _Enum
 from enum import auto as _auto
@@ -51,7 +50,6 @@ def set_i_global(data_list, *, start_index=0):
     start_index: int
         Starting index of the numbering
     """
-
     # A check is performed that every entry in data_list is unique.
     if len(data_list) != len(set(data_list)):
         raise ValueError("Elements in data_list are not unique!")
@@ -62,8 +60,7 @@ def set_i_global(data_list, *, start_index=0):
 
 
 def get_set_lines(set_type, items, name):
-    """Get the Abaqus input file lines for a set of items (max 16 items per
-    row)"""
+    """Get the Abaqus input file lines for a set of items (max 16 items per row)"""
     max_entries_per_line = 16
     lines = ["*{}, {}={}".format(set_type, set_type.lower(), name)]
     set_ids = [item.i_global + 1 for item in items]
@@ -119,7 +116,6 @@ class AbaqusInputFile(object):
         normal_definition: AbaqusBeamNormalDefinition
             How the beam cross-section should be defined.
         """
-
         # Write the input file to disk
         with open(file_path, "w") as input_file:
             input_file.write(self.get_input_file_string(normal_definition))
@@ -127,7 +123,6 @@ class AbaqusInputFile(object):
 
     def get_input_file_string(self, normal_definition):
         """Generate the string for the Abaqus input file."""
-
         # Assign global indices to all materials
         set_i_global(self.mesh.materials)
 
@@ -144,9 +139,8 @@ class AbaqusInputFile(object):
         return "\n".join(input_file_lines)
 
     def calculate_cross_section_normal_data(self, normal_definition):
-        """Evaluate all data that is required to fully specify the cross-
-        section orientation in Abaqus. The evaluated data is stored in the
-        elements.
+        """Evaluate all data that is required to fully specify the cross- section
+        orientation in Abaqus. The evaluated data is stored in the elements.
 
         For more information see the Abaqus documentation on: "Beam element cross-section orientation"
 
@@ -210,7 +204,6 @@ class AbaqusInputFile(object):
 
     def get_nodes_lines(self):
         """Get the lines for the input file that represent the nodes."""
-
         # The nodes require postprocessing, as we have to identify coupled nodes in Abaqus.
         # Internally in Abaqus, coupled nodes are a single node with different normals for the
         # connected element. Therefore, for nodes which are coupled to each other, we keep the
@@ -244,7 +237,6 @@ class AbaqusInputFile(object):
 
     def get_element_lines(self):
         """Get the lines for the input file that represent the elements."""
-
         # Sort the elements after their types.
         element_types = {}
         for element in self.mesh.elements:
@@ -289,9 +281,8 @@ class AbaqusInputFile(object):
             return element_lines
 
     def get_material_lines(self):
-        """Get the lines for the input file that represent the element sets
-        with the same material."""
-
+        """Get the lines for the input file that represent the element sets with the
+        same material."""
         materials = {}
         for element in self.mesh.elements:
             element_material = element.material
@@ -309,7 +300,6 @@ class AbaqusInputFile(object):
 
     def get_set_lines(self):
         """Add lines to the input file that represent node and element sets."""
-
         input_file_lines = []
         for point_set in self.mesh.geometry_sets[_bme.geo.point]:
             if point_set.name is None:

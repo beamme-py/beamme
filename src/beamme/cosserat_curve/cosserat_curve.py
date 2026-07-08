@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""Define a Cosserat curve object that can be used to describe warping of
-curve-like objects."""
+"""Define a Cosserat curve object that can be used to describe warping of curve-like
+objects."""
 
 from pathlib import Path as _Path
 from typing import Tuple as _Tuple
@@ -50,7 +50,6 @@ def get_piecewise_linear_arc_length_along_points(
     coordinates:
         Array containing the point coordinates
     """
-
     n_points = len(coordinates)
     point_distance = _np.linalg.norm(coordinates[1:] - coordinates[:-1], axis=1)
     point_arc_length = _np.zeros(n_points)
@@ -76,7 +75,6 @@ def get_spline_interpolation(
     centerline_interpolation:
         The spline interpolation object
     """
-
     # Interpolate coordinates along arc length
     # Note: The numeric evaluation of the spline interpolation can depend on the
     #     operating system, thus introducing slight numerical differences (~1e-12).
@@ -101,7 +99,6 @@ def get_quaternions_along_curve(
     point_arc_length:
         Array of parameter coordinates for which the quaternions should be calculated
     """
-
     centerline_interpolation_derivative = centerline.derivative()
 
     def basis(i):
@@ -136,7 +133,6 @@ def get_relative_distance_and_rotations(
 ]:
     """Get relative distances and rotations that can be used to evaluate
     "intermediate" states of the Cosserat curve."""
-
     n_points = len(coordinates)
     relative_distances = _np.zeros(n_points - 1)
     relative_distances_rotation = _np.zeros(n_points - 1, dtype=_quaternion.quaternion)
@@ -184,7 +180,6 @@ class CosseratCurve(object):
                 - The automatically calculated triad, rotated onto the first basis vector
                   of the starting guess triad using the smallest rotation.
         """
-
         self.coordinates = point_coordinates.copy()
         self.n_points = len(self.coordinates)
 
@@ -256,21 +251,19 @@ class CosseratCurve(object):
             self.twist(twist_angle)
 
     def set_centerline_interpolation(self):
-        """Set the interpolation of the centerline based on the coordinates and
-        arc length stored in this object."""
+        """Set the interpolation of the centerline based on the coordinates and arc
+        length stored in this object."""
         self.centerline_interpolation = get_spline_interpolation(
             self.coordinates, self.point_arc_length
         )
 
     def translate(self, vector):
         """Translate the curve by the given vector."""
-
         self.coordinates += vector
         self.set_centerline_interpolation()
 
     def rotate(self, rotation: _Rotation, *, origin=None):
         """Rotate the curve and the quaternions."""
-
         self.quaternions = rotation.get_numpy_quaternion() * self.quaternions
         self.coordinates = _rotate_coordinates(
             self.coordinates, rotation, origin=origin
@@ -302,8 +295,7 @@ class CosseratCurve(object):
     def get_centerline_position_and_rotation(
         self, arc_length: float, **kwargs
     ) -> _Tuple[_np.ndarray, _NDArray[_quaternion.quaternion]]:
-        """Return the position and rotation at a given centerline arc
-        length."""
+        """Return the position and rotation at a given centerline arc length."""
         pos, rot = self.get_centerline_positions_and_rotations([arc_length], **kwargs)
         return pos[0], rot[0]
 
@@ -334,7 +326,6 @@ class CosseratCurve(object):
                     the scaled curvature of the curve to obtain a intuitive wrapping. (factor=0 gives
                     a straight line)
         """
-
         # Get the points that are within the arc length of the given curve.
         points_on_arc_length = _np.asarray(points_on_arc_length)
         points_in_bounds = _np.logical_and(
@@ -451,9 +442,8 @@ class CosseratCurve(object):
         return sol_r_final, sol_q_final
 
     def project_point(self, p, t0=None) -> float:
-        """Project a point to the curve, return the parameter coordinate for
-        the projection point."""
-
+        """Project a point to the curve, return the parameter coordinate for the
+        projection point."""
         centerline_interpolation_p = self.centerline_interpolation.derivative(1)
         centerline_interpolation_pp = self.centerline_interpolation.derivative(2)
 
@@ -476,8 +466,8 @@ class CosseratCurve(object):
         return _optimize.newton(f, t0, fprime=fp)
 
     def get_pyvista_polyline(self, *, factor: float = 1.0) -> _pv.PolyData:
-        """Create a pyvista representation of the curve with the evaluated
-        triad basis vectors.
+        """Create a pyvista representation of the curve with the evaluated triad basis
+        vectors.
 
         Args:
             factor: Factor to scale the curvature along the curve (see
@@ -486,7 +476,6 @@ class CosseratCurve(object):
         Returns:
             A pyvista PolyData object representing the curve.
         """
-
         positions, rotations = self.get_centerline_positions_and_rotations(
             self.point_arc_length, factor=factor
         )
@@ -525,7 +514,6 @@ class CosseratCurve(object):
             n_steps: Number of steps to create a uniform series of factors. Mutually exclusive with 'factors'.
             binary: If True, save the vtk files in binary format.
         """
-
         pvd_path = _Path(pvd_path)
         if pvd_path.suffix != ".pvd":
             raise ValueError(

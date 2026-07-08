@@ -42,22 +42,20 @@ from beamme.four_c.material import (
 
 @pytest.fixture(scope="function")
 def get_bc_data() -> Callable:
-    """Return a function to create a dummy definition for a boundary condition
-    in 4C.
+    """Return a function to create a dummy definition for a boundary condition in 4C.
 
     Returns:
         A function to create a dummy boundary condition definition.
     """
 
     def _get_bc_data(*, identifier=None, num_dof: int = 3) -> Dict:
-        """Return a dummy definition for a boundary condition in 4C that can be
-        used for testing purposes.
+        """Return a dummy definition for a boundary condition in 4C that can be used for
+        testing purposes.
 
         Args:
             identifier: Any value, will be written to the value for the first DOF. This can be used to create multiple boundary conditions and distinguish them in the input file.
             num_dof: Number of degrees of freedom constrained by this boundary condition.
         """
-
         val = [0] * num_dof
         if identifier is not None:
             val[0] = identifier
@@ -74,8 +72,7 @@ def get_bc_data() -> Callable:
 
 @pytest.fixture(scope="function")
 def get_default_test_beam_material() -> Callable:
-    """Return a function to create a default beam material for testing
-    purposes.
+    """Return a function to create a default beam material for testing purposes.
 
     Returns:
         A function that creates a default beam material.
@@ -90,7 +87,6 @@ def get_default_test_beam_material() -> Callable:
         Returns:
             A material object corresponding to the specified beam type.
         """
-
         if material_type == "base":
             return MaterialBeamBase(radius=1.0, **kwargs)
 
@@ -107,8 +103,7 @@ def get_default_test_beam_material() -> Callable:
 
 @pytest.fixture(scope="function")
 def get_default_test_solid_material() -> Callable:
-    """Return a function to create a default solid material for testing
-    purposes.
+    """Return a function to create a default solid material for testing purposes.
 
     Returns:
         A function that creates a default solid material.
@@ -125,7 +120,6 @@ def get_default_test_solid_material() -> Callable:
         Returns:
             A material object corresponding to the specified solid material type.
         """
-
         if material_type == "st_venant_kirchhoff":
             return MaterialStVenantKirchhoff(youngs_modulus=1.0, nu=0.3, density=1.0)
 
@@ -171,8 +165,7 @@ def get_default_test_solid_material() -> Callable:
 
 @pytest.fixture(scope="function")
 def get_default_test_solid_element() -> Callable:
-    """Return a function to create a default solid element type for testing
-    purposes.
+    """Return a function to create a default solid element type for testing purposes.
 
     Returns:
         A function that creates a default solid element type.
@@ -187,7 +180,6 @@ def get_default_test_solid_element() -> Callable:
         Returns:
             A type defining a solid element for testing purposes.
         """
-
         if element_type == "nurbs_2d":
             return get_four_c_solid(
                 bme.element_type.nurbs,
@@ -237,10 +229,11 @@ def get_parametric_function() -> Callable:
         transformation_factor: float | None = None,
         number_of_turns: float | None = None,
     ) -> Callable[[float], npAD.ndarray]:
-        """Create and return a parametric function that represents a helix
-        shape. The parameter coordinate can optionally be stretched to make the
-        curve arc-length along the parameter coordinated non-constant and
-        create a more complex curve for testing purposes.
+        """Create and return a parametric function that represents a helix shape.
+
+        The parameter coordinate can optionally be stretched to make the curve arc-length
+        along the parameter coordinated non-constant and create a more complex curve for
+        testing purposes.
 
         Args:
             radius: Radius of the helix
@@ -253,7 +246,6 @@ def get_parametric_function() -> Callable:
         Returns:
             A function that describes a helix in 3D space.
         """
-
         if transformation_factor is None and number_of_turns is None:
 
             def transformation(t):
@@ -294,15 +286,13 @@ def get_parametric_function() -> Callable:
     def distorted_helix(t: float):
         """Parametric function to describe a distorted helix.
 
-        The resulting curve has a large variation in the Jacobian along
-        the curve, thus making it a good test case for the curve
-        integration robustness and performance.
+        The resulting curve has a large variation in the Jacobian along the curve, thus
+        making it a good test case for the curve integration robustness and performance.
         """
         return npAD.array([t, 10 * npAD.sin(t), npAD.cos(t)])
 
     def _get_parametric_function(function_type: str, *args, **kwargs) -> Callable:
-        """Return a function representing a parametric curve for testing
-        purposes.
+        """Return a function representing a parametric curve for testing purposes.
 
         Args:
             function_type: The type of parametric function to create.
@@ -312,7 +302,6 @@ def get_parametric_function() -> Callable:
         Returns:
             A function that creates a parametric curve.
         """
-
         if function_type == "helix":
             return get_helix_function(*args, **kwargs)
         elif function_type == "distorted_helix":
@@ -336,7 +325,6 @@ def get_splinepy_object() -> Callable:
         Returns:
             A splinepy object.
         """
-
         if splinepy_type == "curve_bezier":
             control_points = np.array(
                 [
@@ -377,8 +365,7 @@ def get_cosserat_curve() -> Callable:
     coordinates."""
 
     def _get_cosserat_curve(**kwargs) -> CosseratCurve:
-        """Create a Cosserat curve from a predefined set of point
-        coordinates."""
+        """Create a Cosserat curve from a predefined set of point coordinates."""
         point_coordinates = np.array(
             [
                 [

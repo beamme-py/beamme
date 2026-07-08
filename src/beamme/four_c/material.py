@@ -31,8 +31,8 @@ from beamme.core.material import MaterialSolidBase as _MaterialSolidBase
 def get_material_and_all_contained_sub_materials(
     material: _Material, _visited_materials: set[int] | None = None
 ) -> list[_Material]:
-    """Recursively collect all materials contained within a material, including
-    nested ones.
+    """Recursively collect all materials contained within a material, including nested
+    ones.
 
     Args:
         material:
@@ -49,7 +49,6 @@ def get_material_and_all_contained_sub_materials(
         ValueError:
             If a circular material reference is detected.
     """
-
     if _visited_materials is None:
         _visited_materials = set()
 
@@ -143,7 +142,6 @@ class MaterialReissner(_MaterialBeamBase):
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-
         if self.radius is None or self.youngs_modulus is None:
             raise ValueError(
                 "Radius and Young's modulus must be provided for beam materials."
@@ -252,7 +250,6 @@ class MaterialKirchhoff(_MaterialBeamBase):
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-
         if self.radius is None or self.youngs_modulus is None:
             raise ValueError(
                 "Radius and Young's modulus must be provided for beam materials."
@@ -306,7 +303,6 @@ class MaterialEulerBernoulli(_MaterialBeamBase):
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-
         if self.radius is None or self.youngs_modulus is None:
             raise ValueError(
                 "Radius and Young's modulus must be provided for beam materials."
@@ -343,7 +339,6 @@ class MaterialSolid(_MaterialSolidBase):
 
     def dump_to_list(self):
         """Return a list with the (single) item representing this material."""
-
         return {"MAT": self, self.material_string: self.data}
 
 

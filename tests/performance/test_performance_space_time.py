@@ -33,7 +33,6 @@ from beamme.space_time.beam_to_space_time import beam_to_space_time
 @pytest.fixture(scope="module")
 def mesh_in_space(evaluate_execution_time):
     """Provide mesh in space direction."""
-
     mesh = Mesh()
     beam_type = generate_beam_class(3)
 
@@ -58,8 +57,7 @@ def mesh_in_space(evaluate_execution_time):
 def test_performance_space_time_create_mesh_in_space(mesh_in_space):
     """Test the performance of the mesh creation in space.
 
-    The test is run in the fixture, so we don't need to do anything
-    here.
+    The test is run in the fixture, so we don't need to do anything here.
     """
     pass
 
@@ -69,7 +67,6 @@ def test_performance_space_time_create_mesh_in_time(
     mesh_in_space, evaluate_execution_time
 ):
     """Test the performance of the mesh creation in time."""
-
     evaluate_execution_time(
         "BeamMe: Space-Time: Create mesh in time",
         beam_to_space_time,

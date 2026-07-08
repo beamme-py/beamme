@@ -74,7 +74,6 @@ def run_four_c(
     return_code: int
         Return code of 4C run
     """
-
     # Fist get all needed parameters
     if four_c_exe is None:
         four_c_exe = _get_env_variable("BEAMME_FOUR_C_EXE")
@@ -119,8 +118,10 @@ def run_four_c(
 
 
 def clean_simulation_directory(sim_dir, *, ask_before_clean=False):
-    """Clear the simulation directory. If it does not exist, it is created.
-    Optionally the user can be asked before a deletion of files.
+    """Clear the simulation directory.
+
+    If it does not exist, it is created. Optionally the user can be
+    asked before a deletion of files.
 
     Args
     ----
@@ -129,7 +130,6 @@ def clean_simulation_directory(sim_dir, *, ask_before_clean=False):
     ask_before_clean: bool
         Flag which indicates whether the user must confirm removal of files and directories
     """
-
     # Check if simulation directory exists.
     if _os.path.exists(sim_dir):
         if ask_before_clean:

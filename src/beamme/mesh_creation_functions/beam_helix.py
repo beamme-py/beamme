@@ -45,10 +45,10 @@ def create_beam_mesh_helix(
     warning_straight_line=True,
     **kwargs,
 ):
-    """Generate a helical segment starting at a given start point around a
-    predefined axis (defined by axis_vector and axis_point). The helical
-    segment is defined by a start_point and exactly two of the basic helical
-    quantities [helix_angle, height_helix, turns].
+    """Generate a helical segment starting at a given start point around a predefined
+    axis (defined by axis_vector and axis_point). The helical segment is defined by a
+    start_point and exactly two of the basic helical quantities [helix_angle,
+    height_helix, turns].
 
     Args
     ----
@@ -92,7 +92,6 @@ def create_beam_mesh_helix(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     if [helix_angle, height_helix, turns].count(None) != 1:
         raise ValueError(
             "Exactly two arguments of [helix_angle, height_helix, turns]"

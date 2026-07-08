@@ -30,6 +30,7 @@ from beamme.mesh_creation_functions.beam_parametric_curve import (
 
 def get_curve_function_and_jacobian_for_integration(curve):
     """Return function objects for evaluating the curve and the derivative.
+
     These functions are used in the curve integration.
 
     Args
@@ -49,15 +50,14 @@ def get_curve_function_and_jacobian_for_integration(curve):
         curve_end:
             Parameter coordinate for the end for the curve
     """
-
     curve_start = curve.parametric_bounds[0][0]
     curve_end = curve.parametric_bounds[1][0]
 
     def eval_r(t):
         """Evaluate the position along the curve.
 
-        We need to pass an array with shape (n, 1) to the splinepy
-        function, we do this by passing a reordered view of t.
+        We need to pass an array with shape (n, 1) to the splinepy function, we do this
+        by passing a reordered view of t.
         """
         t = _np.asarray(t)
         return curve.evaluate(t[:, None])
@@ -65,8 +65,8 @@ def get_curve_function_and_jacobian_for_integration(curve):
     def eval_rp(t):
         """Evaluate the derivative along the curve.
 
-        We need to pass an array with shape (n, 1) to the splinepy
-        function, we do this by passing a reordered view of t.
+        We need to pass an array with shape (n, 1) to the splinepy function, we do this
+        by passing a reordered view of t.
         """
         t = _np.asarray(t)
         return curve.derivative(t[:, None], orders=[1])
@@ -101,7 +101,6 @@ def create_beam_mesh_from_splinepy(mesh, beam_class, material, curve, **kwargs):
     Return:
         Return value from create_beam_mesh_function
     """
-
     (
         function,
         jacobian,

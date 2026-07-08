@@ -964,8 +964,8 @@ def create_curve(curve, **kwargs):
 
 
 def create_mesh_curves(curves, l_el) -> Mesh:
-    """Create a BeamMe mesh for all given curves and return a single mesh
-    containing all curves."""
+    """Create a BeamMe mesh for all given curves and return a single mesh containing all
+    curves."""
     mesh = Mesh()
     for i in range(len(curves)):
         curve_mesh, _ = create_curve(curves[i], l_el=l_el)
@@ -975,7 +975,6 @@ def create_mesh_curves(curves, l_el) -> Mesh:
 
 def add_letter_B(plotter, plot_data, lighting=True):
     """Add the letter B to the plotter."""
-
     color_letter = "#1E3A8A"
     color_nodes = "#FFD43B"  # "#F43F5E"
     curves = CHARACTER_SPLINEPY["B"]
@@ -1008,7 +1007,6 @@ def add_letter_B(plotter, plot_data, lighting=True):
 
 def add_letter_e(plotter, plot_data):
     """Add the letter e to the plotter."""
-
     color = "#60A5FA"
     mesh = Mesh()
     cross_section = 3.0 * np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
@@ -1039,7 +1037,6 @@ def add_letter_e(plotter, plot_data):
 
 def add_letter_a(plotter, plot_data):
     """Add the letter a to the plotter."""
-
     color_letter = "black"
     color_control_polygon = "blue"
     color_control_points = "red"
@@ -1089,7 +1086,6 @@ def add_letter_a(plotter, plot_data):
 
 def add_letter_m(plotter, plot_data):
     """Add the letter m to the plotter."""
-
     color_letter = "#FBBF24"
     mesh = Mesh()
     factor = 4.0
@@ -1152,7 +1148,6 @@ def add_letter_m(plotter, plot_data):
 
 def create_2d_mesh_cubit(plot_data):
     """Create the 2D mesh for the letters M and e."""
-
     if not cupy.is_coreform():
         raise ValueError("This script requires Cubit Coreform")
 
@@ -1202,7 +1197,6 @@ def create_2d_mesh_cubit(plot_data):
 
 def get_letter_2d_grid(plot_data):
     """Return the PyVista grids for the 2D letters."""
-
     _, solid_mesh = import_four_c_model(
         plot_data["input_file_name"], convert_input_to_mesh=True
     )
@@ -1222,7 +1216,6 @@ def get_letter_2d_grid(plot_data):
 
 def add_letter_2d_full(plotter, plot_data):
     """Add both 2D letters to the plotter."""
-
     color_letters = {0: "#10B981", 1: "#F472B6"}
     grids = get_letter_2d_grid(plot_data)
     translate_vector = np.array([294.7, -80.7, 0.0])
@@ -1237,7 +1230,6 @@ def add_letter_2d_full(plotter, plot_data):
 
 def add_letter_2d_small(plotter, plot_data, lighting=False):
     """Add just the M of the 2D letters to the plotter."""
-
     color = "#10B981"
     grid_M, _ = get_letter_2d_grid(plot_data)
     grid_M.translate([-235, 0, 0], inplace=True)
@@ -1254,7 +1246,6 @@ def add_letter_2d_small(plotter, plot_data, lighting=False):
 
 def create_beamme_logo_full(plotter, plot_data):
     """Create the full BeamMe logo."""
-
     # Create the letters
     add_letter_B(plotter, plot_data)
     add_letter_e(plotter, plot_data)
@@ -1282,7 +1273,6 @@ def create_beamme_logo_full(plotter, plot_data):
 
 def create_beamme_logo_small(plotter, plot_data, square=True):
     """Create the small BeamMe logo."""
-
     # Create the letters
     add_letter_B(plotter, plot_data, lighting=False)
     add_letter_2d_small(plotter, plot_data, lighting=False)
@@ -1312,7 +1302,6 @@ def create_beamme_logo_small(plotter, plot_data, square=True):
 
 def create_beamme_logo(base_dir, create_cubit=True):
     """Create the BeamMe logo images."""
-
     # General parameters
     plot_data = {
         "l_el_coarse": 20.0,

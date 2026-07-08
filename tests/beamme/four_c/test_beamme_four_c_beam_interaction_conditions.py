@@ -33,9 +33,7 @@ from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 def test_beamme_four_c_beam_interaction_conditions_condition_id(
     get_default_test_beam_material,
 ):
-    """Ensure that the contact-boundary conditions ids are estimated
-    correctly."""
-
+    """Ensure that the contact-boundary conditions ids are estimated correctly."""
     # Create the mesh.
     mesh = Mesh()
 

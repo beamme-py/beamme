@@ -65,8 +65,8 @@ class NURBSPatch(_Element):
         return n_knots
 
     def get_number_of_control_points_per_dir(self) -> list[int]:
-        """Determine the number of control points in each parameter direction
-        of the patch.
+        """Determine the number of control points in each parameter direction of the
+        patch.
 
         Returns:
             List of control points per direction.
@@ -87,7 +87,6 @@ class NURBSPatch(_Element):
             List of lists with the indices of the non-empty knot spans in
             each parameter direction.
         """
-
         non_empty_knot_spans_indices: list[list[int]] = [
             [] for _ in range(self.get_nurbs_dimension())
         ]
@@ -105,13 +104,12 @@ class NURBSPatch(_Element):
         return non_empty_knot_spans_indices
 
     def get_number_of_elements(self) -> int:
-        """Determine the number of elements in this patch by checking the
-        amount of nonzero knot spans in the knot vector.
+        """Determine the number of elements in this patch by checking the amount of
+        nonzero knot spans in the knot vector.
 
         Returns:
             Number of elements for this patch.
         """
-
         non_empty_knot_spans_indices = self.get_non_empty_knot_span_indices()
         num_elements_dir = [len(indices) for indices in non_empty_knot_spans_indices]
         total_num_elements = _np.prod(num_elements_dir)
@@ -123,8 +121,8 @@ class NURBSPatch(_Element):
 
     @_abstractmethod
     def get_ids_ctrlpts(self, *args) -> list[int]:
-        """Compute the global indices of the control points that influence the
-        element defined by the given knot span."""
+        """Compute the global indices of the control points that influence the element
+        defined by the given knot span."""
 
 
 class NURBSSurface(NURBSPatch):
@@ -135,7 +133,6 @@ class NURBSSurface(NURBSPatch):
 
     def get_knot_span_iterator(self) -> _Iterator[tuple[int, ...]]:
         """Return a tuple with the knot spans for this patch."""
-
         non_empty_knot_spans_indices = self.get_non_empty_knot_span_indices()
         return (
             (u, v)
@@ -144,9 +141,8 @@ class NURBSSurface(NURBSPatch):
         )
 
     def get_ids_ctrlpts(self, knot_span_u: int, knot_span_v: int) -> list[int]:
-        """Compute the global indices of the control points that influence the
-        element defined by the given knot span."""
-
+        """Compute the global indices of the control points that influence the element
+        defined by the given knot span."""
         p, q = self.polynomial_orders
         ctrlpts_size_u = len(self.knot_vectors[0]) - p - 1
         id_u = knot_span_u - p
@@ -167,7 +163,6 @@ class NURBSVolume(NURBSPatch):
 
     def get_knot_span_iterator(self) -> _Iterator[tuple[int, ...]]:
         """Return a tuple with the knot spans for this patch."""
-
         non_empty_knot_spans_indices = self.get_non_empty_knot_span_indices()
         return (
             (u, v, w)
@@ -179,9 +174,8 @@ class NURBSVolume(NURBSPatch):
     def get_ids_ctrlpts(
         self, knot_span_u: int, knot_span_v: int, knot_span_w: int
     ) -> list[int]:
-        """Compute the global indices of the control points that influence the
-        element defined by the given knot span."""
-
+        """Compute the global indices of the control points that influence the element
+        defined by the given knot span."""
         p, q, r = self.polynomial_orders
         id_u = knot_span_u - p
         id_v = knot_span_v - q

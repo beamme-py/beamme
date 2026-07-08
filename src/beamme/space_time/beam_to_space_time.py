@@ -110,7 +110,6 @@ def beam_to_space_time(
             The nodes sets to be returned for the space time mesh:
                 "start", "end", "surface"
     """
-
     # Get the "reference" spatial mesh
     if callable(mesh_space_or_generator):
         mesh_space_reference = mesh_space_or_generator(time_start)
@@ -337,7 +336,6 @@ def get_space_time_mesh_representation(mesh: _Mesh) -> _MeshRepresentation:
     Returns:
         The mesh representation for the space time mesh.
     """
-
     element_types = list(set([type(element) for element in mesh.elements]))
     if len(element_types) > 1:
         raise ValueError("Got more than a single element type, this is not supported")

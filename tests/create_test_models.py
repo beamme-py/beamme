@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script contains functionality to create solid input files (or plain
-cubit instances) with CubitPy which are then used in testing."""
+"""This script contains functionality to create solid input files (or plain cubit
+instances) with CubitPy which are then used in testing."""
 
 from beamme.core.boundary_condition import BoundaryCondition
 from beamme.core.conf import bme
@@ -59,7 +59,6 @@ def create_tube_cubit_mesh(r, h, n_circumference, n_height):
     ----
     The created cubit object.
     """
-
     # Initialize cubit.
     cubit = CubitPy()
 
@@ -80,7 +79,6 @@ def create_tube_cubit_mesh(r, h, n_circumference, n_height):
 
 def create_tube_cubit():
     """Load the solid tube and add input file parameters."""
-
     # Initialize cubit.
     cubit, cylinder = create_tube_cubit_mesh(0.25, 10.0, 6, 10)
 
@@ -172,7 +170,6 @@ def create_tube_cubit():
 
 def create_block_cubit():
     """Create a solid block in cubit and add a volume condition."""
-
     # Initialize cubit.
     cubit = CubitPy()
 
@@ -269,7 +266,6 @@ def create_solid_shell_blocks() -> InputFile:
 
 def create_solid_shell_dome() -> InputFile:
     """Create the meshes needed for the solid shell block tests."""
-
     # Create the dome input
     cubit = CubitPy()
     cubit.cmd("create sphere radius 1 zpositive")
@@ -294,7 +290,6 @@ def create_beam_to_solid_conditions_model(
     full_import: bool,
 ):
     """Create the input file for the beam-to-solid input conditions tests."""
-
     # Create input file
     input_file, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
@@ -335,9 +330,8 @@ def create_beam_to_solid_conditions_model(
 
 
 def create_single_solid_element_brick(get_default_test_solid_material):
-    """Create an input file with a single solid element brick in CubitPy for
-    testing purposes."""
-
+    """Create an input file with a single solid element brick in CubitPy for testing
+    purposes."""
     # Create the brick with a single solid element
     cubit = CubitPy()
     create_brick(
@@ -352,7 +346,6 @@ def create_single_solid_element_brick(get_default_test_solid_material):
 
 def create_solid_brick(get_default_test_solid_material):
     """Create an a brick with the dimensions 1x3x15."""
-
     cubit = CubitPy()
     brick = create_brick(
         cubit,
@@ -375,10 +368,8 @@ def create_solid_brick(get_default_test_solid_material):
 def create_multiple_solid_bricks():
     """Create blocks with all supported element types.
 
-    Also add some node sets to ensure their correct representation in
-    BeamMe.
+    Also add some node sets to ensure their correct representation in BeamMe.
     """
-
     if not cupy.is_coreform():
         raise ValueError("This script requires Cubit Coreform")
 
@@ -483,7 +474,6 @@ def create_multiple_solid_bricks():
 
 def create_cubit_model_with_user_defined_node_set_and_block_ids():
     """Create a Cubit model with user-defined node set and block IDs."""
-
     # Set up Cubit.
     cubit = CubitPy()
 

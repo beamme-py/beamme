@@ -29,10 +29,8 @@ from pathlib import Path
 def prepare_docs():
     """Prepare documentation for the website.
 
-    Currently, this only copies the README.md file to the documentation
-    directory.
+    Currently, this only copies the README.md file to the documentation directory.
     """
-
     markdown_dir = Path("website/docs/source/md")
 
     # create directory which contains all the markdown files

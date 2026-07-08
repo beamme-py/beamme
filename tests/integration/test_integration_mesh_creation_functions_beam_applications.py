@@ -40,7 +40,6 @@ def test_integration_mesh_creation_functions_beam_applications_stent(
     get_corresponding_reference_file_path,
 ):
     """Test the stent creation function."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -73,7 +72,6 @@ def test_integration_mesh_creation_functions_beam_applications_fibers_in_rectang
     get_corresponding_reference_file_path,
 ):
     """Test the create_fibers_in_rectangle function."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -167,9 +165,8 @@ def test_integration_mesh_creation_functions_beam_applications_fibers_in_rectang
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test the create_fibers_in_rectangle function with using the
-    reference_point option."""
-
+    """Test the create_fibers_in_rectangle function with using the reference_point
+    option."""
     # Create mesh
     mesh = Mesh()
 
@@ -210,7 +207,6 @@ def test_integration_mesh_creation_functions_beam_applications_fibers_in_rectang
     get_corresponding_reference_file_path,
 ):
     """Test the set returned by the create_fibers_in_rectangle function."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -238,7 +234,6 @@ def test_integration_mesh_creation_functions_beam_applications_wire(
     get_corresponding_reference_file_path,
 ):
     """Test the create_wire_fibers function."""
-
     # Create mesh
     mesh = Mesh()
 

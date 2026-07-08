@@ -69,9 +69,8 @@ class FourCElementData:
     def get_yaml_dict(
         self, element_id, connectivity, element_material_id, additional_element_data
     ) -> dict:
-        """Return the dictionary to write this element data to a yaml element
-        definition in the input file."""
-
+        """Return the dictionary to write this element data to a yaml element definition
+        in the input file."""
         return {
             "id": element_id + 1,
             "cell": {
@@ -108,8 +107,7 @@ class FourCElementData:
 def four_c_element_data_from_yaml_dict(
     yaml_dict: dict,
 ) -> tuple[FourCElementData, int, _NDArray, int]:
-    """Extract the 4C element data from a yaml element definition in the input
-    file.
+    """Extract the 4C element data from a yaml element definition in the input file.
 
     Args:
         yaml_dict: The yaml element definition in the input file, will be modified in place.
@@ -117,7 +115,6 @@ def four_c_element_data_from_yaml_dict(
     Returns:
         A tuple containing the 4C element data, the element ID, the connectivity, and the material ID.
     """
-
     element_id = yaml_dict["id"]
     connectivity = _np.array(yaml_dict["cell"]["connectivity"], dtype=int) - 1
     four_c_cell = yaml_dict["cell"]["type"]
@@ -138,8 +135,7 @@ def four_c_element_data_from_yaml_dict(
 
 
 def four_c_element_data_from_exo_dict(exo_dict: dict) -> tuple[FourCElementData, int]:
-    """Extract the 4C element data from an exodus element definition in the
-    input file.
+    """Extract the 4C element data from an exodus element definition in the input file.
 
     Args:
         exo_dict: The exodus element definition in the input file, will be modified in
@@ -148,7 +144,6 @@ def four_c_element_data_from_exo_dict(exo_dict: dict) -> tuple[FourCElementData,
     Returns:
         A tuple containing the 4C element data and the material ID.
     """
-
     # First, we have to remove the ID entry
     exo_dict.pop("ID")
 

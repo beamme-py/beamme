@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This function allows to reorder the connectivity of solid shell elements
-such that the solid shell direction is correctly represented."""
+"""This function allows to reorder the connectivity of solid shell elements such that
+the solid shell direction is correctly represented."""
 
 from typing import List as _List
 
@@ -89,9 +89,7 @@ def shape_functions_derivative_hex8(xi1, xi2, xi3):
 
 
 def get_hex8_element_center_and_jacobian_mapping(element):
-    """Return the center of a hex8 element and the Jacobian mapping for that
-    point."""
-
+    """Return the center of a hex8 element and the Jacobian mapping for that point."""
     nodal_coordinates = _get_nodal_coordinates(element.nodes)
     if not len(nodal_coordinates) == 8:
         raise ValueError(f"Expected 8 nodes, got {len(nodal_coordinates)}")
@@ -106,14 +104,13 @@ def get_hex8_element_center_and_jacobian_mapping(element):
 
 
 def get_reordering_index_thickness(jacobian, *, identify_threshold=None):
-    """Return the reordering index from the Jacobian such that the thinnest
-    direction is the 3rd parameter direction.
+    """Return the reordering index from the Jacobian such that the thinnest direction is
+    the 3rd parameter direction.
 
     Additionally it is checked, that the thinnest direction is at least
-    identify_threshold times smaller than the next thinnest, to avoid
-    wrongly detected directions.
+    identify_threshold times smaller than the next thinnest, to avoid wrongly detected
+    directions.
     """
-
     # The direction with the smallest parameter derivative is the thickness direction
     parameter_derivative_norms = [
         _np.linalg.norm(parameter_direction) for parameter_direction in jacobian
@@ -139,10 +136,8 @@ def get_reordering_index_thickness(jacobian, *, identify_threshold=None):
 def get_reordering_index_director_projection(
     jacobian, director, *, identify_threshold=None
 ):
-    """Return the reordering index from the Jacobian such that the thickness
-    direction is the one that has the largest dot product with the given
-    director."""
-
+    """Return the reordering index from the Jacobian such that the thickness direction
+    is the one that has the largest dot product with the given director."""
     projections = []
     for parameter_director in jacobian:
         parameter_director = parameter_director / _np.linalg.norm(parameter_director)
@@ -171,8 +166,7 @@ def set_solid_shell_thickness_direction(
     director_function=None,
     identify_threshold=2.0,
 ):
-    """Set the solid shell directions for all solid shell elements in the
-    element list.
+    """Set the solid shell directions for all solid shell elements in the element list.
 
     Args:
     ----
@@ -194,7 +188,6 @@ def set_solid_shell_thickness_direction(
         To ensure that the found directions are well-defined, i.e., that not multiple
         directions are almost equally suited to the thickness direction.
     """
-
     if len(elements) == 0:
         raise ValueError("Expected a non empty element list")
 
@@ -256,9 +249,8 @@ def set_solid_shell_thickness_direction(
 
 
 def get_visualization_third_parameter_direction_hex8(mesh: _Mesh):
-    """Return a pyvista mesh with cell data for the third parameter direction
-    for hex8 elements."""
-
+    """Return a pyvista mesh with cell data for the third parameter direction for hex8
+    elements."""
     grid = mesh.get_vtu_representation()
     grid_solid = grid.extract_cells(
         grid.cell_data["beamme_type"] == _bme.element_type.solid.value
@@ -286,10 +278,9 @@ def get_visualization_third_parameter_direction_hex8(mesh: _Mesh):
 def visualize_third_parameter_direction_hex8(mesh: _Mesh):
     """Visualize the third parameter direction for hex8 elements.
 
-    This can be used to check the correct definition of the shell
-    thickness for solid shell elements.
+    This can be used to check the correct definition of the shell thickness for solid
+    shell elements.
     """
-
     grid = get_visualization_third_parameter_direction_hex8(mesh)
     grid = grid.clean()
     cell_centers = grid.cell_centers()

@@ -36,7 +36,6 @@ def test_integration_core_mesh_visualization_beam(
     get_corresponding_reference_file_path,
 ):
     """Create a sample mesh and check the VTU output."""
-
     mesh = Mesh()
     honeycomb_set = create_beam_mesh_honeycomb(
         mesh,
@@ -59,7 +58,6 @@ def test_integration_core_mesh_visualization_solid(
     assert_results_close, get_corresponding_reference_file_path
 ):
     """Import a solid mesh and check the VTU output."""
-
     # Convert the solid mesh to beamme objects. We use the exo mesh here, thus
     # we will also have the node set names added to the visualization.
     _, mesh = import_four_c_model(
@@ -79,7 +77,6 @@ def test_integration_core_mesh_visualization_solid_elements(
     assert_results_close, get_corresponding_reference_file_path
 ):
     """Import a solid mesh with all solid types and check the VTU output."""
-
     # Convert the solid mesh to beamme objects.
     _, mesh = import_four_c_model(
         input_file_path=get_corresponding_reference_file_path(
@@ -101,7 +98,6 @@ def test_integration_core_mesh_visualization_display_pyvista(
 
     TODO: Add a check for the created visualization
     """
-
     _, mesh = create_beam_to_solid_conditions_model(
         get_default_test_beam_material,
         get_corresponding_reference_file_path,

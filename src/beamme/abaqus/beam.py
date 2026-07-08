@@ -26,8 +26,9 @@ from beamme.core.element_beam import Beam3 as _Beam3
 
 
 def generate_abaqus_beam(beam_type: str):
-    """Return a class representing a beam in Abaqus. This class can be used in
-    the standard mesh generation functions.
+    """Return a class representing a beam in Abaqus.
+
+    This class can be used in the standard mesh generation functions.
 
     Args:
         beam_type: Abaqus identifier for this beam element. For more details,
@@ -37,7 +38,6 @@ def generate_abaqus_beam(beam_type: str):
         A class representing the Abaqus beam element. The class inherits from
         the BeamX class, depending on the number of nodes.
     """
-
     if not beam_type[0].lower() == "b":
         raise TypeError("Could not identify the given Abaqus beam element")
 

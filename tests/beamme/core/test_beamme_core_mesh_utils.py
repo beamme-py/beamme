@@ -30,7 +30,6 @@ from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
 def test_beamme_core_mesh_utils_get_coupled_nodes_to_master_map():
     """Test the get_coupled_nodes_to_master_map function."""
-
     beam_class = Beam2
     mat = MaterialBeamBase()
     mesh = Mesh()

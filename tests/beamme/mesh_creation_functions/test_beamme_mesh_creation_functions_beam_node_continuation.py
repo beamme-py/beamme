@@ -35,13 +35,12 @@ from beamme.mesh_creation_functions.beam_node_continuation import (
 def test_beamme_mesh_creation_functions_beam_node_continuation_accumulated_arc(
     get_default_test_beam_material, assert_results_close
 ):
-    """Test that the arc node continuation function can be applied multiple
-    times in a row.
+    """Test that the arc node continuation function can be applied multiple times in a
+    row.
 
-    This function can lead to accumulated errors in the rotations if not
-    implemented carefully.
+    This function can lead to accumulated errors in the rotations if not implemented
+    carefully.
     """
-
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
     mesh.add(mat)

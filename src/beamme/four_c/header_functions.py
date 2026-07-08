@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This module defines functions that can be used to add header information to
-an input file."""
+"""This module defines functions that can be used to add header information to an input
+file."""
 
 from typing import Any as _Any
 from typing import List as _List
@@ -87,7 +87,6 @@ def set_runtime_output(
     output_strains: bool
         If the strains in the Gauss points should be output.
     """
-
     # Set the basic runtime output options.
     input_file.add(
         {
@@ -206,7 +205,6 @@ def set_beam_to_solid_meshtying(
     coupling_type: str
         Type of coupling for beam-to-surface coupling.
     """
-
     # Set the beam contact options.
     # check if these keys are already set, otherwise set them
     if (
@@ -318,7 +316,6 @@ def set_header_static(
             If the nonlinear solver parameters should be set via a NOX xml file or
             directly in the input file.
     """
-
     input_file_parameters: dict[str, _Any] = {}
 
     # Set the parameters for a static analysis.
@@ -449,7 +446,6 @@ def set_beam_interaction_section(
     search_strategy:
         Type of search strategy used for finding coupling pairs.
     """
-
     input_file.add({"BEAM INTERACTION": {"REPARTITIONSTRATEGY": repartition_strategy}})
 
 
@@ -463,7 +459,6 @@ def set_beam_contact_runtime_output(
     every_iteration:
         If output at every Newton iteration should be written.
     """
-
     input_file.add(
         {
             "BEAM INTERACTION/BEAM TO BEAM CONTACT/RUNTIME VTK OUTPUT": {
@@ -492,8 +487,8 @@ def set_beam_contact_section(
     penalty_regularization_c0: float = 0,
     beam_interaction_parameters: dict = {},
 ):
-    """Set default beam contact section, for more and updated details see
-    respective input file within 4C.
+    """Set default beam contact section, for more and updated details see respective
+    input file within 4C.
 
     Parameters for `set_beam_interaction_section` are forwarded as keyword arguments.
 
@@ -524,7 +519,6 @@ def set_beam_contact_section(
     beam_interaction_parameters:
         Keyword parameters for `set_beam_interaction_section`
     """
-
     if len(per_shift_angle) != 2:
         raise ValueError(
             "Please provide lower and upper value of BEAMS_PERPSHIFTANGLE."

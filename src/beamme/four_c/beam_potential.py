@@ -61,7 +61,6 @@ class BeamPotential:
                 power law. Same number of functions and prefactors/exponents/line
                 charge densities must be provided!
         """
-
         # if only one potential law prefactor/exponent is present, convert it
         # into a list for simplified usage
         if isinstance(pot_law_prefactor, (float, int)):
@@ -162,7 +161,6 @@ class BeamPotential:
         Returns:
             Header for beam potential interactions.
         """
-
         header = {
             "beam_potential": {
                 "type": potential_type,
@@ -211,7 +209,6 @@ class BeamPotential:
         Returns:
             List of boundary conditions for potential charge.
         """
-
         bcs = []
 
         for i, (line_charge, func) in enumerate(

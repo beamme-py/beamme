@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test general functionality of the core mesh class
-with end-to-end integration tests."""
+"""This script is used to test general functionality of the core mesh class with end-to-
+end integration tests."""
 
 import copy
 import random
@@ -46,7 +46,6 @@ from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
 def create_test_mesh(get_default_test_beam_material):
     """Create a mesh with a couple of test nodes and elements."""
-
     # Set the seed for the pseudo random numbers
     random.seed(0)
 
@@ -87,9 +86,8 @@ def test_integration_core_mesh_rotation(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Check if the Mesh function rotation gives the same results as rotating
-    each node it self."""
-
+    """Check if the Mesh function rotation gives the same results as rotating each node
+    it self."""
     mesh_1 = create_test_mesh(get_default_test_beam_material)
     mesh_2 = create_test_mesh(get_default_test_beam_material)
 
@@ -118,9 +116,8 @@ def test_integration_core_mesh_rotation_individual(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Check if the Mesh function rotation gives the same results as rotating
-    each node it self, when an array is passed with different rotations."""
-
+    """Check if the Mesh function rotation gives the same results as rotating each node
+    it self, when an array is passed with different rotations."""
     mesh_1 = create_test_mesh(get_default_test_beam_material)
     mesh_2 = create_test_mesh(get_default_test_beam_material)
 
@@ -156,9 +153,7 @@ def test_integration_core_mesh_reflection(
     get_corresponding_reference_file_path,
     assert_results_close,
 ):
-    """Create a mesh, and its mirrored counterpart and then compare the input
-    files."""
-
+    """Create a mesh, and its mirrored counterpart and then compare the input files."""
     # Rotations to be applied.
     rot_1 = Rotation([0, 1, 1], np.pi / 6)
     rot_2 = Rotation([1, 2.455, -1.2324], 1.2342352)
@@ -239,7 +234,6 @@ def test_integration_core_mesh_couple_nodes(
     assert_results_close,
 ):
     """Test the couple nodes functionality when replacing nodes."""
-
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
 
@@ -302,7 +296,6 @@ def test_integration_core_mesh_transformations_with_solid(
 ):
     """Test the different mesh transformation methods in combination with solid
     elements."""
-
     with context:
         # First, we create a line and wrap it with passing radius to the wrap function.
 
@@ -350,7 +343,6 @@ def test_integration_core_mesh_wrap_cylinder_not_on_same_plane(
     get_corresponding_reference_file_path,
 ):
     """Create a helix that is itself wrapped around a cylinder."""
-
     # Ignore the warnings from wrap around cylinder.
     warnings.filterwarnings("ignore")
 
@@ -391,7 +383,6 @@ def test_integration_core_mesh_deep_copy(
 ):
     """This test checks that the deep copy function on a mesh does not copy the
     materials or functions."""
-
     # Create material and function object.
     mat = get_default_test_beam_material(material_type="reissner")
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
@@ -448,9 +439,8 @@ def test_integration_core_mesh_deep_copy_with_geometry_sets(
     assert_results_close,
     get_corresponding_reference_file_path,
 ):
-    """Test that deep-copying a mesh together with geometry sets referencing it
-    works such that the copied geometry sets also reference the copied mesh."""
-
+    """Test that deep-copying a mesh together with geometry sets referencing it works
+    such that the copied geometry sets also reference the copied mesh."""
     mesh = Mesh()
     beam_set = create_beam_mesh_line(
         mesh=mesh,

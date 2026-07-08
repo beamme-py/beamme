@@ -71,7 +71,6 @@ def test_integration_four_c_element_beam_reissner_beam(
 ):
     """Test that the input file for all types of Reissner beams is generated
     correctly."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -110,7 +109,6 @@ def test_integration_four_c_element_beam_kirchhoff_beam(
 ):
     """Test that the input file for all types of Kirchhoff beams is generated
     correctly."""
-
     # Create mesh
     mesh = Mesh()
 
@@ -170,9 +168,8 @@ def test_integration_four_c_element_beam_kirchhoff_beam(
 def test_integration_four_c_element_beam_euler_bernoulli(
     assert_results_close, get_corresponding_reference_file_path
 ):
-    """Recreate the 4C test case beam3eb_static_endmoment_quartercircle.4C.yaml
-    This tests the implementation for Euler Bernoulli beams."""
-
+    """Recreate the 4C test case beam3eb_static_endmoment_quartercircle.4C.yaml This
+    tests the implementation for Euler Bernoulli beams."""
     # Create the mesh and add function and material.
     mesh = Mesh()
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])

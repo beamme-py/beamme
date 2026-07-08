@@ -36,7 +36,6 @@ def cubitpy_is_available() -> bool:
     Returns:
         True if CubitPy is installed, False otherwise
     """
-
     if _find_spec("cubitpy") is None:
         return False
     return True
@@ -72,8 +71,8 @@ def get_env_variable(name, *, default="default_not_set"):
 
 
 def get_git_data(repo_path: _Path) -> _Tuple[str | None, str | None]:
-    """Return the hash and date of the current git commit of a git repo for a
-    given repo path.
+    """Return the hash and date of the current git commit of a git repo for a given repo
+    path.
 
     Args:
         repo_path: Path to the git repository.
@@ -81,7 +80,6 @@ def get_git_data(repo_path: _Path) -> _Tuple[str | None, str | None]:
         A tuple with the hash and date of the current git commit
         if available, otherwise None.
     """
-
     git = _shutil.which("git")
     if git is None:
         raise RuntimeError("Git executable not found")
@@ -110,13 +108,12 @@ def get_git_data(repo_path: _Path) -> _Tuple[str | None, str | None]:
 
 
 def get_application_path() -> _Path | None:
-    """Returns the application path which created this input file and ensures
-    that the file exists.
+    """Returns the application path which created this input file and ensures that the
+    file exists.
 
     Returns:
         A path to the file, which created this input file or None.
     """
-
     # return valid application path if it exists.
     if _Path(_sys.argv[0]).resolve().exists():
         return _Path(_sys.argv[0]).resolve()

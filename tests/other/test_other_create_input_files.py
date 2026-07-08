@@ -36,7 +36,6 @@ def test_other_create_input_files_beam_to_solid(
     get_corresponding_reference_file_path,
 ):
     """Create the input file for some beam-to-solid tests."""
-
     # Create the input file
     input_file, mesh = create_beam_to_solid_conditions_model(
         get_default_test_beam_material,

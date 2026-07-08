@@ -72,8 +72,7 @@ def assert_results_close(tmp_path, current_test_name) -> Callable:
         atol: float = ABSOLUTE_TOLERANCE,
         four_c_input_file_data_format: str = "yaml",
     ) -> None:
-        """Comparison between reference and result with relative or absolute
-        tolerance.
+        """Comparison between reference and result with relative or absolute tolerance.
 
         If the comparison fails, an assertion is raised.
 
@@ -84,7 +83,6 @@ def assert_results_close(tmp_path, current_test_name) -> Callable:
             atol: The absolute tolerance.
             four_c_input_file_data_format: Mesh format for the FourC input file.
         """
-
         # convert all other types into dicts/lists
         converted_reference = convert_to_primitive_type(
             reference, four_c_input_file_data_format=four_c_input_file_data_format
@@ -116,8 +114,8 @@ def convert_to_primitive_type(
     obj: str | int | float | dict | list | np.ndarray | Path | Mesh | InputFile,
     four_c_input_file_data_format: str | None = None,
 ) -> int | float | dict | list | np.ndarray | pv.UnstructuredGrid:
-    """Convert the given object to a primitive type, e.g., dict, list, numpy
-    array, or pyvista grid.
+    """Convert the given object to a primitive type, e.g., dict, list, numpy array, or
+    pyvista grid.
 
     Args:
         obj: The object to convert.
@@ -126,7 +124,6 @@ def convert_to_primitive_type(
     Returns:
         The raw data (either a dictionary, list, numpy array, or pyvista grid).
     """
-
     if isinstance(obj, (int, float, dict, list, np.ndarray)):
         return obj
 
@@ -199,8 +196,7 @@ def convert_to_primitive_type(
         # Split the string into individual fragments which can then be compared with tolerance
 
         def str_to_float(string: str) -> str | float:
-            """Convert string to float if possible, otherwise return the
-            string.
+            """Convert string to float if possible, otherwise return the string.
 
             Args:
                 string: The string to convert.
@@ -227,8 +223,8 @@ def convert_to_primitive_type(
 def custom_fourcipp_comparison(
     obj: Any, reference_obj: Any, rtol: float, atol: float
 ) -> bool | None:
-    """Custom comparison function for the FourCIPP
-    compare_nested_dicts_or_lists function.
+    """Custom comparison function for the FourCIPP compare_nested_dicts_or_lists
+    function.
 
     Comparison between two special objects like numpy arrays or pyvista grids.
 
@@ -240,7 +236,6 @@ def custom_fourcipp_comparison(
         True if the objects are equal, otherwise raises an AssertionError.
         If no comparison took place, None is returned.
     """
-
     if isinstance(obj, (np.ndarray, np.generic)) or isinstance(
         reference_obj, (np.ndarray, np.generic)
     ):
@@ -278,7 +273,6 @@ def handle_failed_assertion(
         reference: The reference data.
         result: The result data.
     """
-
     # if reference is not a file or if result is not a Mesh or InputFile we do not open the diff
     if not isinstance(reference, Path) or not isinstance(result, (Mesh, InputFile)):
         return

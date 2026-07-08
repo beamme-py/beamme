@@ -44,7 +44,6 @@ from beamme.four_c.input_file_mappings import (
 
 def get_four_c_reissner_beam(n_nodes: int, is_hermite_centerline: bool) -> type[_Beam]:
     """Return a Simo-Reissner beam for 4C."""
-
     four_c_type = _INPUT_FILE_MAPPINGS["four_c_type_to_four_c_type"][_BeamType.reissner]
     four_c_cell = _INPUT_FILE_MAPPINGS["element_type_and_n_nodes_to_four_c_cell"][
         _bme.element_type.beam, n_nodes
@@ -82,7 +81,6 @@ def get_four_c_kirchhoff_beam(
     is_fad: bool = True,
 ) -> type[_Beam]:
     """Return a Kirchhoff-Love beam for 4C."""
-
     # Show warning when not using rotvec.
     if not parametrization == _BeamKirchhoffParametrizationType.rot:
         _warnings.warn(
@@ -141,9 +139,7 @@ class BeamFourCEulerBernoulli(_Beam2):
     )
 
     def check(self) -> None:
-        """Check that the beam is straight and that the two rotations are the
-        same."""
-
+        """Check that the beam is straight and that the two rotations are the same."""
         # Perform checks from the parent class.
         super().check()
 

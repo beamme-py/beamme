@@ -30,7 +30,6 @@ def arborx_is_available() -> bool:
     Returns:
         True if ArborX is installed, False otherwise
     """
-
     if _find_spec("beamme.geometric_search.arborx_lib") is None:
         return False
     return True
@@ -42,7 +41,6 @@ def cython_is_available() -> bool:
     Returns:
         True if Cython is installed, False otherwise
     """
-
     if _find_spec("beamme.geometric_search.cython_lib") is None:
         return False
     return True

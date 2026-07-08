@@ -28,7 +28,6 @@ from beamme.utils.data_structures import create_inverse_mapping
 
 def test_beamme_utils_data_structures_create_inverse_mapping():
     """Test the create_inverse_mapping function."""
-
     # Test with a simple mapping.
     mapping = {1: "a", 2: "b", 3: "c"}
     inverse_mapping = create_inverse_mapping(mapping)

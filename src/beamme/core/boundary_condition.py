@@ -48,15 +48,13 @@ class BoundaryConditionBase(_BaseMeshItem):
             geometry_set: Geometry that this boundary condition acts on.
             bc_type: Type of the boundary condition.
         """
-
         super().__init__(**kwargs)
         self.bc_type = bc_type
         self.geometry_set = geometry_set
 
 
 class BoundaryCondition(BoundaryConditionBase):
-    """This object represents one boundary condition, e.g., Dirichlet, Neumann,
-    ..."""
+    """This object represents one boundary condition, e.g., Dirichlet, Neumann, ..."""
 
     def __init__(
         self,
@@ -78,7 +76,6 @@ class BoundaryCondition(BoundaryConditionBase):
             double_nodes: Depending on this parameter, it will be checked if point
                 Neumann conditions do contain nodes at the same spatial positions.
         """
-
         super().__init__(geometry_set, bc_type, data=data, **kwargs)
         self.double_nodes = double_nodes
 
@@ -86,14 +83,13 @@ class BoundaryCondition(BoundaryConditionBase):
         self.check()
 
     def check(self):
-        """Check for point Neumann boundaries that there is not a double Node
-        in the set.
+        """Check for point Neumann boundaries that there is not a double Node in the
+        set.
 
-        Duplicate nodes in a point Neumann boundary condition can lead
-        to the same force being applied multiple times at the same
-        spatial position, which results in incorrect load application.
+        Duplicate nodes in a point Neumann boundary condition can lead to the same force
+        being applied multiple times at the same spatial position, which results in
+        incorrect load application.
         """
-
         if self.double_nodes is _bme.double_nodes.keep:
             return
 

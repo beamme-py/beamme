@@ -37,9 +37,8 @@ def test_beamme_cosserat_curve_bad_guess_triad(get_cosserat_curve):
 
 
 def test_beamme_cosserat_curve_pvd_series_arguments(get_cosserat_curve):
-    """Test the that arguments are correctly processed in the pvd series
-    representation of the Cosserat curve."""
-
+    """Test the that arguments are correctly processed in the pvd series representation
+    of the Cosserat curve."""
     curve = get_cosserat_curve()
 
     pvd_name = "temp.pvd"
@@ -65,7 +64,6 @@ def test_beamme_cosserat_curve_pvd_series_arguments(get_cosserat_curve):
 
 def test_beamme_cosserat_curve_project_point(get_cosserat_curve, assert_results_close):
     """Test that the project point function works as expected."""
-
     # Load the curve
     curve = get_cosserat_curve()
 

@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""This script is used to test the functionality of the function_utility
-module."""
+"""This script is used to test the functionality of the function_utility module."""
 
 from beamme.four_c.function_utility import (
     create_linear_interpolation_dict,
@@ -32,7 +31,6 @@ def test_beamme_four_c_function_utility_linear_interpolation_function(
     assert_results_close,
 ):
     """Test that linear interpolation functions are created correctly."""
-
     t = [1.5, 2.5, 3.5, 10.0]
     values = [1.0, -1.0, 3.5, -10.3]
 

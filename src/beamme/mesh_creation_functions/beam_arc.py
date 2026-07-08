@@ -77,7 +77,6 @@ def create_beam_mesh_arc_segment_via_rotation(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     # Convert the input to the one for create_beam_mesh_arc_segment_via_axis
     axis = axis_rotation * [0, 0, 1]
     start_point = center + radius * (axis_rotation * [0, -1, 0])
@@ -134,7 +133,6 @@ def create_beam_mesh_arc_segment_via_axis(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     # The angle can not be negative with the current implementation.
     if angle <= 0.0:
         raise ValueError(
@@ -221,7 +219,6 @@ def create_beam_mesh_arc_segment_2d(
         Set with the 'start' and 'end' node of the line. Also a 'line' set
         with all nodes of the line.
     """
-
     # The center point has to be on the x-y plane.
     if _np.abs(center[2]) > _bme.eps_pos:
         raise ValueError("The z-value of center has to be 0!")

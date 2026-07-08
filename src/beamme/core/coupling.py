@@ -57,7 +57,6 @@ class Coupling(_BoundaryConditionBase):
             check_overlapping_nodes: If all nodes of this coupling condition
                 have to be at the same physical position.
         """
-
         if isinstance(geometry, _GeometrySetBase):
             pass
         elif isinstance(geometry, list):
@@ -78,9 +77,8 @@ class Coupling(_BoundaryConditionBase):
         self.check()
 
     def check(self):
-        """Check that all nodes that are coupled have the same position
-        (depending on the check_overlapping_nodes parameter)."""
-
+        """Check that all nodes that are coupled have the same position (depending on
+        the check_overlapping_nodes parameter)."""
         if not self.check_overlapping_nodes:
             return
 
@@ -119,7 +117,6 @@ def coupling_factory(
             - If the selected coupling type requires pairwise coupling (e.g., due to solver restrictions),
               multiple coupling objects are returned, each coupling a pair of nodes accordingly.
     """
-
     if not coupling_type.is_point_coupling_pairwise():
         return [Coupling(geometry, coupling_type, coupling_dof_type, **kwargs)]
     else:

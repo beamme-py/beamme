@@ -41,11 +41,9 @@ def test_integration_four_c_locsys_condition_locsys(
 ):
     """Test case for point locsys condition for beams.
 
-    The testcase is adapted from to
-    beam3r_herm2line3_static_locsys.4C.yaml. However it has a simpler
-    material, and an additional line locsys condition.
+    The testcase is adapted from to beam3r_herm2line3_static_locsys.4C.yaml. However it
+    has a simpler material, and an additional line locsys condition.
     """
-
     locsys_rotation = Rotation([0, 0, 1], 0.1)
 
     # Create the mesh.

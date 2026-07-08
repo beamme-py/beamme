@@ -71,7 +71,6 @@ def dump_function(function: _Function, i_global: int) -> dict[str, _Any]:
 
 def dump_coupling(coupling):
     """Return the input file representation of the coupling condition."""
-
     if isinstance(coupling.data, dict):
         data = coupling.data
     else:
@@ -110,7 +109,6 @@ def dump_coupling(coupling):
 
 def dump_nurbs_patch_knotvectors(input_file, nurbs_patch: _NURBSPatch) -> None:
     """Set the knot vectors of the NURBS patch in the input file."""
-
     patch_data: dict[str, _Any] = {
         "KNOT_VECTORS": [],
     }
@@ -171,7 +169,6 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         input_file: The input file where we want to add the mesh information.
         mesh: The mesh to be added to the input file.
     """
-
     # Compute starting index for element types
     start_index_element_types = len(input_file.element_type_id_to_data)
 
@@ -337,15 +334,14 @@ def dump_mesh_representation_to_input_file_yaml(
     mesh_representation: _MeshRepresentation,
     element_type_id_to_data: dict[int, _FourCElementData],
 ) -> None:
-    """Dump the information contained in the mesh representation to the 4C
-    input file via FourCIPP, in yaml format.
+    """Dump the information contained in the mesh representation to the 4C input file
+    via FourCIPP, in yaml format.
 
     Args:
         fourc_input: 4C input file via FourCIPP where the mesh information data will be dumped to.
         mesh_representation: The mesh representation that is added to the input file.
         element_type_id_to_data: The mapping between element type ID and the element type data.
     """
-
     # Compute the starting indices for the nodes and elements entities.
     start_index_nodes = len(fourc_input.sections.get("NODE COORDS", []))
     start_index_elements = sum(
@@ -354,8 +350,7 @@ def dump_mesh_representation_to_input_file_yaml(
     )
 
     def _dump(section_name: str, dictionary_list: _List):
-        """Append the given list of dictionaries to the section in the input
-        file."""
+        """Append the given list of dictionaries to the section in the input file."""
         if len(dictionary_list) == 0:
             return
         full_item_list = fourc_input.pop(section_name, [])
@@ -518,7 +513,6 @@ def dump_mesh_representation_to_input_file_vtu(
     Returns:
         The unstructured grid containing the vtu mesh.
     """
-
     # VTU output can not be combined with yaml output.
     n_yaml_nodes = len(fourc_input.sections.get("NODE COORDS", []))
     n_yaml_elements = sum(
