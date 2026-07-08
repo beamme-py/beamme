@@ -32,15 +32,15 @@ jobs:
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
         with:
-          # Test coverage and editable install with Python 3.10, otherwise we use a
+          # Test coverage and editable install with Python 3.11, otherwise we use a
           # non-editable installation and turn off coverage, because the coverage
           # only works in editable mode.
           install-command: >-
-            ${{ matrix.python-version == '3.10' && '-e .[cubitpy,dev,fourc]' || '.[cubitpy,dev,fourc]'}}
+            ${{ matrix.python-version == '3.11' && '-e .[cubitpy,dev,fourc]' || '.[cubitpy,dev,fourc]'}}
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:
           # The single space in the empty string is required, otherwise GitHub
           # evaluates the if clause wrong.
           additional-pytest-flags: >-
-            ${{ matrix.python-version == '3.10' && ' ' || '--no-cov' }}
+            ${{ matrix.python-version == '3.11' && ' ' || '--no-cov' }}
