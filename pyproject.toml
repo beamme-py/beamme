@@ -42,6 +42,8 @@ cubitpy = [
 ]
 fourc = ["fourcipp"]
 dev = [
+  "beamme[cubitpy]",
+  "beamme[fourc]",
   "coverage",
   "genbadge[coverage]",
   "pdoc",

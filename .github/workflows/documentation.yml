@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd ${GITHUB_WORKSPACE}
-          pip install -e .[dev,fourc]
+          pip install -e .[dev]
       - name: Build API documentation
         run: |
           pdoc --math --docformat google --output-dir api-documentation src/beamme/

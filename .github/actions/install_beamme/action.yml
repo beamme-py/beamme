@@ -4,7 +4,7 @@ inputs:
   install-command:
     description: Command to install BeamMe with pip
     required: false
-    default: ".[cubitpy,dev,fourc]"
+    default: ".[dev]"
 runs:
   using: composite
   steps:

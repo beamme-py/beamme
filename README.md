@@ -243,7 +243,7 @@ You can quickly install BeamMe into your current environment using pip:
 pip install beamme
 ```
 
-Optional dependencies (for development and extra features) can be installed with: `pip install "beamme[cubitpy,dev,fourc]"`
+Optional dependencies (for development and extra features) can be installed with: `pip install "beamme[dev]"`
 > **Note:** On Zsh, you may need to quote the brackets as shown to avoid shell expansion.
 
 ### Install BeamMe from GitHub (most recent version)
@@ -315,9 +315,9 @@ make -j4
 
 ## Developing BeamMe
 
-If you want to actively develop BeamMe or run the test suite, you must install BeamMe in _editable_ (`-e`) mode and with our optional developer dependencies (`[dev,fourc]`) like
+If you want to actively develop BeamMe or run the test suite, you must install BeamMe in _editable_ (`-e`) mode and with our optional developer dependencies (`[dev]`) like
 ```bash
-pip install -e ".[dev,fourc]" # Quotation marks are required for some shells
+pip install -e ".[dev]" # Quotation marks are required for some shells
 ```
 You can now run the BeamMe test suite to check that everything worked as expected
 ```bash
