@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
         args: ['—-maxkb=1000']
@@ -37,24 +37,24 @@ repos:
       - id: trailing-whitespace
         name: Check for trailing whitespaces
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.0
+    rev: 1.9.4
     hooks:
       - id: bandit
         name: Run bandit (security linter for python)
         args: ["--configfile", "pyproject.toml", "--exclude", "tests/*"]
         additional_dependencies: ["bandit[toml]"]
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.5
+    rev: v22.1.5
     hooks:
       - id: clang-format
         name: Run clang-format (C/C++ formatter)
         types_or: [c, c++]
   - repo: https://github.com/PyCQA/docformatter
-    rev: "eb1df347edd128b30cd3368dddc3aa65edcfac38" # change back to version once bug is fixed in latest version to be compatible with pre-commit
+    rev: v1.7.8
     hooks:
       - id: docformatter
         name: Run docformatter (formatter for docstrings)
-        args: ["--in-place", "--config=./pyproject.toml", "-r", "src/beamme/", "tests/"]
+        args: ["--in-place", "--black", "--config=./pyproject.toml", "-r", "src/beamme/", "tests/"]
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
     hooks:
@@ -63,19 +63,19 @@ repos:
         args: [--fail-under=100, --ignore-init-module, --style=google, -vv]
         exclude: ^website/
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v2.1.0
     hooks:
       - id: mypy
         name: Run mypy (static type checker for python)
         args: ["--install-types", "--non-interactive", "--ignore-missing-imports", "--follow-imports=silent"]
         exclude: "^website/"
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         name: Run nbstripout (strip output from Jupyter notebooks)
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.5
+    rev: v1.5.6
     hooks:
       - id: insert-license
         name: Insert license header (//)
@@ -102,7 +102,7 @@ repos:
       - id: removestar
         name: Run removestar (remove wildcard imports)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.2
+    rev: v0.15.20
     hooks:
       - id: ruff # linter
         name: Run ruff (linter for Python)
@@ -110,7 +110,7 @@ repos:
       - id: ruff-format # formatter
         name: Run ruff (formatter for Python)
   - repo: https://github.com/crate-ci/typos
-    rev: v1.28.4
+    rev: v1.48.0
     hooks:
       - id: typos
         name: Run typo checker
@@ -122,7 +122,7 @@ repos:
         name: Run xml-formatter
         args: [--indent, "2", --indent-char, " ", --selfclose, --overwrite, --eof-newline]
   - repo: https://github.com/google/yamlfmt
-    rev: v0.14.0
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
         name: Run yamlfmt
