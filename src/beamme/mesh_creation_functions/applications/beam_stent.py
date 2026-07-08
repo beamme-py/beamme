@@ -53,35 +53,36 @@ def create_stent_cell(
     """Create a cell of the stent.
 
     This cell is on the x-y plane.
-        Args
-        ----
-        beam_class: Beam
-            Class that will be used to create the beam elements.
-        material: Material
-            Material for the beam.
-        width: float
-            Width of the total cell.
-        height: float
-            Height of the total cell.
-        fac_bottom: the ratio of the bottom's width to the cell's width
-        fac_neck: the ratio of the neck's width to the cell's width
-        fac_radius: the ratio of the S1's radius to the cell's width
-        alpha: radiant
-            The angle between the lines and horizontal line
-        n_el: int
-            Number of elements per beam line.
-        S1, S2, S3: bool
-            This check weather the curve S1, S2 or S3 will be created.
-            If the cell is on bottom of the stent flat S1 and S2 won't
-            be created. If the cell is on top of the flat S1 and S3
-            won't be created
 
-        ( these variables are described in a file )
+    Args
+    ----
+    beam_class: Beam
+        Class that will be used to create the beam elements.
+    material: Material
+        Material for the beam.
+    width: float
+        Width of the total cell.
+    height: float
+        Height of the total cell.
+    fac_bottom: the ratio of the bottom's width to the cell's width
+    fac_neck: the ratio of the neck's width to the cell's width
+    fac_radius: the ratio of the S1's radius to the cell's width
+    alpha: radiant
+        The angle between the lines and horizontal line
+    n_el: int
+        Number of elements per beam line.
+    S1, S2, S3: bool
+        This check weather the curve S1, S2 or S3 will be created.
+        If the cell is on bottom of the stent flat S1 and S2 won't
+        be created. If the cell is on top of the flat S1 and S3
+        won't be created
 
-        Return
-        ----
-        mesh: Mesh
-            A mesh with this structure
+    ( these variables are described in a file )
+
+    Return
+    ----
+    mesh: Mesh
+        A mesh with this structure
     """
     mesh = _Mesh()
 

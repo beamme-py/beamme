@@ -3,7 +3,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files
-        args: ['—-maxkb=1000']
+        args: ['--maxkb=1000']
         name: Check for added large files
       - id: check-ast
         name: Check Python files for parse errors

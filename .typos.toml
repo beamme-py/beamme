@@ -1,4 +1,4 @@
-# exlude the following words from the typos pre-commit hook
+# exclude the following words from the typos pre-commit hook
 
 [default.extend-words]
 DISCRET = "DISCRET" # in 4C yaml input files
