@@ -159,6 +159,11 @@ class GeometrySet(GeometrySetBase):
             return _bme.geo.line
         elif isinstance(item, GeometrySet):
             return item.geometry_type
+        elif (
+            isinstance(item, _Element)
+            and type(item).element_type == _bme.element_type.space_time_beam
+        ):
+            return _bme.geo.surface
         raise TypeError(f"Got unexpected type {type(item)}")
 
     def add(
@@ -229,17 +234,20 @@ class GeometrySet(GeometrySetBase):
             return list(
                 _cast(_KeysView[_Node], self.geometry_objects[_bme.geo.point].keys())
             )
-        elif self.geometry_type is _bme.geo.line:
+        elif (
+            self.geometry_type is _bme.geo.line
+            or self.geometry_type is _bme.geo.surface
+        ):
             nodes = []
             for element in _cast(
-                _KeysView[_Element], self.geometry_objects[_bme.geo.line].keys()
+                _KeysView[_Element], self.geometry_objects[self.geometry_type].keys()
             ):
                 nodes.extend(element.nodes)
             # Remove duplicates while preserving order
             return list(dict.fromkeys(nodes))
         else:
             raise TypeError(
-                "Currently GeometrySet is only implemented for points and lines"
+                "Currently GeometrySet is only implemented for points, lines and surfaces"
             )
 
     def get_geometry_objects(self) -> _Sequence[_Node | _Element]:

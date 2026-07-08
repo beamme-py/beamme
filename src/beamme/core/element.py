@@ -21,11 +21,15 @@
 # THE SOFTWARE.
 """This module implements the class that represents one element in the Mesh."""
 
+from beamme.core.conf import ElementType as _ElementType
 from beamme.core.material import Material as _Material
 
 
 class Element:
     """A base class for an FEM element in the mesh."""
+
+    # Type of this element.
+    element_type: _ElementType | None = None
 
     def __init__(self, nodes=None, material: _Material | None = None) -> None:
         # Global index of this element in a mesh.
