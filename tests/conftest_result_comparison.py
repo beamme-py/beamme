@@ -35,6 +35,7 @@ from cubitpy.exodus_utility import convert_exodus_to_dict
 from vistools.vtk.compare_grids import compare_grids
 
 from beamme.core.mesh import Mesh
+from beamme.core.mesh_representation import MeshRepresentation
 from beamme.four_c.input_file import InputFile
 from beamme.four_c.input_file_dump_functions import (
     dump_mesh_representation_to_input_file_vtu,
@@ -189,6 +190,9 @@ def convert_to_primitive_type(
                 f"Got unexpected argument {four_c_input_file_data_format} for "
                 "`four_c_input_file_data_format`."
             )
+
+    if isinstance(obj, MeshRepresentation):
+        return obj.get_pyvista_grid(cell_data_fields=True, point_data_fields=True)
 
     if isinstance(obj, str):
         # Comparison for string based Abaqus input files

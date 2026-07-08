@@ -539,11 +539,7 @@ def dump_mesh_representation_to_input_file_vtu(
         )
 
     # Get a pyvista grid representing the mesh representation
-    grid = _pv.UnstructuredGrid(
-        mesh_representation.cell_connectivity,
-        mesh_representation.cell_types,
-        mesh_representation.points,
-    )
+    grid = mesh_representation.get_pyvista_grid()
 
     # Check which element types need triads.
     element_type_ids_with_triads: set[int] = set()
