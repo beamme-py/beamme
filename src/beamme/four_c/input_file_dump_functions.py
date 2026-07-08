@@ -47,6 +47,9 @@ from beamme.core.mesh_representation import (
 )
 from beamme.core.nurbs_patch import NURBSPatch as _NURBSPatch
 from beamme.core.rotation import Rotation as _Rotation
+from beamme.four_c.boundary_condition_data import (
+    FourCBoundaryConditionData as _FourCBoundaryConditionData,
+)
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
 from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
@@ -103,7 +106,7 @@ def dump_coupling(coupling):
 
         data = element_type.get_coupling_dict(coupling.data)
 
-    return {"E": coupling.geometry_set, **data}
+    return data
 
 
 def dump_nurbs_patch_knotvectors(input_file, nurbs_patch: _NURBSPatch) -> None:
@@ -310,13 +313,29 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     for (bc_key, geometry_key), bc_list in mesh.boundary_conditions.items():
         if bc_list:
             if isinstance(bc_key, str):
-                _INPUT_FILE_MAPPINGS["known_boundary_condition_sections"].add(bc_key)
                 section = bc_key
             else:
                 section = _INPUT_FILE_MAPPINGS["boundary_conditions"][
                     (bc_key, geometry_key)
                 ]
-            _dump(section, bc_list)
+
+            for boundary_condition in bc_list:
+                if isinstance(boundary_condition, _BoundaryCondition):
+                    bc_data = boundary_condition.data
+                elif isinstance(boundary_condition, _Coupling):
+                    bc_data = dump_coupling(boundary_condition)
+                else:
+                    raise TypeError(
+                        f"Got unexpected type {type(boundary_condition)} for boundary condition"
+                    )
+                input_file.boundary_conditions[section].append(
+                    _FourCBoundaryConditionData(
+                        geometry_set_id=input_file.fourc_input.type_converter(
+                            boundary_condition.geometry_set
+                        ),
+                        data=input_file.fourc_input.type_converter(bc_data),
+                    )
+                )
 
     # If we have previously set the node links, we unlink them here.
     if is_linked_nodes:
@@ -332,6 +351,7 @@ def dump_mesh_representation_to_input_file_yaml(
     fourc_input: _FourCInput,
     mesh_representation: _MeshRepresentation,
     element_type_id_to_data: dict[int, _FourCElementData],
+    boundary_conditions: dict[str, list[_FourCBoundaryConditionData]],
 ) -> None:
     """Dump the information contained in the mesh representation to the 4C input file
     via FourCIPP, in yaml format.
@@ -340,6 +360,7 @@ def dump_mesh_representation_to_input_file_yaml(
         fourc_input: 4C input file via FourCIPP where the mesh information data will be dumped to.
         mesh_representation: The mesh representation that is added to the input file.
         element_type_id_to_data: The mapping between element type ID and the element type data.
+        boundary_conditions: The boundary conditions in the input file.
     """
     # Compute the starting indices for the nodes and elements entities.
     start_index_nodes = len(fourc_input.sections.get("NODE COORDS", []))
@@ -488,11 +509,19 @@ def dump_mesh_representation_to_input_file_yaml(
             geometry_set_list,
         )
 
+    # Add the boundary conditions to the input file.
+    for section, input_file_bc in boundary_conditions.items():
+        bc_list = fourc_input.pop(section, [])
+        for boundary_condition in input_file_bc:
+            bc_list.append(boundary_condition.dump_to_input_file_yaml())
+        fourc_input.combine_sections({section: bc_list})
+
 
 def dump_mesh_representation_to_input_file_vtu(
     fourc_input: _FourCInput,
     mesh_representation: _MeshRepresentation,
     element_type_id_to_data: dict[int, _FourCElementData],
+    boundary_conditions: dict[str, list[_FourCBoundaryConditionData]],
 ) -> _pv.UnstructuredGrid:
     """Dump the input file to a vtu mesh data format.
 
@@ -508,6 +537,7 @@ def dump_mesh_representation_to_input_file_vtu(
         mesh_representation: The mesh representation that is added to the input file.
         element_type_id_to_data: The mapping between element type ID and the element
             type data.
+        boundary_conditions: The boundary conditions in the input file.
 
     Returns:
         The unstructured grid containing the vtu mesh.
@@ -645,20 +675,15 @@ def dump_mesh_representation_to_input_file_vtu(
                 )
             grid.point_data[data_array_name] = values
 
-    # Boundary conditions must reference geometry sets stored in the VTU file.
-    known_bc_sections = _INPUT_FILE_MAPPINGS["known_boundary_condition_sections"]
-    for section in list(fourc_input.sections):
-        if section in known_bc_sections:
-            boundary_conditions = fourc_input.pop(section)
-            for boundary_condition in boundary_conditions:
-                geometry_set_id = boundary_condition.pop("E") - 1
-                geometry_set_info = geometry_sets_in_mr[geometry_set_id]
-                if geometry_set_info.name is not None:
-                    boundary_condition["NODE_SET_NAME"] = geometry_set_info.name
-                else:
-                    boundary_condition["E"] = geometry_set_id
-                    boundary_condition["ENTITY_TYPE"] = "node_set_id"
-            fourc_input.combine_sections({section: boundary_conditions})
+    # Add definition of the boundary conditions (geometry sets defined in the vtu
+    # mesh) to the yaml input file.
+    for section, input_file_bc in boundary_conditions.items():
+        bc_list = fourc_input.pop(section, [])
+        for boundary_condition in input_file_bc:
+            bc_list.append(
+                boundary_condition.dump_to_input_file_vtu(geometry_sets_in_mr)
+            )
+        fourc_input.combine_sections({section: bc_list})
 
     # Return the vtu grid.
     return grid

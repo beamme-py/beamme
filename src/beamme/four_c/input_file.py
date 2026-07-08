@@ -22,6 +22,7 @@
 """This module defines the classes that are used to create an input file for 4C."""
 
 import os as _os
+from collections import defaultdict as _defaultdict
 from collections.abc import Callable as _Callable
 from datetime import datetime as _datetime
 from pathlib import Path as _Path
@@ -35,6 +36,9 @@ from fourcipp.utils.not_set import NOT_SET as _NOT_SET
 from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
+from beamme.four_c.boundary_condition_data import (
+    FourCBoundaryConditionData as _FourCBoundaryConditionData,
+)
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
 from beamme.four_c.input_file_dump_functions import (
     dump_mesh_representation_to_input_file_vtu as _dump_mesh_representation_to_input_file_vtu,
@@ -70,6 +74,11 @@ class InputFile:
         # Mesh representation for this input file.
         self.mesh_representation = _MeshRepresentation()
         self.element_type_id_to_data: dict[_Any, _FourCElementData] = {}
+
+        # Boundary conditions
+        self.boundary_conditions: dict[str, list[_FourCBoundaryConditionData]] = (
+            _defaultdict(list)
+        )
 
     def __contains__(self, key: str) -> bool:
         """Contains function.
@@ -164,6 +173,7 @@ class InputFile:
             fourc_input,
             self.mesh_representation,
             self.element_type_id_to_data,
+            self.boundary_conditions,
         )
         return fourc_input
 
@@ -238,7 +248,10 @@ class InputFile:
                 input_file_base_name + ".mesh.vtu"
             )
             vtu_grid = _dump_mesh_representation_to_input_file_vtu(
-                fourc_input, self.mesh_representation, self.element_type_id_to_data
+                fourc_input,
+                self.mesh_representation,
+                self.element_type_id_to_data,
+                self.boundary_conditions,
             )
             # Save the grid and add the file name to the input file
             vtu_grid.save(vtu_file_path, binary=vtu_binary)
@@ -248,6 +261,7 @@ class InputFile:
                 fourc_input,
                 self.mesh_representation,
                 self.element_type_id_to_data,
+                self.boundary_conditions,
             )
         else:
             raise ValueError(f"Unsupported mesh format: {mesh_format}.")

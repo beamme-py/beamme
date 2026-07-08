@@ -178,7 +178,10 @@ def convert_to_primitive_type(
         elif four_c_input_file_data_format == "vtu":
             fourc_input = obj.fourc_input.copy()
             vtu_grid = dump_mesh_representation_to_input_file_vtu(
-                fourc_input, obj.mesh_representation, obj.element_type_id_to_data
+                fourc_input,
+                obj.mesh_representation,
+                obj.element_type_id_to_data,
+                obj.boundary_conditions,
             )
             # Add the grid to the dictionary containing the input file information
             fourc_input["STRUCTURE GEOMETRY"]["FILE"] = vtu_grid
