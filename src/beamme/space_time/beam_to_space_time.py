@@ -32,13 +32,13 @@ from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
 from beamme.core.element_volume import VolumeElement as _VolumeElement
 from beamme.core.geometry_set import GeometryName as _GeometryName
-from beamme.core.geometry_set import GeometrySet as _GeometrySet
 from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
 from beamme.core.mesh_utils import (
     apply_nodal_coupling_to_mesh_representation as _apply_nodal_coupling_to_mesh_representation,
 )
+from beamme.core.node import Node as _Node
 from beamme.core.node import NodeCosserat as _NodeCosserat
 
 
@@ -144,9 +144,11 @@ def beam_to_space_time(
         node.i_global = i_node
 
     # Get the nodes for the final space-time mesh
-    left_nodes = []
-    right_nodes = []
+    left_nodes: list[_Node] = []
+    right_nodes: list[_Node] = []
     space_time_nodes = []
+    start_nodes: list[_Node] = []
+    end_nodes: list[_Node] = []
     for i_mesh_space in range(number_of_copies_in_time):
         time = time_increment_between_nodes * i_mesh_space + time_start
 
@@ -171,9 +173,9 @@ def beam_to_space_time(
         space_time_nodes.extend(space_time_nodes_to_add)
 
         if i_mesh_space == 0:
-            start_nodes = space_time_nodes_to_add
+            start_nodes.extend(space_time_nodes_to_add)
         elif i_mesh_space == number_of_copies_in_time - 1:
-            end_nodes = space_time_nodes_to_add
+            end_nodes.extend(space_time_nodes_to_add)
 
         left_nodes.append(space_time_nodes_to_add[0])
         right_nodes.append(space_time_nodes_to_add[-1])
@@ -259,10 +261,10 @@ def beam_to_space_time(
 
     # Create the element sets
     return_set = _GeometryName()
-    return_set["start"] = _GeometrySet(start_nodes)
-    return_set["end"] = _GeometrySet(end_nodes)
-    return_set["left"] = _GeometrySet(left_nodes)
-    return_set["right"] = _GeometrySet(right_nodes)
+    return_set["start"] = _GeometrySetNodes(_bme.geo.line, start_nodes)
+    return_set["end"] = _GeometrySetNodes(_bme.geo.line, end_nodes)
+    return_set["left"] = _GeometrySetNodes(_bme.geo.line, left_nodes)
+    return_set["right"] = _GeometrySetNodes(_bme.geo.line, right_nodes)
     return_set["surface"] = _GeometrySetNodes(_bme.geo.surface, space_time_mesh.nodes)
 
     return space_time_mesh, return_set
