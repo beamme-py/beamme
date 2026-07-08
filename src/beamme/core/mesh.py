@@ -907,7 +907,7 @@ class Mesh:
                                 )
                             )
                         else:
-                            element_set_indices.append(element.i_global)
+                            element_set_indices.append(_cast(int, element.i_global))
                     element_set_flag[element_set_indices] = 1
 
                 else:

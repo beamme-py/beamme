@@ -35,6 +35,7 @@ from beamme.core.boundary_condition import (
 from beamme.core.conf import Geometry as _Geometry
 from beamme.core.conf import bme as _bme
 from beamme.core.coupling import Coupling as _Coupling
+from beamme.core.element import Element as _Element
 from beamme.core.geometry_set import GeometrySetNodes as _GeometrySetNodes
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import (
@@ -567,7 +568,7 @@ def _create_mesh_from_mesh_representation(
             )
 
     # extract element types
-    element_type_id_to_element_type: dict[int, type] = {}
+    element_type_id_to_element_type: dict[int, type[_Element]] = {}
     for (
         element_type_id,
         element_data,

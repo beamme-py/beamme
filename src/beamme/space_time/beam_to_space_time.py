@@ -24,6 +24,7 @@
 from typing import Callable as _Callable
 from typing import Tuple as _Tuple
 from typing import Type as _Type
+from typing import cast as _cast
 
 import numpy as _np
 import pyvista as _pv
@@ -276,7 +277,7 @@ def beam_to_space_time(
                     for i_element_row_in_time in range(number_of_elements_in_time):
                         raised_geometry_set_elements.append(
                             space_time_elements[
-                                element.i_global
+                                _cast(int, element.i_global)
                                 + i_element_row_in_time * number_of_elements_in_space
                             ]
                         )
