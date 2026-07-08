@@ -101,6 +101,9 @@ class BeamPotential:
         integration_segments: int,
         gauss_points: int,
         potential_reduction_length: float | int | None = None,
+        potential_reduction_function: str | None = None,
+        potential_reduction_endpoint_moment_compensation: bool = False,
+        potential_reduction_adaptive_n_gauss_points: int | None = None,
         automatic_differentiation: bool,
         choice_source_target: str | None,
         two_half_pass: bool,
@@ -135,6 +138,14 @@ class BeamPotential:
                 Potential is smoothly decreased within this length when using the
                 single length specific (SBIP) approach to enable an axial pull off
                 force.
+            potential_reduction_function:
+                Function to be used for potential reduction formulation.
+            potential_reduction_endpoint_moment_compensation:
+                If the potential reduction should be compensated at the endpoints of
+                the beam elements to avoid a distributed moment contribution.
+            potential_reduction_adaptive_n_gauss_points:
+                Number of Gauss points for element pairs where potential reduction is
+                effective.
             automatic_differentiation:
                 Use automatic differentiation via FAD.
             two_half_pass:
@@ -173,6 +184,7 @@ class BeamPotential:
                 "n_gauss_points": gauss_points,
                 "potential_reduction_length": potential_reduction_length,
                 "two_half_pass": two_half_pass,
+                "potential_reduction_endpoint_moment_compensation": potential_reduction_endpoint_moment_compensation,
             }
         }
 
@@ -181,6 +193,16 @@ class BeamPotential:
                 "type": regularization_type,
                 "separation": regularization_separation,
             }
+
+        if potential_reduction_function is not None:
+            header["beam_potential"]["potential_reduction_function"] = (
+                potential_reduction_function
+            )
+
+        if potential_reduction_adaptive_n_gauss_points is not None:
+            header["beam_potential"]["potential_reduction_adaptive_n_gauss_points"] = (
+                potential_reduction_adaptive_n_gauss_points
+            )
 
         if choice_source_target is not None:
             header["beam_potential"]["choice_source_target"] = choice_source_target
