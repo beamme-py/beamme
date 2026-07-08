@@ -233,12 +233,13 @@ def beam_to_space_time(
 
     # Add joints to the space time mesh
     space_time_couplings = []
+    coupling_geometry_sets = set()
     for coupling in mesh_space_reference.boundary_conditions[
         _bme.bc.point_coupling, _bme.geo.point
     ]:
-        coupling_node_ids = [
-            node.i_global for node in coupling.geometry_set.get_points()
-        ]
+        coupling_set = coupling.geometry_set
+        coupling_geometry_sets.add(coupling_set)
+        coupling_node_ids = [node.i_global for node in coupling_set.get_points()]
         for i_mesh_space in range(number_of_copies_in_time):
             space_time_couplings.append(
                 _Coupling(
@@ -253,11 +254,45 @@ def beam_to_space_time(
                 )
             )
 
+    # Convert geometry sets to the space time mesh
+    raise_geometry_type = {
+        _bme.geo.point: _bme.geo.line,
+        _bme.geo.line: _bme.geo.surface,
+        _bme.geo.surface: _bme.geo.volume,
+    }
+    all_sets_in_space = mesh_space_reference.get_unique_geometry_sets()
+    space_time_geometry_sets = []
+    for geometry_type, geometry_sets in all_sets_in_space.items():
+        for geometry_set in geometry_sets:
+            if geometry_set in coupling_geometry_sets:
+                # The coupling geometry sets are already handled above, so we skip them here.
+                continue
+
+            geometry_set_nodes = geometry_set.get_all_nodes()
+            raised_geometry_set_nodes = []
+            for node in geometry_set_nodes:
+                for i_mesh_space in range(number_of_copies_in_time):
+                    raised_geometry_set_nodes.append(
+                        space_time_nodes[
+                            node.i_global + i_mesh_space * number_of_nodes_in_space
+                        ]
+                    )
+
+            geometry_type_raised = raise_geometry_type[geometry_type]
+            space_time_geometry_sets.append(
+                _GeometrySetNodes(
+                    geometry_type_raised,
+                    raised_geometry_set_nodes,
+                    name=geometry_set.name,
+                )
+            )
+
     # Create the new mesh and add all the mesh items
     space_time_mesh = _Mesh()
     space_time_mesh.add(space_time_nodes)
     space_time_mesh.add(space_time_elements)
     space_time_mesh.add(space_time_couplings)
+    space_time_mesh.add(space_time_geometry_sets)
 
     # Create the element sets
     return_set = _GeometryName()
