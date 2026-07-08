@@ -1228,10 +1228,6 @@ def test_integration_four_c_simulation_beam_to_beam_contact_example(
         input_file,
         btb_penalty=50,
         penalty_regularization_g0=r_beam * 0.02,
-        binning_parameters={
-            "binning_cutoff_radius": 5,
-            "binning_bounding_box": [-3, -3, -3, 3, 3, 3],
-        },
     )
 
     # Add the mesh to the input file.
