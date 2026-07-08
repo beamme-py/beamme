@@ -37,6 +37,8 @@ jobs:
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          allow-unsafe-pr-checkout: true # required to checkout PR code from forks, PRs from external people need to be approved anyways
+          persist-credentials: false
       - name: Setup python environment
         uses: ./.github/actions/setup_python_environment
         with:
@@ -94,6 +96,8 @@ jobs:
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          allow-unsafe-pr-checkout: true # required to checkout PR code from forks, PRs from external people need to be approved anyways
+          persist-credentials: false
       - name: Setup python environment
         uses: ./.github/actions/setup_python_environment
         with:
