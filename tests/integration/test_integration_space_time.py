@@ -239,7 +239,7 @@ def test_integration_space_time_named_node_set(
 
     # Add all sets to the mesh
     return_set["start"].name = "start"
-    return_set["right"].name = "right"
+    return_set["end"].name = "end"
     return_set["surface"].name = "surface"
     space_time_mesh.add(return_set)
 

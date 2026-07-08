@@ -27,23 +27,15 @@
           2.5 2.5 2.5 4.800000000000001 4.800000000000001 4.800000000000001
           7.1000000000000005 7.1000000000000005 7.1000000000000005 9.4 9.4 9.4
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_0_line" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_0_line_end" format="ascii" RangeMin="0" RangeMax="1">
           0 0 0 0 0 0
           0 0 0 1 1 1
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_1_line" format="ascii" RangeMin="0" RangeMax="1">
-          1 0 0 1 0 0
-          1 0 0 1 0 0
-        </DataArray>
-        <DataArray type="Int64" Name="geometry_set_2_line_right" format="ascii" RangeMin="0" RangeMax="1">
-          0 0 1 0 0 1
-          0 0 1 0 0 1
-        </DataArray>
-        <DataArray type="Int64" Name="geometry_set_3_line_start" format="ascii" RangeMin="0" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_1_line_start" format="ascii" RangeMin="0" RangeMax="1">
           1 1 1 0 0 0
           0 0 0 0 0 0
         </DataArray>
-        <DataArray type="Int64" Name="geometry_set_4_surface_surface" format="ascii" RangeMin="1" RangeMax="1">
+        <DataArray type="Int64" Name="geometry_set_2_surface_surface" format="ascii" RangeMin="1" RangeMax="1">
           1 1 1 1 1 1
           1 1 1 1 1 1
         </DataArray>
