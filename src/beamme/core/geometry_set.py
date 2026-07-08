@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 """This module implements a basic class to manage geometry in the input file."""
 
+from __future__ import annotations as _annotations
+
 from collections.abc import KeysView as _KeysView
 from collections.abc import Sequence as _Sequence
 from typing import cast as _cast
