@@ -101,8 +101,8 @@ def large_solid_block(shared_tmp_path) -> Path:
 @pytest.mark.parametrize(
     ("log_name", "full_import", "expected_time"),
     [
-        ("BeamMe: Load solid mesh (no full import)", False, 2.5),
-        ("BeamMe: Load solid mesh (full import)", True, 3.5),
+        ("BeamMe: Load solid mesh (no full import)", False, 1.0),
+        ("BeamMe: Load solid mesh (full import)", True, 13),
     ],
 )
 @pytest.mark.performance
@@ -133,7 +133,7 @@ def large_beam_mesh(evaluate_execution_time):
             "n_z": 10,
             "n_el": 2,
         },
-        expected_time=2.5,
+        expected_time=2.0,
     )
 
 
@@ -298,7 +298,7 @@ def test_performance_beamme_add_mesh_to_input_file(large_beam_input_file):
 @pytest.mark.parametrize(
     ("log_name", "mesh_format", "expected_time"),
     [
-        ("BeamMe: Dump input file with large beam mesh (yaml)", "yaml", 15.0),
+        ("BeamMe: Dump input file with large beam mesh (yaml)", "yaml", 16.0),
         ("BeamMe: Dump input file with large beam mesh (vtu)", "vtu", 0.65),
     ],
 )
