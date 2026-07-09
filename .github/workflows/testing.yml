@@ -54,3 +54,21 @@ jobs:
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+
+  beamme-performance-testing:
+    name: performance tests
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup python environment
+        uses: ./.github/actions/setup_python_environment
+        with:
+          env_type: "conda"
+      - name: Install BeamMe
+        uses: ./.github/actions/install_beamme
+      - name: Run the test suite and upload results on failure
+        uses: ./.github/actions/run_tests
+        with:
+          additional-pytest-flags: "--performance-tests --exclude-standard-tests -s --no-cov"
