@@ -21,6 +21,9 @@
 # THE SOFTWARE.
 """This script is used to test the examples."""
 
+from pathlib import Path
+
+import jupytext
 import pytest
 from testbook import testbook
 
@@ -28,8 +31,8 @@ from testbook import testbook
 @pytest.mark.parametrize(
     "notebook_path",
     [
-        "examples/example_1_finite_rotations.ipynb",
-        "examples/example_2_core_mesh_generation_functions.ipynb",
+        "examples/example_1_finite_rotations.py",
+        "examples/example_2_core_mesh_generation_functions.py",
     ],
 )
 def test_other_examples_notebooks(notebook_path):
@@ -38,15 +41,18 @@ def test_other_examples_notebooks(notebook_path):
     The notebook is run and it is checked that it runs through without any
     errors/assertions.
     """
-    with testbook(notebook_path) as tb:
+    notebook = jupytext.read(notebook_path, fmt="py:percent")
+    examples_dir = Path(notebook_path).parent.resolve()
+
+    with testbook(notebook) as tb:
         # we do not define the examples as modules, therefore we need to add the
         # examples folder to the current sys path so examples/utils can be imported
         # within the notebooks correctly
         tb.inject(
-            """
+            f"""
             import sys
             import os
-            sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "examples")))
+            sys.path.insert(0, {str(examples_dir)!r})
             """
         )
 

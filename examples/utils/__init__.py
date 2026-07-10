@@ -19,23 +19,4 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-ARG BASE_IMAGE_TAG=latest
-FROM ghcr.io/pyvista/pyvista:$BASE_IMAGE_TAG
-
-USER root
-RUN apt-get upgrade
-RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get install -y build-essential
-RUN apt-get install -y ffmpeg libsm6 libxext6
-RUN apt-get install -y libgl1 xvfb
-
-COPY . ${HOME}
-USER root
-RUN chown -R 1000 ${HOME}
-RUN chown -R 1000 ${HOME}/.*
-USER jovyan
-WORKDIR ${HOME}
-RUN pip install -e .[dev]
-# Set Jupytext as the default viewer for notebooks
-RUN jupytext-config set-default-viewer
+"""This module contains utility functionalities for the examples."""
