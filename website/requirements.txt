@@ -1,5 +1,7 @@
 linkify-it-py
 myst-parser
+nbsphinx
+pandoc
 pydata-sphinx-theme
 sphinx
 sphinxcontrib-jquery

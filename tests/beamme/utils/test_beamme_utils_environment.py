@@ -32,6 +32,7 @@ from beamme.utils.environment import (
     get_env_variable,
     get_git_data,
     is_mybinder,
+    is_nbsphinx,
     is_testing,
 )
 
@@ -52,6 +53,15 @@ def test_beamme_utils_environment_is_mybinder() -> None:
 
     with patch.dict(os.environ, {}, clear=True):
         assert is_mybinder() is False
+
+
+def test_beamme_utils_environment_is_nbsphinx() -> None:
+    """Test is_nbsphinx function."""
+    with patch.dict(os.environ, {"IS_NBSPHINX": "some_value"}):
+        assert is_nbsphinx() is True
+
+    with patch.dict(os.environ, {}, clear=True):
+        assert is_nbsphinx() is False
 
 
 def test_beamme_utils_environment_is_testing() -> None:

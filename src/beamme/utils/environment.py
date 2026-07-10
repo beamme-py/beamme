@@ -42,7 +42,12 @@ def cubitpy_is_available() -> bool:
 
 def is_mybinder():
     """Check if the current environment is running on mybinder."""
-    return "BINDER_LAUNCH_HOST" in _os.environ.keys()
+    return "BINDER_LAUNCH_HOST" in _os.environ
+
+
+def is_nbsphinx():
+    """Check if the current environment is running in nbsphinx."""
+    return "IS_NBSPHINX" in _os.environ
 
 
 def is_testing():
