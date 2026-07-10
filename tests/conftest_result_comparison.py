@@ -293,6 +293,7 @@ def handle_failed_assertion(
 
     result.dump(
         result_path,
+        mesh_format="yaml",
         add_header_default=False,
         add_header_information=False,
         add_footer_application_script=False,

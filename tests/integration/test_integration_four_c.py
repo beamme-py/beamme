@@ -256,6 +256,7 @@ def test_integration_four_c_nurbs_import(
     nurbs_path = tmp_path / "nurbs_mesh.4C.yaml"
     nurbs_input_file.dump(
         nurbs_path,
+        mesh_format="yaml",
         validate=False,
         add_header_default=False,
         add_header_information=False,
