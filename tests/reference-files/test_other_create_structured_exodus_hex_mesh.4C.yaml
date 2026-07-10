@@ -1,0 +1,25 @@
+STRUCTURE GEOMETRY:
+  FILE: "test_other_create_structured_exodus_hex_mesh.exo"
+  SHOW_INFO: "detailed_summary"
+  ELEMENT_BLOCKS:
+    - ID: 1
+      SOLID:
+        HEX8:
+          MAT: 1
+          KINEM: "nonlinear"
+    - ID: 2
+      SOLID:
+        HEX27:
+          MAT: 2
+          KINEM: "linear"
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1
+      NUE: 0.3
+      YOUNG: 2
+  - MAT: 2
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 2
+      NUE: 0.3
+      YOUNG: 2

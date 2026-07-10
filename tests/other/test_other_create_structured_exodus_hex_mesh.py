@@ -19,39 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""Test the performance of the geometric search algorithms."""
+"""Test the functionality to create structured hex meshes in exodus format."""
 
-import numpy as np
-import pytest
-
-from beamme.geometric_search.find_close_points import (
-    FindClosePointAlgorithm,
-    find_close_points,
-)
+from tests.create_structured_exodus_hex_mesh import create_exodus_input_file
 
 
-@pytest.mark.performance
-def test_performance_geometric_search_find_close_points_brute_force_cython(
-    evaluate_execution_time,
+def test_other_create_structured_exodus_hex_mesh(
+    tmp_path,
+    get_corresponding_reference_file_path,
+    assert_results_close,
 ):
-    """Test the performance of finding close points using brute force Cython
-    algorithm."""
-
-    def repeat_find_random_close_points(n_points, n_runs, algorithm):
-        """Repeat finding close points with random points."""
-        np.random.seed(seed=1)
-        points = np.random.rand(n_points, 3)
-
-        for _ in range(n_runs):
-            find_close_points(points, algorithm=algorithm)
-
-    evaluate_execution_time(
-        "Find close points (brute force Cython)",
-        repeat_find_random_close_points,
-        kwargs={
-            "n_points": 100,
-            "n_runs": 1000,
-            "algorithm": FindClosePointAlgorithm.brute_force_cython,
-        },
-        expected_time=0.025,
+    """Test the create_exodus_input_file function."""
+    input_file_path = create_exodus_input_file(
+        tmp_path, n_per_dir_hex8=5, n_per_dir_hex27=3
     )
+    assert_results_close(get_corresponding_reference_file_path(), input_file_path)
