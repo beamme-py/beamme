@@ -27,14 +27,21 @@ import jupytext
 import pytest
 from testbook import testbook
 
-
-@pytest.mark.parametrize(
-    "notebook_path",
+# Find all notebooks in the examples directory.
+# We sort the list here, to obtain the same order of the tests on all platforms.
+example_files = sorted(
     [
-        Path("examples/example_1_finite_rotations.py"),
-        Path("examples/example_2_core_mesh_generation_functions.py"),
-    ],
+        f
+        for f in (Path(__file__).parent.parent.parent / "examples").glob("*.py")
+        if not f.name.endswith("_utils.py")
+    ]
 )
+assert example_files, (
+    "No example files found, check the path to the examples directory."
+)
+
+
+@pytest.mark.parametrize("notebook_path", example_files)
 def test_other_examples_notebooks(notebook_path, monkeypatch):
     """Parameterized test case for multiple Jupyter notebooks.
 
