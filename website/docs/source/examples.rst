@@ -5,4 +5,4 @@ Examples
    :maxdepth: 1
    :glob:
 
-   examples/*
+   examples/example_*
