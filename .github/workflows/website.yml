@@ -27,13 +27,20 @@ jobs:
           python-version: '3.14'
       - name: Install dependencies
         run: |
+          sudo apt-get install -y libosmesa6-dev
+          sudo apt-get install -y pandoc
+          sudo apt-get install -y xvfb
           pip install -r website/requirements.txt
+          pip install -e .[dev]
       - name: Prepare docs for the website
         run: |
           python website/docs/prepare_docs.py
       - name: Build Sphinx website
         run: |
-          sphinx-build -b html website/docs/source website/docs/build
+          export PYVISTA_OFF_SCREEN=true
+          export PYVISTA_USE_EGL=true
+          export VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN=1
+          xvfb-run -a sphinx-build -b html website/docs/source website/docs/build
       - name: Upload website artifact
         uses: actions/upload-artifact@v7
         with:
