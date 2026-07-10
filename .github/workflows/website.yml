@@ -27,9 +27,8 @@ jobs:
           python-version: '3.14'
       - name: Install dependencies
         run: |
-          sudo apt-get install -y libosmesa6-dev
-          sudo apt-get install -y pandoc
-          sudo apt-get install -y xvfb
+          # Needed for PyVista to render offscreen
+          sudo apt-get install -y libosmesa6-dev pandoc xvfb
           pip install -r website/requirements.txt
           pip install -e .[dev]
       - name: Prepare docs for the website
