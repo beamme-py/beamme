@@ -61,6 +61,8 @@ nbsphinx_execute = "always"
 # at the top of each rendered html page
 nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base=False)|string %}
+{# For the links to work, we need to replace ipynb with py since we store the source files as Python scripts #}
+{% set docname = docname | replace('.ipynb', '.py') %}
 {% set binder_path = "/doc/tree/" ~ docname %}
 {% set binder_urlpath = binder_path | urlencode %}
 
