@@ -101,8 +101,8 @@ def large_solid_block(shared_tmp_path) -> Path:
 @pytest.mark.parametrize(
     ("log_name", "full_import", "expected_time"),
     [
-        ("BeamMe: Load solid mesh (no full import)", False, 1.0),
-        ("BeamMe: Load solid mesh (full import)", True, 13),
+        ("Load solid mesh (no full import)", False, 1.0),
+        ("Load solid mesh (full import)", True, 13),
     ],
 )
 @pytest.mark.performance
@@ -125,7 +125,7 @@ def test_performance_beamme_load_solid(
 def large_beam_mesh(evaluate_execution_time):
     """Provide a large beam mesh."""
     return evaluate_execution_time(
-        "BeamMe: Create large beam mesh",
+        "Create large beam mesh",
         create_beam_mesh,
         kwargs={
             "n_x": 40,
@@ -150,7 +150,7 @@ def test_performance_beamme_create_beams(large_beam_mesh):
 def test_performance_beamme_copy_beams(large_beam_mesh, evaluate_execution_time):
     """Test the performance of copying a large beam mesh."""
     evaluate_execution_time(
-        "BeamMe: Copy large beam mesh",
+        "Copy large beam mesh",
         large_beam_mesh.copy,
         kwargs={},
         expected_time=7.0,
@@ -163,7 +163,7 @@ def test_performance_beamme_add_beams_to_mesh(large_beam_mesh, evaluate_executio
     # To avoid modifying the original mesh, we make a copy and add to that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
-        "BeamMe: Add large beam mesh to another",
+        "Add large beam mesh to another",
         large_beam_mesh_copy.add,
         args=[large_beam_mesh],
         expected_time=0.15,
@@ -176,7 +176,7 @@ def test_performance_beamme_rotate(large_beam_mesh, evaluate_execution_time):
     # To avoid an expensive copy, we rotate the mesh back at the end of the test.
     rotation = Rotation([1, 1, 0], np.pi / 3)
     evaluate_execution_time(
-        "BeamMe: Rotate large beam mesh",
+        "Rotate large beam mesh",
         large_beam_mesh.rotate,
         kwargs={"rotation": rotation},
         expected_time=0.5,
@@ -190,7 +190,7 @@ def test_performance_beamme_translate(large_beam_mesh, evaluate_execution_time):
     # To avoid an expensive copy, we move the mesh back at the end of the test.
     distance = np.array([0.5, 0, 0])
     evaluate_execution_time(
-        "BeamMe: Translate large beam mesh",
+        "Translate large beam mesh",
         large_beam_mesh.translate,
         kwargs={"vector": distance},
         expected_time=0.25,
@@ -204,7 +204,7 @@ def test_performance_beamme_reflect(large_beam_mesh, evaluate_execution_time):
     # To avoid modifying the original mesh, we make a copy and reflect that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
-        "BeamMe: Reflect large beam mesh",
+        "Reflect large beam mesh",
         large_beam_mesh_copy.reflect,
         kwargs={"normal_vector": [0.5, 0.4, 0.1]},
         expected_time=0.5,
@@ -219,7 +219,7 @@ def test_performance_beamme_wrap_around_cylinder(
     # To avoid modifying the original mesh, we make a copy and wrap that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
-        "BeamMe: Wrap large beam mesh around cylinder",
+        "Wrap large beam mesh around cylinder",
         large_beam_mesh_copy.wrap_around_cylinder,
         kwargs={"radius": 1.0},
         expected_time=1.75,
@@ -235,7 +235,7 @@ def test_performance_beamme_wrap_around_cylinder_without_check(
     # To avoid modifying the original mesh, we make a copy and wrap that.
     large_beam_mesh_copy = large_beam_mesh.copy()
     evaluate_execution_time(
-        "BeamMe: Wrap large beam mesh around cylinder without check",
+        "Wrap large beam mesh around cylinder without check",
         large_beam_mesh_copy.wrap_around_cylinder,
         kwargs={"radius": 1.0, "advanced_warning": False},
         expected_time=0.5,
@@ -246,7 +246,7 @@ def test_performance_beamme_wrap_around_cylinder_without_check(
 def test_performance_beamme_find_close_nodes(large_beam_mesh, evaluate_execution_time):
     """Test the performance of finding close nodes in a large beam mesh."""
     evaluate_execution_time(
-        "BeamMe: Find close nodes in large beam mesh",
+        "Find close nodes in large beam mesh",
         find_close_nodes,
         kwargs={"nodes": large_beam_mesh.nodes},
         expected_time=0.4,
@@ -265,7 +265,7 @@ def test_performance_beamme_couple_nodes(large_beam_mesh, evaluate_execution_tim
     large_beam_mesh_copy_2 = large_beam_mesh.copy()
     large_beam_mesh_copy_1.add(large_beam_mesh_copy_2)
     evaluate_execution_time(
-        "BeamMe: Couple nodes in large beam mesh",
+        "Couple nodes in large beam mesh",
         large_beam_mesh_copy_1.couple_nodes,
         kwargs={"reuse_matching_nodes": True},
         expected_time=7.0,
@@ -277,7 +277,7 @@ def large_beam_input_file(large_beam_mesh, evaluate_execution_time):
     """Provide a large input file containing a beam mesh."""
     input_file = InputFile()
     evaluate_execution_time(
-        "BeamMe: Add large beam mesh to input file",
+        "Add large beam mesh to input file",
         input_file.add,
         kwargs={"object_to_add": large_beam_mesh},
         expected_time=0.6,
@@ -298,8 +298,8 @@ def test_performance_beamme_add_mesh_to_input_file(large_beam_input_file):
 @pytest.mark.parametrize(
     ("log_name", "mesh_format", "expected_time"),
     [
-        ("BeamMe: Dump input file with large beam mesh (yaml)", "yaml", 16.0),
-        ("BeamMe: Dump input file with large beam mesh (vtu)", "vtu", 0.65),
+        ("Dump input file with large beam mesh (yaml)", "yaml", 16.0),
+        ("Dump input file with large beam mesh (vtu)", "vtu", 0.65),
     ],
 )
 def test_performance_beamme_dump_input_file(
@@ -329,7 +329,7 @@ def test_performance_beamme_write_vtu(
 ):
     """Test the performance of writing a beam mesh to VTU format."""
     evaluate_execution_time(
-        "BeamMe: Write beam mesh to VTU",
+        "Write beam mesh to VTU",
         large_beam_mesh.write_vtu,
         args=[tmp_path / "performance_testing_beam.vtu"],
         expected_time=1.0,

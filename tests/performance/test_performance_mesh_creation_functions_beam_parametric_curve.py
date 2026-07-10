@@ -42,7 +42,7 @@ def test_performance_mesh_creation_functions_beam_parametric_curve(
     material = MaterialBeamBase()
 
     evaluate_execution_time(
-        "BeamMe: mesh_creation_functions: Parametric curve",
+        "mesh_creation_functions: Parametric curve",
         create_beam_mesh_parametric_curve,
         args=(
             mesh,
@@ -86,7 +86,7 @@ def test_performance_mesh_creation_functions_beam_parametric_curve_splinepy(
             )
 
     evaluate_execution_time(
-        "BeamMe: mesh_creation_functions: Beam from splinepy",
+        "mesh_creation_functions: Beam from splinepy",
         function_call_multiple,
         args=(mesh, Beam3, material, nurbs),
         kwargs={"n_el": 50, "arc_length_integrator_kwargs": {"scipy_integrate": False}},

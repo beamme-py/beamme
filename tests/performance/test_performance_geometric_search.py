@@ -46,7 +46,7 @@ def test_performance_geometric_search_find_close_points_brute_force_cython(
             find_close_points(points, algorithm=algorithm)
 
     evaluate_execution_time(
-        "BeamMe: Find close points (brute force Cython)",
+        "Find close points (brute force Cython)",
         repeat_find_random_close_points,
         kwargs={
             "n_points": 100,

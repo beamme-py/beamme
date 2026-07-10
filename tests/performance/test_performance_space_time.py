@@ -37,7 +37,7 @@ def mesh_in_space(evaluate_execution_time):
     beam_type = generate_beam_class(3)
 
     evaluate_execution_time(
-        "BeamMe: Space-Time: Create mesh in space",
+        "Space-Time: Create mesh in space",
         create_beam_mesh_line,
         kwargs={
             "mesh": mesh,
@@ -68,7 +68,7 @@ def test_performance_space_time_create_mesh_in_time(
 ):
     """Test the performance of the mesh creation in time."""
     evaluate_execution_time(
-        "BeamMe: Space-Time: Create mesh in time",
+        "Space-Time: Create mesh in time",
         beam_to_space_time,
         kwargs={
             "mesh_space_or_generator": mesh_in_space,
