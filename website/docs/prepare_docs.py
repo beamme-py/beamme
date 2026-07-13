@@ -55,9 +55,10 @@ def prepare_docs():
     for file in examples_source_dir.rglob("*.py"):
         # Copy all python files in the example directory. The notebooks are directly
         # located in ./examples and are in py:percent format. We need to convert them
-        # into ipynb format for the sphinx build.
+        # into ipynb format for the sphinx build. Helper modules directly located in
+        # ./examples use the *_utils.py suffix and are copied as regular Python files.
         rel_path = file.relative_to(examples_source_dir)
-        if file.parent == examples_source_dir:
+        if file.parent == examples_source_dir and not file.name.endswith("_utils.py"):
             dest_path = examples_target_dir / rel_path.with_suffix(".ipynb")
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             notebook = jupytext.read(file, fmt="py:percent")

@@ -31,30 +31,21 @@ from testbook import testbook
 @pytest.mark.parametrize(
     "notebook_path",
     [
-        "examples/example_1_finite_rotations.py",
-        "examples/example_2_core_mesh_generation_functions.py",
+        Path("examples/example_1_finite_rotations.py"),
+        Path("examples/example_2_core_mesh_generation_functions.py"),
     ],
 )
-def test_other_examples_notebooks(notebook_path):
+def test_other_examples_notebooks(notebook_path, monkeypatch):
     """Parameterized test case for multiple Jupyter notebooks.
 
     The notebook is run and it is checked that it runs through without any
     errors/assertions.
     """
     notebook = jupytext.read(notebook_path, fmt="py:percent")
-    examples_dir = Path(notebook_path).parent.resolve()
+
+    # Run from examples/ so local helper imports work like normal script usage.
+    monkeypatch.chdir(notebook_path.parent)
 
     with testbook(notebook) as tb:
-        # we do not define the examples as modules, therefore we need to add the
-        # examples folder to the current sys path so examples/utils can be imported
-        # within the notebooks correctly
-        tb.inject(
-            f"""
-            import sys
-            import os
-            sys.path.insert(0, {str(examples_dir)!r})
-            """
-        )
-
         # execute the notebook
         tb.execute()

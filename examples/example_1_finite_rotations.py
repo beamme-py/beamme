@@ -145,7 +145,7 @@ pv.set_jupyter_backend("trame")
 
 
 # Utility functionality for this example
-from utils.example_1_utils import (
+from example_1_finite_rotations_utils import (
     PyVistaPlotter,
     add_cube_plot,
     print_matrix,
