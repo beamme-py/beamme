@@ -6,9 +6,12 @@ beam_potential:
   automatic_differentiation: false
   choice_source_target: "smaller_eleGID_is_source"
   cutoff_radius: 10.0
-  n_gauss_points: 50
+  n_gauss_points: 10
   n_integration_segments: 2
   potential_reduction_length: 15.0
+  potential_reduction_function: "polynomial_7"
+  potential_reduction_endpoint_moment_compensation: true
+  potential_reduction_adaptive_n_gauss_points: 50
   two_half_pass: true
   regularization:
     type: "linear"
