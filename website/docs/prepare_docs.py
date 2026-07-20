@@ -25,6 +25,8 @@ import os
 import shutil
 from pathlib import Path
 
+import jupytext
+
 
 def prepare_docs():
     """Prepare documentation for the website.
@@ -34,8 +36,10 @@ def prepare_docs():
     Note: We remove the target directories before copying the files to ensure
     that no stale files remain.
     """
+    website_source_dir = Path("website/docs/source")
+
     # create directory which contains all the markdown files
-    markdown_dir = Path("website/docs/source/md")
+    markdown_dir = website_source_dir / "md"
     if markdown_dir.exists():
         shutil.rmtree(markdown_dir)
     os.makedirs(markdown_dir, exist_ok=True)
@@ -45,13 +49,21 @@ def prepare_docs():
 
     # create directory which contains all the example files
     examples_source_dir = Path("examples")
-    examples_target_dir = Path("website/docs/source/examples")
+    examples_target_dir = website_source_dir / "examples"
     if examples_target_dir.exists():
         shutil.rmtree(examples_target_dir)
-    file_extensions_to_copy = {".ipynb", ".py"}
-    for file in examples_source_dir.rglob("*"):
-        if file.is_file() and file.suffix.lower() in file_extensions_to_copy:
-            rel_path = file.relative_to(examples_source_dir)
+    for file in examples_source_dir.rglob("*.py"):
+        # Copy all python files in the example directory. The notebooks are directly
+        # located in ./examples and are in py:percent format. We need to convert them
+        # into ipynb format for the sphinx build. Helper modules directly located in
+        # ./examples use the *_utils.py suffix and are copied as regular Python files.
+        rel_path = file.relative_to(examples_source_dir)
+        if file.parent == examples_source_dir and not file.name.endswith("_utils.py"):
+            dest_path = examples_target_dir / rel_path.with_suffix(".ipynb")
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            notebook = jupytext.read(file, fmt="py:percent")
+            jupytext.write(notebook, dest_path)
+        else:
             dest_path = examples_target_dir / rel_path
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(file, dest_path)

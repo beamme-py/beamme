@@ -18,6 +18,7 @@ dependencies = [
   "autograd",
   "geomdl",
   "ipykernel",
+  "jupytext",
   "notebook",
   "numpy",
   "numpy-quaternion",

@@ -43,6 +43,7 @@ repos:
         name: Run bandit (security linter for python)
         args: ["--configfile", "pyproject.toml", "--exclude", "tests/*"]
         additional_dependencies: ["bandit[toml]"]
+        exclude: ^examples/
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v22.1.5
     hooks:
@@ -61,7 +62,7 @@ repos:
       - id: interrogate
         name: Run interrogate (linter for docstrings)
         args: [--fail-under=100, --ignore-init-module, --style=google, -vv]
-        exclude: ^website/
+        exclude: ^website/|^examples/
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0
     hooks:
@@ -69,11 +70,6 @@ repos:
         name: Run mypy (static type checker for python)
         args: ["--install-types", "--non-interactive", "--ignore-missing-imports", "--follow-imports=silent"]
         exclude: "^website/"
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.9.1
-    hooks:
-      - id: nbstripout
-        name: Run nbstripout (strip output from Jupyter notebooks)
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.6
     hooks:
@@ -96,6 +92,7 @@ repos:
           - --comment-style
           - '#'
           - --no-extra-eol
+        exclude: ^examples/example.*\.py$
   - repo: https://github.com/asmeurer/removestar
     rev: "1.5.2"
     hooks:

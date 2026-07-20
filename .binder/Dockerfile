@@ -37,3 +37,5 @@ RUN chown -R 1000 ${HOME}/.*
 USER jovyan
 WORKDIR ${HOME}
 RUN pip install -e .[dev]
+# Set Jupytext as the default viewer for notebooks
+RUN jupytext-config set-default-viewer
