@@ -311,6 +311,7 @@ def create_exodus_input_file(
     )
     input_file.dump(
         input_file_path,
+        mesh_format="yaml",
         validate_sections_only=True,
         add_header_default=False,
         add_header_information=False,

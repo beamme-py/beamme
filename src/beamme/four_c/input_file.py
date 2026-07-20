@@ -181,7 +181,7 @@ class InputFile:
         self,
         input_file_path: str | _Path,
         *,
-        mesh_format: str = "yaml",
+        mesh_format: str = "vtu",
         vtu_binary: bool = False,
         nox_xml_file: str | None = None,
         add_header_default: bool = True,

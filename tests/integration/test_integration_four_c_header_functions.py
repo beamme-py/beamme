@@ -205,6 +205,7 @@ def test_integration_four_c_header_functions_nonlinear_solver_parameters(
     temp_input_file_path = tmp_path / "nonlinear_solver_parameters.4C.yaml"
     input_file.dump(
         temp_input_file_path,
+        mesh_format="yaml",
         nox_xml_file=nox_xml_file_kwarg,
         add_header_default=False,
         add_header_information=False,

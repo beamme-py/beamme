@@ -111,7 +111,8 @@ def run_four_c_test(tmp_path: Path) -> Callable:
         input_file: InputFile,
         n_proc: int = 2,
         restart: list[int | str | None] = [None, None],
-        **kwargs,
+        mesh_format: str | None = None,
+        nox_xml_file: str | None = None,
     ) -> tuple[Path, str]:
         """Runs a 4C simulation inside a temporary test directory.
 
@@ -120,14 +121,18 @@ def run_four_c_test(tmp_path: Path) -> Callable:
         Args:
             input_file: The input file to execute.
             n_proc: Number of MPI processes to launch 4C with. Defaults to 2.
-            restart: A two-element list of the form ``[restart_step, restart_from]``.
-                Defaults to ``[None, None]``.
-            **kwargs: Additional arguments passed directly to ``InputFile.dump()``.
+            restart: A two-element list of the form `[restart_step, restart_from]`.
+                Defaults to `[None, None]`.
+            mesh_format: Mesh format to use for the simulation. Has to be provide.
+            nox_xml_file: The path to the NOX XML file. Defaults to `None`.
 
         Returns:
             run_dir: The directory where the simulation ran.
             run_name: The name of the 4C run.
         """
+        if mesh_format is None:
+            raise ValueError("Please provide a mesh format to `run_four_c_test`.")
+
         # Since the counter is of a base type, we have to use nonlocal to modify it.
         nonlocal run_four_c_counter
         run_four_c_counter += 1
@@ -139,7 +144,12 @@ def run_four_c_test(tmp_path: Path) -> Callable:
 
         # Create input file.
         input_file_name = os.path.join(run_dir, run_name + ".4C.yaml")
-        input_file.dump(input_file_name, add_header_information=False, **kwargs)
+        input_file.dump(
+            input_file_name,
+            add_header_information=False,
+            mesh_format=mesh_format,
+            nox_xml_file=nox_xml_file,
+        )
 
         return_code = run_four_c(
             input_file_name,

@@ -80,7 +80,10 @@ def test_other_create_cubit_input_files_solid_shell_blocks(
 
     input_file = create_solid_shell_blocks()
     input_file.dump(
-        result_path_blocks, add_header_information=False, validate_sections_only=True
+        result_path_blocks,
+        mesh_format="yaml",
+        add_header_information=False,
+        validate_sections_only=True,
     )
 
     assert_results_close(result_path_blocks, reference_path_blocks)
