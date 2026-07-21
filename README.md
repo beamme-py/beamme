@@ -104,13 +104,7 @@ the [Institute for Computational Mechanics (LNM)](https://www.epc.ed.tum.de/lnm/
 BeamMe provides example notebooks to showcase its core features and functionality [![examples](https://raw.githubusercontent.com/beamme-py/beamme/refs/heads/main/doc/badges/examples.svg)](https://beamme-py.github.io/beamme/examples).
 
 The example notebooks can be found in the `examples/` directory.
-They can be run locally or directly tested from your browser via the following links:
-
-1. **Finite rotation framework** [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/beamme-py/beamme/main?labpath=examples%2Fexample_1_finite_rotations.py)
-1. **Core mesh generation functions** [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/beamme-py/beamme/main?labpath=examples%2Fexample_2_core_mesh_generation_functions.py)
-
-You can also interactively test the entire BeamMe framework directly from your browser here [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/beamme-py/beamme/main)
-
+They can be run locally or directly tested from your browser via the following link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/beamme-py/beamme/main?labpath=examples)
 
 ## Getting started
 This example demonstrates how to create a small structural model using BeamMe:

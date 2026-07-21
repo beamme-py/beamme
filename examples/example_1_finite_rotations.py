@@ -8,8 +8,7 @@
 # \def\triad{\mm{\Lambda}}
 # $$
 #
-# # Example 1: Introduction to finite rotations in BeamMe
-#
+# # Introduction to finite rotations in BeamMe
 # When working with Cosserat continua in 3D, the mathematical treatment of finite rotations is required.
 # This example gives an overview of the finite rotation functionality in BeamMe.
 # For a more comprehensive and theoretical overview of finite rotations, the interested reader is referred to:
@@ -27,7 +26,7 @@ from beamme.core.rotation import Rotation
 # %% [markdown]
 # ## Different finite rotation representations
 #
-# Internally, BeamMe uses a unit-quaternion representation to store the $\SO$ element which provides an efficient an singularity free representation.
+# Internally, BeamMe uses a unit-quaternion representation to store the $\SO$ element which provides an efficient and singularity free representation.
 # However, the user can input and output all major representations of large rotations via the `Rotation` class.
 # Supported representations are:
 # - **Rotation axis and angle:**
