@@ -182,7 +182,7 @@ class InputFile:
         input_file_path: str | _Path,
         *,
         mesh_format: str = "vtu",
-        vtu_binary: bool = False,
+        vtu_binary: bool = True,
         nox_xml_file: str | None = None,
         add_header_default: bool = True,
         add_header_information: bool = True,
