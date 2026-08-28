@@ -24,15 +24,17 @@
 import json
 import shutil
 import subprocess
+import warnings
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pytest
 import pyvista as pv
 import xmltodict
 from cubitpy.exodus_utility import convert_exodus_to_dict
+from fourcipp.fourc_input import FourCInput
 from vistools.vtk.compare_grids import compare_grids
 
 from beamme.core.mesh import Mesh
@@ -105,7 +107,14 @@ def assert_results_close(tmp_path, current_test_name) -> Callable:
                 raise_on_mismatch=True,
             )
         except AssertionError as error:
-            handle_failed_assertion(tmp_path, current_test_name, reference, result)
+            handle_failed_assertion(
+                tmp_path=tmp_path,
+                current_test_name=current_test_name,
+                reference_path=reference if isinstance(reference, Path) else None,
+                converted_reference=converted_reference,
+                result_path=result if isinstance(result, Path) else None,
+                converted_result=converted_result,
+            )
             raise error
 
     return _assert_results_close
@@ -263,8 +272,10 @@ def custom_fourcipp_comparison(
 def handle_failed_assertion(
     tmp_path: Path,
     current_test_name: str,
-    reference: Path | str | dict | list | np.ndarray | InputFile | Mesh,
-    result: Path | str | dict | list | np.ndarray | InputFile | Mesh,
+    reference_path: Path | None,
+    converted_reference: int | float | dict | list | np.ndarray | pv.UnstructuredGrid,
+    result_path: Path | None,
+    converted_result: int | float | dict | list | np.ndarray | pv.UnstructuredGrid,
 ) -> None:
     """Handle failed assertions by opening a diff tool.
 
@@ -274,38 +285,59 @@ def handle_failed_assertion(
     Args:
         tmp_path: Temporary pytest directory.
         current_test_name: Name of the current test.
-        reference: The reference data.
-        result: The result data.
+        reference_path: Path to the reference file, or None if there is no reference file.
+        converted_reference: The converted reference data.
+        result_path: Path to the result file, or None if there is no result file.
+        converted_result: The converted result data.
     """
-    # if reference is not a file or if result is not a Mesh or InputFile we do not open the diff
-    if not isinstance(reference, Path) or not isinstance(result, (Mesh, InputFile)):
-        return
 
-    # save result string to file
-    result_path = tmp_path / (
-        current_test_name + "_result" + "".join(reference.suffixes)
-    )
+    def save_converted_data_to_file(data: dict, path: Path) -> None:
+        """Save the converted data to a file.
 
-    if isinstance(result, Mesh):
-        input_file = InputFile()
-        input_file.add(result)
-        result = input_file
+        For now, we try to load the data with FourCIPP and store it to disk. In the case
+        that the input file contains a vtu mesh reference, there will be a unstructured
+        grid in the data. It does not make sense to store this grid to disk, as we want
+        to compare it with the original input file, which also does not contain the mesh
+        data.
 
-    result.dump(
-        result_path,
-        mesh_format="yaml",
-        add_header_default=False,
-        add_header_information=False,
-        add_footer_application_script=False,
-        validate=False,
-    )
+        If this fails, due to some incompatibility of the data with FourCIPP, an error
+        is raised and no file will be created.
 
-    print(f"Result string saved to: '{result_path}'.")
+        If more types should be supported in the future, this function can be extended
+        to handle them.
+        """
+        data_fourcipp = FourCInput()
 
-    # open VSCode diff tool if available
-    if shutil.which("code") is not None:
-        child = subprocess.Popen(
-            ["code", "--diff", result_path, reference],
-            stderr=subprocess.PIPE,
+        # We don't compare the actual mesh data, so ignore unstructured grids.
+        data_fourcipp.type_converter.register_type(
+            pv.UnstructuredGrid,
+            lambda _, obj: "mesh_file",
         )
-        child.communicate()
+
+        data_fourcipp.combine_sections(data)
+        data_fourcipp.dump(path)
+
+    # We try to store the data to disk and compare the created files. If this fails, we
+    # don't do any comparisons here.
+    try:
+        if reference_path is None:
+            reference_path = tmp_path / (current_test_name + "_reference")
+            save_converted_data_to_file(cast(dict, converted_reference), reference_path)
+
+        if result_path is None:
+            result_path = tmp_path / (current_test_name + "_result")
+            save_converted_data_to_file(cast(dict, converted_result), result_path)
+
+        # open VSCode diff tool if available
+        if shutil.which("code") is not None:
+            child = subprocess.Popen(
+                ["code", "--diff", result_path, reference_path],
+                stderr=subprocess.PIPE,
+            )
+            child.communicate()
+
+    except Exception as e:
+        warnings.warn(
+            "Could not create the comparison files for the failed test. "
+            f"Got the error: {e}."
+        )
