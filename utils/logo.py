@@ -27,8 +27,8 @@ import numpy as np
 import pyvista as pv
 import splinepy
 from vistools.pyvista.camera import set_camera_settings
+from vistools.pyvista.merge_polylines import merge_polylines
 from vistools.pyvista.polyline_cross_section import polyline_cross_section
-from vistools.vtk.merge_polylines import merge_polylines
 
 from beamme.core.conf import bme
 from beamme.core.element_beam import Beam2
@@ -984,7 +984,7 @@ def add_letter_B(plotter, plot_data, lighting=True):
     ]
 
     # Tube part
-    vtk_curve = pv.UnstructuredGrid(merge_polylines(mesh_fine.get_vtu_representation()))
+    vtk_curve = merge_polylines(mesh_fine.get_vtu_representation())
     surface = vtk_curve.extract_surface()
     surface = surface.cell_data_to_point_data()
     tube = surface.tube(
@@ -993,9 +993,7 @@ def add_letter_B(plotter, plot_data, lighting=True):
     plotter.add_mesh(tube, color=color_letter, lighting=lighting)
 
     # Nodes
-    coarse_nodes = pv.UnstructuredGrid(
-        mesh_coarse.get_vtu_representation()
-    ).cell_data_to_point_data()
+    coarse_nodes = mesh_coarse.get_vtu_representation().cell_data_to_point_data()
     nodes_glyph = coarse_nodes.glyph(
         geom=plot_data["sphere"],
         factor=1.5 * plot_data["beam_radius"],
@@ -1024,9 +1022,7 @@ def add_letter_e(plotter, plot_data):
             )
             node.rotation = rot_new
         mesh.add(curve_mesh)
-    curve = pv.UnstructuredGrid(
-        merge_polylines(mesh.get_vtu_representation(), tol=1e-4)
-    )
+    curve = merge_polylines(mesh.get_vtu_representation(), tol=1e-4)
     curve_with_cross_section = polyline_cross_section(
         curve, cross_section, separate_surfaces=True
     )
@@ -1042,9 +1038,7 @@ def add_letter_a(plotter, plot_data):
     color_control_points = "red"
     curves = CHARACTER_SPLINEPY["a"]
     curve_mesh = create_mesh_curves(curves, plot_data["l_el_fine"])
-    vtk_curve = pv.UnstructuredGrid(
-        merge_polylines(curve_mesh.get_vtu_representation())
-    )
+    vtk_curve = merge_polylines(curve_mesh.get_vtu_representation())
     surface = vtk_curve.extract_surface()
     surface = surface.cell_data_to_point_data()
     plotter.add_mesh(
@@ -1110,11 +1104,9 @@ def add_letter_m(plotter, plot_data):
     curves = CHARACTER_SPLINEPY["m"]
     for i in range(len(curves)):
         curve_mesh, _ = create_curve(curves[i], l_el=plot_data["l_el_fine"])
-        vtk_curve = merge_polylines(
-            pv.UnstructuredGrid(curve_mesh.get_vtu_representation())
-        )
-        cross_section_mesh = pv.UnstructuredGrid(
-            polyline_cross_section(vtk_curve, cross_section, closed=False)
+        vtk_curve = merge_polylines(curve_mesh.get_vtu_representation())
+        cross_section_mesh = polyline_cross_section(
+            vtk_curve, cross_section, closed=False
         )
         plotter.add_mesh(cross_section_mesh, color=color_letter)
         mesh.add(curve_mesh)
@@ -1159,9 +1151,7 @@ def create_2d_mesh_cubit(plot_data):
         for curve in curves:
             # We use the BeamMe curve integration function to get the points along the curve.
             curve_mesh = create_mesh_curves([curve], plot_data["l_el_mid"])
-            vtk_curve = pv.UnstructuredGrid(
-                merge_polylines(curve_mesh.get_vtu_representation())
-            )
+            vtk_curve = merge_polylines(curve_mesh.get_vtu_representation())
             curve_points = vtk_curve.points
             cubit_curves.append(create_spline_interpolation_curve(cubit, curve_points))
         cubit.cmd(
@@ -1201,7 +1191,7 @@ def get_letter_2d_grid(plot_data):
         plot_data["input_file_name"], convert_input_to_mesh=True
     )
     solid_mesh.translate([0, 0, 0.5 * plot_data["extrude_distance"]])
-    solid_grid = pv.UnstructuredGrid(solid_mesh.get_vtu_representation()).clean()
+    solid_grid = solid_mesh.get_vtu_representation().clean()
     solid_grid = solid_grid.connectivity()
     return [
         solid_grid.threshold(

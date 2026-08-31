@@ -52,7 +52,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "testbook",
-  "vistools",
+  "vistools>=0.7.0",
   "xmltodict"
 ]
 
