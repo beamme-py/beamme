@@ -64,7 +64,12 @@ pybind11_add_module(${lib_name}
   geometric_search.cpp
   find_close_points.cpp
 )
-target_compile_options(${lib_name} PRIVATE -Wall -Wextra -fvisibility=hidden)
+# The flags -Wall -Wextra are not supported on the Microsoft C++ compiler and -fvisibility=hidden is only needed on Unix systems.
+if(MSVC)
+    target_compile_options(${lib_name} PRIVATE /W4)
+else()
+    target_compile_options(${lib_name} PRIVATE -Wall -Wextra -fvisibility=hidden)
+endif()
 target_link_libraries(${lib_name} PRIVATE ArborX::ArborX)
 
 # Install into the Python package. scikit-build-core collects installed CMake

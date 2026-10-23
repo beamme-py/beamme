@@ -29,9 +29,6 @@ add_subdirectory(src/cython)
 
 option(BEAMME_ENABLE_ARBORX "Build the optional ArborX geometric search extension" OFF)
 if(BEAMME_ENABLE_ARBORX)
-  if(WIN32)
-    message(FATAL_ERROR "BEAMME_ENABLE_ARBORX is not supported on Windows")
-  endif()
   # Include CMake configuration for ArborX code
   add_subdirectory(src/cpp)
 endif()
