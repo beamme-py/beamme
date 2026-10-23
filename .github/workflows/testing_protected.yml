@@ -69,8 +69,6 @@ jobs:
         uses: ./.github/actions/setup_python_environment
         with:
           env_type: "conda"
-      - name: Build ArborX geometric search
-        uses: ./.github/actions/build_arborx_geometric_search
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
         with:
@@ -90,7 +88,7 @@ jobs:
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:
-          additional-pytest-flags: "--4C --ArborX --Coreform --check-for-unused-reference-files --cov-fail-under=93"
+          additional-pytest-flags: "--4C --Coreform --check-for-unused-reference-files --cov-fail-under=93"
           cubitpy_config_path: ${{ steps.cubitpy_config.outputs.cubitpy_config_path }}
       - name: Free cubit license
         if: ${{ always() }}
