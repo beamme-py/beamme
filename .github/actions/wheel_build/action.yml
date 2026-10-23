@@ -26,9 +26,6 @@ runs:
         CIBW_ARCHS_LINUX: "x86_64"
         CIBW_ARCHS_WINDOWS: "AMD64"
         CIBW_ARCHS_MACOS: "arm64"
-        CIBW_CONFIG_SETTINGS_LINUX: "cmake.define.BEAMME_ENABLE_ARBORX=ON"
-        CIBW_CONFIG_SETTINGS_MACOS: "cmake.define.BEAMME_ENABLE_ARBORX=ON"
-        CIBW_CONFIG_SETTINGS_WINDOWS: "cmake.define.BEAMME_ENABLE_ARBORX=ON"
 
     - name: Upload wheels
       uses: actions/upload-artifact@v7

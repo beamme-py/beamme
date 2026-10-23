@@ -294,13 +294,10 @@ pip install -e .[cubitpy]
 
 ### [ArborX](https://github.com/arborx/ArborX) geometric search
 
-BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX).
-Enable the extension when installing BeamMe (works with editable and non-editable installations):
+BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX). The ArborX extension is enabled by default. To explicitly deactivate it, install BeamMe with the following command:
 ```bash
-pip install -e . -Ccmake.define.BEAMME_ENABLE_ARBORX=ON
+pip install -e . -Ccmake.define.BEAMME_ENABLE_ARBORX=OFF
 ```
-
-ArborX is not supported on Windows.
 
 ## Developing BeamMe
 
@@ -374,7 +371,6 @@ To rebuild the extensions after changing Cython or C++ code, run:
 ```bash
 pip install --no-deps --no-cache-dir --force-reinstall -e .
 ```
-If you also want to rebuild the optional ArborX extension, add the flag `-Ccmake.define.BEAMME_ENABLE_ARBORX=ON`.
 
 ## Contributing
 

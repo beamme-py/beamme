@@ -27,7 +27,7 @@ project(beamme)
 # Include CMake configuration for Cython code
 add_subdirectory(src/cython)
 
-option(BEAMME_ENABLE_ARBORX "Build the optional ArborX geometric search extension" OFF)
+option(BEAMME_ENABLE_ARBORX "Build the optional ArborX geometric search extension" ON)
 if(BEAMME_ENABLE_ARBORX)
   # Include CMake configuration for ArborX code
   add_subdirectory(src/cpp)
