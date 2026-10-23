@@ -13,11 +13,11 @@ runs:
       run: |
         cd ${GITHUB_WORKSPACE}
 
-        ENABLE_ARBORX="OFF"
-        # On Linux and macOS, we always build with ArborX.
-        if [[ "${RUNNER_OS}" != "Windows" ]]; then
-          ENABLE_ARBORX="ON"
-        fi
+        ENABLE_ARBORX="ON"
+        # # On Linux and macOS, we always build with ArborX.
+        # if [[ "${RUNNER_OS}" != "Windows" ]]; then
+        #   ENABLE_ARBORX="ON"
+        # fi
 
         pip install ${{ inputs.install-command }} -Ccmake.define.BEAMME_ENABLE_ARBORX="${ENABLE_ARBORX}"
 

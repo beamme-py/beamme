@@ -25,11 +25,11 @@ runs:
         echo "PYTEST_TMPDIR=$TEMP_DIR" >> $GITHUB_ENV
 
         # On Linux and macOS, we always test with ArborX.
-        ARBORX_PYTEST_FLAG=""
-        if [[ "${RUNNER_OS}" != "Windows" ]]; then
-          python -c "from beamme.geometric_search.utils import arborx_is_available; assert arborx_is_available(), 'ArborX extension was not installed'"
-          ARBORX_PYTEST_FLAG="--ArborX"
-        fi
+        ARBORX_PYTEST_FLAG="--ArborX"
+        # if [[ "${RUNNER_OS}" != "Windows" ]]; then
+        #   python -c "from beamme.geometric_search.utils import arborx_is_available; assert arborx_is_available(), 'ArborX extension was not installed'"
+        #   ARBORX_PYTEST_FLAG="--ArborX"
+        # fi
 
         pytest --basetemp="$TEMP_DIR" ${ARBORX_PYTEST_FLAG} ${{ inputs.additional-pytest-flags}} --color=yes
 
