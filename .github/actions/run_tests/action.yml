@@ -23,7 +23,7 @@ runs:
         TEMP_DIR="${RUNNER_TEMP}/beamme_pytest"
         mkdir -p "$TEMP_DIR"
         echo "PYTEST_TMPDIR=$TEMP_DIR" >> $GITHUB_ENV
-        pytest  --basetemp="$TEMP_DIR" ${{ inputs.additional-pytest-flags}} --color=yes
+        pytest --basetemp="$TEMP_DIR" --ArborX ${{ inputs.additional-pytest-flags}} --color=yes
 
     - name: Upload test results on failure
       if: failure()

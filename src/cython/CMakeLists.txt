@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+enable_language(C)
+
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 find_package(Cython 3.0 MODULE REQUIRED)
 include(UseCython)
@@ -31,4 +33,8 @@ cython_transpile(
 )
 python_add_library(find_close_points_cython MODULE "${find_close_points_cython_c}" WITH_SOABI)
 target_link_libraries(find_close_points_cython PRIVATE Python::NumPy)
-install(TARGETS find_close_points_cython DESTINATION beamme/geometric_search)
+install(
+  TARGETS find_close_points_cython
+  DESTINATION beamme/geometric_search
+  COMPONENT beamme
+)
