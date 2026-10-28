@@ -6,6 +6,15 @@ on:
   push:
     branches:
       - main
+  # Special PRs where the source branch lives in this repository.
+  # These can access secrets normally.
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  # Fork PRs. Secrets are provided through the protected environment,
+  # potentially requiring approval.
   pull_request_target:
     types:
       - opened
@@ -18,6 +27,23 @@ env:
 
 jobs:
   beamme-testing-all-dependencies:
+    # Run:
+    # - always for non-PR events
+    # - for pull_request_target only when PR comes from a fork
+    # - for pull_request only when PR comes from this repo AND branch name starts with trusted-ci/*
+    if: |
+      github.event_name != 'pull_request' &&
+      github.event_name != 'pull_request_target' ||
+      (
+        github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name != github.repository
+      ) ||
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        startsWith(github.head_ref, 'trusted-ci/')
+      )
+
     name: ubuntu-latest with all dependencies
     runs-on: ubuntu-latest
     environment:
