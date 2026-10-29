@@ -26,12 +26,46 @@ import uuid as _uuid
 from pathlib import Path as _Path
 
 import ipywidgets as _widgets
+import numpy as _np
 import pyvista as _pv
+import quaternion as _quaternion
 from IPython.display import HTML as _HTML
 from IPython.display import IFrame as _IFrame
 from IPython.display import display as _display
 
+from beamme.core.conf import bme as _bme
 from beamme.utils.environment import is_nbsphinx as _is_nbsphinx
+
+
+def add_base_vectors_to_grid(grid: _pv.UnstructuredGrid) -> None:
+    """Add base vectors for Cosserat nodes to a PyVista grid.
+
+    Args:
+        grid: The PyVista grid to which the base vectors will be added.
+            The base vectors are calculated from the point data field "rotation_vector"
+            of the grid. Only points that have Cosserat flag in "point_type" will have
+            the base vectors added. The base vectors are added as new point data fields
+            named "base_vector_1", "base_vector_2", and "base_vector_3".
+    """
+    if "rotation_vector" not in grid.point_data:
+        # In this case we have no rotation vector data, typically because the grid only
+        # contains solid elements. In this case we return empty base vectors.
+        for i in range(3):
+            grid.point_data[f"base_vector_{i + 1}"] = _np.zeros((grid.n_points, 3))
+        return
+
+    cosserat_mask = _np.isin(
+        grid.point_data["point_type"],
+        [_bme.node_type.cosserat.value, _bme.node_type.space_time_cosserat.value],
+    )
+    quaternions = _quaternion.from_rotation_vector(
+        grid.point_data["rotation_vector"][cosserat_mask]
+    )
+    rotation_matrices = _quaternion.as_rotation_matrix(quaternions)
+    for i in range(3):
+        base_vector = _np.zeros((grid.n_points, 3))
+        base_vector[cosserat_mask] = rotation_matrices[:, :, i]
+        grid.point_data[f"base_vector_{i + 1}"] = base_vector
 
 
 def show_plotter(plotter: _pv.Plotter, *, nbsphinx_export_3d_view: bool = True) -> None:

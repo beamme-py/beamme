@@ -70,6 +70,9 @@ from beamme.utils.nodes import find_close_nodes as _find_close_nodes
 from beamme.utils.nodes import get_nodal_coordinates as _get_nodal_coordinates
 from beamme.utils.nodes import get_nodal_quaternions as _get_nodal_quaternions
 from beamme.utils.nodes import get_nodes_by_function as _get_nodes_by_function
+from beamme.utils.visualization import (
+    add_base_vectors_to_grid as _add_base_vectors_to_grid,
+)
 from beamme.utils.visualization import show_plotter as _show_plotter
 
 
@@ -996,19 +999,7 @@ class Mesh:
         grid.cell_data["cross_section_radius"] = cross_section_radii
         grid.point_data["node_value"] = node_value
 
-        # Add the triads for each Cosserat node.
-        cosserat_mask = _np.isin(
-            mesh_representation.point_data["point_type"],
-            [_bme.node_type.cosserat.value, _bme.node_type.space_time_cosserat.value],
-        )
-        quaternions = _quaternion.from_rotation_vector(
-            grid.point_data["rotation_vector"][cosserat_mask]
-        )
-        rotation_matrices = _quaternion.as_rotation_matrix(quaternions)
-        for i in range(3):
-            base_vector = _np.zeros((grid.n_points, 3))
-            base_vector[cosserat_mask] = rotation_matrices[:, :, i]
-            grid.point_data[f"base_vector_{i + 1}"] = base_vector
+        _add_base_vectors_to_grid(grid)
 
         return grid
 
