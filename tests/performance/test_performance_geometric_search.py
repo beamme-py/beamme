@@ -30,9 +30,16 @@ from beamme.geometric_search.find_close_points import (
 )
 
 
+@pytest.mark.parametrize(
+    ("n_points", "n_runs", "expected_time"),
+    [
+        (100, 10000, 0.2),
+        (5000, 100, 3.3),
+    ],
+)
 @pytest.mark.performance
 def test_performance_geometric_search_find_close_points_brute_force_cython(
-    evaluate_execution_time,
+    n_points, n_runs, expected_time, evaluate_execution_time
 ):
     """Test the performance of finding close points using brute force Cython
     algorithm."""
@@ -46,12 +53,12 @@ def test_performance_geometric_search_find_close_points_brute_force_cython(
             find_close_points(points, algorithm=algorithm)
 
     evaluate_execution_time(
-        "Find close points (brute force Cython)",
+        f"Find close points with brute force Cython, n_points={n_points}, n_runs={n_runs}",
         repeat_find_random_close_points,
         kwargs={
-            "n_points": 100,
-            "n_runs": 1000,
+            "n_points": n_points,
+            "n_runs": n_runs,
             "algorithm": FindClosePointAlgorithm.brute_force_cython,
         },
-        expected_time=0.025,
+        expected_time=expected_time,
     )

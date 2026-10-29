@@ -56,7 +56,10 @@ def find_close_points(np.ndarray[double, ndim=2] coords, double eps):
 
     # Define types of variables for this function.
     cdef np.int64_t n_nodes, partner, this_is_partner, i, j, k, n_dim
-    cdef double distance
+    cdef double distance_square, eps_square
+
+    # Square of the tolerance
+    eps_square = eps**2
 
     # Number of nodes and dimension of coordinates.
     n_nodes = np.shape(coords)[0]
@@ -73,14 +76,13 @@ def find_close_points(np.ndarray[double, ndim=2] coords, double eps):
         this_is_partner = 0
         if has_partner[i] == -1:
             for j in range(i + 1, n_nodes):
-                # Calculate the distance between the two nodes.
-                distance = 0.
+                # Calculate the squared distance between the two nodes.
+                distance_square = 0.0
                 for k in range(n_dim):
-                    distance += (coords[i, k] - coords[j, k])**2
-                distance = sqrt(distance)
+                    distance_square += (coords[i, k] - coords[j, k])**2
                 # Check if the distance is smaller than the threshold, and add
                 # to has_partner list.
-                if distance < eps:
+                if distance_square < eps_square:
                     this_is_partner = 1
                     if not has_partner[j] == -1:
                         raise RuntimeError('The case where a node connects two'
