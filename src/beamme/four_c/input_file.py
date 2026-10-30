@@ -409,3 +409,12 @@ class InputFile:
             True if the input file contains VTU mesh-based geometry, False otherwise.
         """
         return self._contains_mesh_based_geometry([".vtu"])
+
+    def contains_yaml_based_geometry(self) -> bool:
+        """Check if the input file contains yaml-based geometry."""
+        n_yaml_nodes = len(self.sections.get("NODE COORDS", []))
+        n_yaml_elements = sum(
+            len(self.sections.get(section, []))
+            for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
+        )
+        return n_yaml_nodes > 0 or n_yaml_elements > 0
