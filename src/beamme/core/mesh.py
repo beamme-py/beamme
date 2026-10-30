@@ -64,13 +64,15 @@ from beamme.core.rotation import rotate_coordinates as _rotate_coordinates
 from beamme.geometric_search.find_close_points import (
     find_close_points as _find_close_points,
 )
-from beamme.utils.environment import is_testing as _is_testing
 from beamme.utils.nodes import filter_nodes as _filter_nodes
 from beamme.utils.nodes import find_close_nodes as _find_close_nodes
 from beamme.utils.nodes import get_nodal_coordinates as _get_nodal_coordinates
 from beamme.utils.nodes import get_nodal_quaternions as _get_nodal_quaternions
 from beamme.utils.nodes import get_nodes_by_function as _get_nodes_by_function
-from beamme.utils.visualization import show_plotter as _show_plotter
+from beamme.utils.visualization import (
+    add_base_vectors_to_grid as _add_base_vectors_to_grid,
+)
+from beamme.utils.visualization import display_pyvista as _display_pyvista
 
 
 class Mesh:
@@ -997,18 +999,7 @@ class Mesh:
         grid.point_data["node_value"] = node_value
 
         # Add the triads for each Cosserat node.
-        cosserat_mask = _np.isin(
-            mesh_representation.point_data["point_type"],
-            [_bme.node_type.cosserat.value, _bme.node_type.space_time_cosserat.value],
-        )
-        quaternions = _quaternion.from_rotation_vector(
-            grid.point_data["rotation_vector"][cosserat_mask]
-        )
-        rotation_matrices = _quaternion.as_rotation_matrix(quaternions)
-        for i in range(3):
-            base_vector = _np.zeros((grid.n_points, 3))
-            base_vector[cosserat_mask] = rotation_matrices[:, :, i]
-            grid.point_data[f"base_vector_{i + 1}"] = base_vector
+        _add_base_vectors_to_grid(grid)
 
         return grid
 
@@ -1042,109 +1033,30 @@ class Mesh:
         If this is called in a GitHub testing run, nothing will be shown, instead
         the _pv.plotter object will be returned.
 
-        Args
-        ----
-        beam_nodes: bool
-            If the beam nodes should be displayed. The start and end nodes of each
-            beam will be shown in green, possible middle nodes inside the element
-            are shown in cyan.
-        beam_tube: bool
-            If the beam should be rendered as a tube
-        beam_cross_section_directors: bool
-            If the cross section directors should be displayed (at each node)
-        resolution: int
-            Indicates how many triangulations will be performed to visualize arrows,
-            tubes and spheres.
-        parallel_projection: bool
-            Flag to change camera view to parallel projection.
+        Args:
+            beam_nodes: bool
+                If the beam nodes should be displayed. The start and end nodes of each
+                beam will be shown in green, possible middle nodes inside the element
+                are shown in cyan.
+            beam_tube: bool
+                If the beam should be rendered as a tube
+            beam_cross_section_directors: bool
+                If the cross section directors should be displayed (at each node)
+            resolution: int
+                Indicates how many triangulations will be performed to visualize arrows,
+                tubes and spheres.
+            parallel_projection: bool
+                Flag to change camera view to parallel projection.
         """
         grid = self.get_vtu_representation()
-
-        plotter = _pv.Plotter()
-        plotter.renderer.add_axes()
-
-        if parallel_projection:
-            plotter.enable_parallel_projection()
-
-        beam_mask = grid.cell_data["beamme_type"] == _bme.element_type.beam.value
-        if _np.any(beam_mask):
-            beam_grid = grid.extract_cells(beam_mask).cell_data_to_point_data()
-
-            # Plot the nodes
-            beam_finite_element_nodes = beam_grid.cast_to_poly_points()
-            node_radius_scaling_factor = 1.5
-            if beam_nodes:
-                sphere = _pv.Sphere(
-                    radius=1.0,
-                    theta_resolution=resolution,
-                    phi_resolution=resolution,
-                )
-                nodes_glyph = beam_finite_element_nodes.glyph(
-                    geom=sphere,
-                    scale="cross_section_radius",
-                    factor=node_radius_scaling_factor,
-                    orient=False,
-                )
-                plotter.add_mesh(
-                    nodes_glyph.threshold(scalars="node_value", value=(0.9, 1.1)),
-                    color="green",
-                )
-                middle_nodes = nodes_glyph.threshold(
-                    scalars="node_value", value=(0.4, 0.6)
-                )
-                if len(middle_nodes.points) > 0:
-                    plotter.add_mesh(middle_nodes, color="cyan")
-
-            # Plot the beams
-            beam_color = [0.5, 0.5, 0.5]
-            if beam_tube:
-                # Check that all beams have a defined cross-section radius.
-                if _np.any(beam_grid.point_data["cross_section_radius"] < 0):
-                    raise ValueError(
-                        "All beams must have a defined cross-section radius."
-                    )
-
-                # TODO: The `algorithm=None` argument is used to avoid a warning from
-                # pyvista regarding changed default arguments. For future pyvista
-                # versions, this argument can be removed.
-                beam_tube_grid = beam_grid.extract_surface(algorithm=None)
-                beam_tube_grid = beam_tube_grid.tube(
-                    scalars="cross_section_radius",
-                    absolute=True,
-                    n_sides=resolution,
-                )
-                plotter.add_mesh(beam_tube_grid, color=beam_color)
-            else:
-                plotter.add_mesh(beam_grid, color=beam_color, line_width=4)
-
-            # Plot the directors of the beam cross-section
-            if beam_cross_section_directors:
-                director_radius_scaling_factor = 3.5
-                arrow = _pv.Arrow(
-                    tip_resolution=resolution, shaft_resolution=resolution
-                )
-                directors = [
-                    beam_finite_element_nodes.glyph(
-                        geom=arrow,
-                        orient=f"base_vector_{i + 1}",
-                        scale="cross_section_radius",
-                        factor=director_radius_scaling_factor,
-                    )
-                    for i in range(3)
-                ]
-                colors = ["white", "blue", "red"]
-                for i, arrow in enumerate(directors):
-                    plotter.add_mesh(arrow, color=colors[i])
-
-        solid_mask = grid.cell_data["beamme_type"] == _bme.element_type.solid.value
-        if _np.any(solid_mask):
-            solid_grid = grid.extract_cells(solid_mask)
-            plotter.add_mesh(solid_grid, color="white", show_edges=True, opacity=0.5)
-
-        if not _is_testing():
-            _show_plotter(plotter)
-        else:
-            return plotter
+        return _display_pyvista(
+            grid,
+            beam_nodes=beam_nodes,
+            beam_tube=beam_tube,
+            beam_cross_section_directors=beam_cross_section_directors,
+            resolution=resolution,
+            parallel_projection=parallel_projection,
+        )
 
     def copy(self) -> _Self:
         """Return a deep copy of this mesh.

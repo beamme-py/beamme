@@ -78,7 +78,9 @@ def get_default_test_beam_material() -> Callable:
         A function that creates a default beam material.
     """
 
-    def _get_default_test_beam_material(material_type: str = "base", **kwargs):
+    def _get_default_test_beam_material(
+        material_type: str = "base", radius: float = 1.0, **kwargs
+    ):
         """Return a default material for testing purposes.
 
         Args:
@@ -88,11 +90,11 @@ def get_default_test_beam_material() -> Callable:
             A material object corresponding to the specified beam type.
         """
         if material_type == "base":
-            return MaterialBeamBase(radius=1.0, **kwargs)
+            return MaterialBeamBase(radius=radius, **kwargs)
 
         elif material_type == "reissner":
             return MaterialReissner(
-                radius=1.0, youngs_modulus=1.0, nu=0.3, density=1.0, **kwargs
+                radius=radius, youngs_modulus=1.0, nu=0.3, density=1.0, **kwargs
             )
 
         else:

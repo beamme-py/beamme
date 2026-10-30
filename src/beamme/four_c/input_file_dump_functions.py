@@ -575,12 +575,7 @@ def dump_mesh_representation_to_input_file_vtu(
         The unstructured grid containing the vtu mesh.
     """
     # VTU output can not be combined with yaml output.
-    n_yaml_nodes = len(fourc_input.sections.get("NODE COORDS", []))
-    n_yaml_elements = sum(
-        len(fourc_input.sections.get(section, []))
-        for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
-    )
-    if n_yaml_nodes > 0 or n_yaml_elements > 0:
+    if fourc_input.contains_yaml_based_geometry():
         raise ValueError(
             "Mesh output in `vtu` format is not possible if there are yaml nodes or "
             "elements in the input file."
