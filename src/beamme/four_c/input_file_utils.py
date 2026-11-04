@@ -58,3 +58,18 @@ def get_start_index_functions(four_cipp_input: _FourCInput) -> int:
         ),
         default=0,
     )
+
+
+def four_cipp_unregister_type(four_cipp_input: _FourCInput, custom_type: type):
+    """Unregister a custom type converter function from the FourCInput object.
+
+    Args:
+        four_cipp_input: The FourCInput object to unregister the type from.
+        custom_type: The custom type to unregister. If this type is not registered,
+            an error will be raised.
+    """
+    if custom_type not in four_cipp_input.type_converter._custom_converters:
+        raise ValueError(
+            f"Custom type {custom_type} is not registered in the FourCInput object."
+        )
+    four_cipp_input.type_converter._custom_converters.pop(custom_type, None)
