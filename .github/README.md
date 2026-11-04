@@ -32,3 +32,10 @@
 
 7. **Optionally, create a GitHub Release from the new tag using the GitHub web interface**
    (for example, to add release notes or highlight changes).
+
+
+# Protected workflow changes
+
+Contributions are usually made from a fork, and the test workflows run automatically for the pull request.
+
+The only exception is a change to [`workflows/testing_protected.yml`](workflows/testing_protected.yml), because that workflow requires access to repository secrets (to activate Cubit Coreform). It must be made on a branch in the main repository whose name starts with `trusted-ci/`, for example `trusted-ci/update-protected-workflow`. Open the pull request from that branch so GitHub can run the updated workflow with the required Cubit Coreform secrets.
