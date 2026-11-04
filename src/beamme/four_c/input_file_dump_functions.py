@@ -60,6 +60,9 @@ from beamme.four_c.input_file_utils import (
     contains_yaml_based_geometry as _contains_yaml_based_geometry,
 )
 from beamme.four_c.input_file_utils import (
+    four_cipp_unregister_type as _four_cipp_unregister_type,
+)
+from beamme.four_c.input_file_utils import (
     get_start_index_functions as _get_start_index_functions,
 )
 from beamme.four_c.material import (
@@ -381,6 +384,12 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     for element in mesh.elements:
         if isinstance(element, _NURBSPatch):
             dump_nurbs_patch_knotvectors(input_file, element)
+
+    # Reset the custom FourCIPP type converters.
+    _four_cipp_unregister_type(input_file.fourc_input, _GeometrySetBase)
+    _four_cipp_unregister_type(input_file.fourc_input, _Function)
+    _four_cipp_unregister_type(input_file.fourc_input, _Material)
+    _four_cipp_unregister_type(input_file.fourc_input, _NURBSPatch)
 
 
 def _get_function_converter(
