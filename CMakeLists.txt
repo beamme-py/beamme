@@ -24,8 +24,11 @@ cmake_minimum_required(VERSION 3.24)
 
 project(beamme LANGUAGES NONE)
 
-# Include CMake configuration for Cython code
-add_subdirectory(src/cython)
+option(ENABLE_CYTHON "Build the optional Cython geometric search extension" OFF)
+if(ENABLE_CYTHON)
+  # Include CMake configuration for Cython code
+  add_subdirectory(src/cython)
+endif()
 
 option(ENABLE_ARBORX "Build the optional ArborX geometric search extension" OFF)
 if(ENABLE_ARBORX)

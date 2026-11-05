@@ -66,6 +66,7 @@ the [Institute for Computational Mechanics (LNM)](https://www.epc.ed.tum.de/lnm/
 - [Optional dependencies](#optional-dependencies)
   - [4C](#4c)
   - [CubitPy](#cubitpy)
+  - [Cython brute force geometric search](#cython-brute-force-geometric-search)
   - [ArborX geometric search](#arborx-geometric-search)
 - [Developing BeamMe](#developing-beamme)
   - [Coding guidelines](#coding-guidelines)
@@ -292,9 +293,16 @@ CubitPy can be installed as an optional dependency with:
 pip install -e .[cubitpy]
 ```
 
+### [Cython](https://cython.readthedocs.io) brute force geometric search
+
+BeamMe can optionally execute its geometric search functions using the a brute force search implemented in [Cython](https://cython.readthedocs.io). This is especially useful for searches with small number of points. The extension is disabled by default. To activate it, install BeamMe with the following command:
+```bash
+pip install -e . -Ccmake.define.ENABLE_CYTHON=ON
+```
+
 ### [ArborX](https://github.com/arborx/ArborX) geometric search
 
-BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX). The ArborX extension is disabled by default. To activate it, install BeamMe with the following command:
+BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX). This is especially useful for large-scale geometric searches. The ArborX extension is disabled by default. To activate it, install BeamMe with the following command:
 ```bash
 pip install -e . -Ccmake.define.ENABLE_ARBORX=ON
 ```
@@ -350,6 +358,7 @@ pytest
 BeamMe provides a flexible testing system where additional tests can be enabled using specific flags. The following flags can be used with [pytest](https://pytest-cov.readthedocs.io/en/latest/config.html) to enable specific test sets:
  - `--exclude-standard-tests`: Disables the default test suite
  - `--4C`: Runs tests related to 4C integration
+ - `--Cython`: Enables tests for Cython-related functionality
  - `--ArborX`: Enables tests for ArborX-related functionality
  - `--Coreform`: Runs tests that require Coreform Cubit
  - `--performance-tests`: Includes performance tests
