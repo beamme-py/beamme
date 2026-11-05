@@ -3,8 +3,7 @@ description: Install BeamMe with configurable dependencies
 inputs:
   install-command:
     description: Command to install BeamMe with pip
-    required: false
-    default: ".[dev]"
+    required: true
 runs:
   using: composite
   steps:

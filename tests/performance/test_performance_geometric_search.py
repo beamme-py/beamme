@@ -37,6 +37,7 @@ from beamme.geometric_search.find_close_points import (
         (5000, 100, 3.3),
     ],
 )
+@pytest.mark.cython
 @pytest.mark.performance
 def test_performance_geometric_search_find_close_points_brute_force_cython(
     n_points, n_runs, expected_time, evaluate_execution_time
