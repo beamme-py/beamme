@@ -1018,44 +1018,9 @@ class Mesh:
         grid = self.get_vtu_representation()
         grid.save(path, binary=binary)
 
-    def display_pyvista(
-        self,
-        *,
-        beam_nodes=True,
-        beam_tube=True,
-        beam_cross_section_directors=True,
-        resolution=20,
-        parallel_projection=False,
-    ):
-        """Display the mesh in pyvista.
-
-        If this is called in a GitHub testing run, nothing will be shown, instead
-        the _pv.plotter object will be returned.
-
-        Args:
-            beam_nodes: bool
-                If the beam nodes should be displayed. The start and end nodes of each
-                beam will be shown in green, possible middle nodes inside the element
-                are shown in cyan.
-            beam_tube: bool
-                If the beam should be rendered as a tube
-            beam_cross_section_directors: bool
-                If the cross section directors should be displayed (at each node)
-            resolution: int
-                Indicates how many triangulations will be performed to visualize arrows,
-                tubes and spheres.
-            parallel_projection: bool
-                Flag to change camera view to parallel projection.
-        """
-        grid = self.get_vtu_representation()
-        return _display_pyvista(
-            grid,
-            beam_nodes=beam_nodes,
-            beam_tube=beam_tube,
-            beam_cross_section_directors=beam_cross_section_directors,
-            resolution=resolution,
-            parallel_projection=parallel_projection,
-        )
+    # Set the display method from the common base implementation
+    # in beamme.utils.visualization.
+    display_pyvista = _display_pyvista
 
     def copy(self) -> _Self:
         """Return a deep copy of this mesh.

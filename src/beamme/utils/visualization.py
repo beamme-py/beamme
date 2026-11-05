@@ -123,7 +123,7 @@ def show_plotter(plotter: _pv.Plotter, *, nbsphinx_export_3d_view: bool = True) 
 
 
 def display_pyvista(
-    grid: _pv.UnstructuredGrid,
+    self,
     *,
     beam_nodes=True,
     beam_tube=True,
@@ -131,12 +131,13 @@ def display_pyvista(
     resolution=20,
     parallel_projection=False,
 ):
-    """Display the grid in pyvista.
+    """Display a mesh or input file object in pyvista.
 
     If this is called in a GitHub testing run, nothing will be shown, instead
     the _pv.plotter object will be returned.
 
     Args:
+        self: The mesh or input file object to be displayed.
         beam_nodes: bool
             If the beam nodes should be displayed. The start and end nodes of each
             beam will be shown in green, possible middle nodes inside the element
@@ -151,6 +152,8 @@ def display_pyvista(
         parallel_projection: bool
             Flag to change camera view to parallel projection.
     """
+    grid = self.get_vtu_representation()
+
     plotter = _pv.Plotter()
     plotter.renderer.add_axes()
 
