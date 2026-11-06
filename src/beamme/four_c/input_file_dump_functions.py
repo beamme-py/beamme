@@ -53,6 +53,9 @@ from beamme.four_c.four_c_types import (
     BeamKirchhoffParametrizationType as _BeamKirchhoffParametrizationType,
 )
 from beamme.four_c.four_c_types import BeamType as _BeamType
+from beamme.four_c.input_file_geometry_set import (
+    GeometrySetInputFile as _GeometrySetInputFile,
+)
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
@@ -67,6 +70,9 @@ from beamme.four_c.input_file_utils import (
 )
 from beamme.four_c.material import (
     get_material_to_i_global_mapping as _get_material_to_i_global_mapping,
+)
+from beamme.utils.data_structures import (
+    compare_nested_dicts_or_lists as _compare_nested_dicts_or_lists,
 )
 from beamme.utils.data_structures import (
     create_inverse_mapping as _create_inverse_mapping,
@@ -199,6 +205,24 @@ def dump_nurbs_patch_knotvectors(input_file, nurbs_patch: _NURBSPatch) -> None:
     input_file.add({"STRUCTURE KNOTVECTORS": {"PATCHES": patches}})
 
 
+def get_boundary_condition_section(bc_key, geometry_type) -> str:
+    """Get the section name for a boundary condition based on its key and geometry type.
+
+    Args:
+        bc_key: The key of the boundary condition.
+        geometry_type: The geometry type of the boundary condition.
+
+    Returns:
+        The section name for the boundary condition.
+    """
+    if isinstance(bc_key, str):
+        return bc_key
+    else:
+        return _INPUT_FILE_MAPPINGS["bc_type_and_geometry_type_to_bc_section"][
+            (bc_key, geometry_type)
+        ]
+
+
 def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     """Add a mesh to the input file.
 
@@ -235,14 +259,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
         start_index_geometry_set = max(start_index_geometry_set, info.i_global + 1)
 
     # Compute starting index for functions
-    start_index_functions = max(
-        (
-            int(section.split("FUNCT")[-1])
-            for section in input_file.sections
-            if section.startswith("FUNCT")
-        ),
-        default=0,
-    )
+    start_index_functions = _get_start_index_functions(input_file.fourc_input)
 
     # Compute starting index for materials
     start_index_materials = max(
@@ -351,13 +368,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     # Dump boundary conditions
     for (bc_key, geometry_key), bc_list in mesh.boundary_conditions.items():
         if bc_list:
-            if isinstance(bc_key, str):
-                section = bc_key
-            else:
-                section = _INPUT_FILE_MAPPINGS[
-                    "bc_type_and_geometry_type_to_bc_section"
-                ][(bc_key, geometry_key)]
-
+            section = get_boundary_condition_section(bc_key, geometry_key)
             for boundary_condition in bc_list:
                 if isinstance(boundary_condition, _BoundaryCondition):
                     bc_data = boundary_condition.data
@@ -390,6 +401,48 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     _four_cipp_unregister_type(input_file.fourc_input, _Function)
     _four_cipp_unregister_type(input_file.fourc_input, _Material)
     _four_cipp_unregister_type(input_file.fourc_input, _NURBSPatch)
+
+
+def dump_boundary_condition_to_input_file(
+    input_file, boundary_condition: _BoundaryCondition
+) -> None:
+    """Dump a boundary condition referencing a GeometrySetInputFile to the 4C input
+    file.
+
+    Args:
+        input_file: The 4C input file via FourCIPP where the boundary condition will
+            be dumped to.
+        boundary_condition: The boundary condition to be dumped to the input file.
+    """
+    if not isinstance(boundary_condition.geometry_set, _GeometrySetInputFile):
+        raise TypeError(
+            f"Expected a GeometrySetInputFile for the geometry set. Got "
+            f"{type(boundary_condition.geometry_set)}"
+        )
+
+    section = get_boundary_condition_section(
+        boundary_condition.bc_type, boundary_condition.geometry_set.geometry_type
+    )
+
+    # Map to track functions that are already dumped to the input file.
+    function_to_i_global: dict[_Function, int] = {}
+    input_file.fourc_input.type_converter.register_type(
+        _Function,
+        _get_function_converter(
+            input_file.fourc_input,
+            function_to_i_global,
+            search_existing_functions=True,
+        ),
+    )
+    input_file.boundary_conditions[section].append(
+        _FourCBoundaryConditionData(
+            geometry_set_id=boundary_condition.geometry_set.get_geometry_set_id(
+                input_file.mesh_representation
+            ),
+            data=input_file.fourc_input.type_converter(boundary_condition.data),
+        )
+    )
+    _four_cipp_unregister_type(input_file.fourc_input, _Function)
 
 
 def _get_function_converter(
@@ -433,17 +486,24 @@ def _get_function_converter(
         if function in function_to_i_global:
             return function_to_i_global[function] + 1
 
-        if search_existing_functions:
-            raise NotImplementedError(
-                "Searching for existing functions in the input file is not yet implemented."
-            )
-
-        # No equivalent function was found in the input file, so we dump the function
-        # to the input file.
-        function_id = next_function_id
-        fourcipp_input_file.combine_sections(dump_function(function, function_id))
-        function_to_i_global[function] = function_id
-        next_function_id += 1
+        for function_section in [
+            section
+            for section in fourcipp_input_file.sections
+            if section.startswith("FUNCT")
+        ]:
+            if _compare_nested_dicts_or_lists(
+                fourcipp_input_file.sections[function_section], function.data
+            ):
+                function_id = int(function_section.split("FUNCT")[-1]) - 1
+                function_to_i_global[function] = function_id
+                break
+        else:
+            # No equivalent function was found in the input file, so we dump the function
+            # to the input file.
+            function_id = next_function_id
+            fourcipp_input_file.combine_sections(dump_function(function, function_id))
+            function_to_i_global[function] = function_id
+            next_function_id += 1
 
         return function_id + 1
 

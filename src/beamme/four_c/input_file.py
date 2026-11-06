@@ -35,6 +35,7 @@ from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
 from fourcipp.utils.not_set import NOT_SET as _NOT_SET
 
+from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
@@ -42,6 +43,9 @@ from beamme.four_c.boundary_condition_data import (
     FourCBoundaryConditionData as _FourCBoundaryConditionData,
 )
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
+from beamme.four_c.input_file_dump_functions import (
+    dump_boundary_condition_to_input_file as _dump_boundary_condition_to_input_file,
+)
 from beamme.four_c.input_file_dump_functions import (
     dump_mesh_representation_to_input_file_vtu as _dump_mesh_representation_to_input_file_vtu,
 )
@@ -176,6 +180,9 @@ class InputFile:
         """
         if isinstance(object_to_add, _Mesh):
             _dump_mesh_to_input_file(self, mesh=object_to_add, **kwargs)
+
+        elif isinstance(object_to_add, _BoundaryCondition):
+            _dump_boundary_condition_to_input_file(self, object_to_add)
 
         else:
             self.fourc_input.combine_sections(object_to_add)
