@@ -413,3 +413,78 @@ def test_integration_four_c_input_file_dump_functions(
     )
 
     assert_results_close(get_corresponding_reference_file_path(), mesh)
+
+
+def test_integration_four_c_input_file_add_boundary_conditions_to_input_file(
+    get_default_test_beam_material,
+    get_bc_data,
+    get_corresponding_reference_file_path,
+    assert_results_close,
+):
+    """Test that boundary conditions referencing a geometry set of the mesh
+    representation can directly be added to the input file."""
+    mesh = Mesh()
+    mat = get_default_test_beam_material(material_type="reissner")
+    beam_set = create_beam_mesh(mesh, Beam3eb, mat)
+
+    function_1 = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "1*t"}])
+    function_1_duplicate = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "1*t"}])
+    function_2 = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "2*t"}])
+
+    # Name some of the geometry sets and add to the mesh
+    beam_set["start"].name = "beam_start"
+    mesh.add(beam_set["start"])
+    beam_set["line"].name = "beam_line"
+    mesh.add(beam_set["line"])
+
+    # Add one boundary condition already to the mesh
+    mesh.add(function_1)
+    mesh.add(
+        BoundaryCondition(
+            beam_set["end"],
+            {
+                "NUMDOF": 3,
+                "ONOFF": [1] * 3,
+                "VAL": [0] * 3,
+                "FUNCT": [function_1, 0, 0],
+            },
+            bc_type=bme.bc.dirichlet,
+        )
+    )
+
+    # Add the mesh to the input file
+    input_file = InputFile()
+    input_file.add(mesh)
+
+    # Now we add boundary conditions directly to the input file, referencing the named geometry sets.
+    input_file_geometry_sets = input_file.get_named_geometry_sets()
+    input_file.add(
+        BoundaryCondition(
+            input_file_geometry_sets["beam_start"],
+            get_bc_data(identifier=1, num_dof=6),
+            bc_type=bme.bc.dirichlet,
+        )
+    )
+    input_file.add(
+        BoundaryCondition(
+            input_file_geometry_sets["beam_line"],
+            {
+                "NUMDOF": 8,
+                "ONOFF": [1] * 8,
+                "VAL": [0] * 8,
+                "FUNCT": [
+                    function_1,
+                    function_2,
+                    function_1_duplicate,
+                    function_2,
+                    function_1,
+                    function_2,
+                    function_1_duplicate,
+                    function_2,
+                ],
+            },
+            bc_type=bme.bc.neumann,
+        )
+    )
+
+    assert_results_close(get_corresponding_reference_file_path(), input_file)
