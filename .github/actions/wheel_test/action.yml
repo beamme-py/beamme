@@ -32,4 +32,4 @@ runs:
     - name: Run test suite and upload results on failure
       uses: ./.github/actions/run_tests
       with:
-        additional-pytest-flags: "--no-cov"
+        additional-pytest-flags: "--no-cov --ArborX --Cython"

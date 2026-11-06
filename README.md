@@ -66,6 +66,7 @@ the [Institute for Computational Mechanics (LNM)](https://www.epc.ed.tum.de/lnm/
 - [Optional dependencies](#optional-dependencies)
   - [4C](#4c)
   - [CubitPy](#cubitpy)
+  - [Cython brute force geometric search](#cython-brute-force-geometric-search)
   - [ArborX geometric search](#arborx-geometric-search)
 - [Developing BeamMe](#developing-beamme)
   - [Coding guidelines](#coding-guidelines)
@@ -292,26 +293,19 @@ CubitPy can be installed as an optional dependency with:
 pip install -e .[cubitpy]
 ```
 
+### [Cython](https://cython.readthedocs.io) brute force geometric search
+
+BeamMe can optionally execute its geometric search functions using the a brute force search implemented in [Cython](https://cython.readthedocs.io). This is especially useful for searches with small number of points. The extension is disabled by default. To activate it, install BeamMe with the following command:
+```bash
+pip install -e . -Ccmake.define.ENABLE_CYTHON=ON
+```
+
 ### [ArborX](https://github.com/arborx/ArborX) geometric search
 
-BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX).
-First make sure the [pybind11](https://pybind11.readthedocs.io/en/stable/) submodule is loaded
+BeamMe can optionally execute its geometric search functions using the C++ library [ArborX](https://github.com/arborx/ArborX). This is especially useful for large-scale geometric searches. The ArborX extension is disabled by default. To activate it, install BeamMe with the following command:
 ```bash
-cd <path_to_beamme>
-git submodule update --init
+pip install -e . -Ccmake.define.ENABLE_ARBORX=ON
 ```
-To setup BeamMe with ArborX, [CMake](https://cmake.org) and [Kokkos](https://kokkos.org) have to be available on your system (the preferred variant is via [Spack](https://spack.io/)).
-Create a build directory
-```bash
-mkdir -p <path_to_beamme>/src/build/geometric_search
-```
-Configure cmake and build the extension
-```bash
-cd <path_to_beamme>/build/geometric_search
-cmake ../../beamme/geometric_search/src/
-make -j4
-```
-> Note: Currently ArborX only works if BeamMe is installed in _editable_ mode.
 
 ## Developing BeamMe
 
@@ -364,6 +358,7 @@ pytest
 BeamMe provides a flexible testing system where additional tests can be enabled using specific flags. The following flags can be used with [pytest](https://pytest-cov.readthedocs.io/en/latest/config.html) to enable specific test sets:
  - `--exclude-standard-tests`: Disables the default test suite
  - `--4C`: Runs tests related to 4C integration
+ - `--Cython`: Enables tests for Cython-related functionality
  - `--ArborX`: Enables tests for ArborX-related functionality
  - `--Coreform`: Runs tests that require Coreform Cubit
  - `--performance-tests`: Includes performance tests

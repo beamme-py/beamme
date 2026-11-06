@@ -57,6 +57,13 @@ def pytest_addoption(parser: Parser) -> None:
     )
 
     parser.addoption(
+        "--Cython",
+        action="store_true",
+        default=False,
+        help="Execute standard and Cython based tests.",
+    )
+
+    parser.addoption(
         "--ArborX",
         action="store_true",
         default=False,
@@ -126,6 +133,7 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
     Currently configured options:
         `pytest`: Execute standard tests with no markers
         `pytest --4C`: Execute standard tests and tests with the `fourc` marker
+        `pytest --Cython`: Execute standard tests and tests with the `cython` marker
         `pytest --ArborX`: Execute standard tests and tests with the `arborx` marker
         `pytest --Coreform`: Execute standard tests and tests with the `coreform` marker
         `pytest --performance-tests`: Execute standard tests and tests with the `performance` marker
@@ -139,8 +147,8 @@ def pytest_collection_modifyitems(config: Config, items: list) -> None:
     # Get all active markers for this pytest run
     active_markers = set()
     for flag, marker in zip(
-        ["--4C", "--ArborX", "--Coreform", "--performance-tests"],
-        ["fourc", "arborx", "coreform", "performance"],
+        ["--4C", "--Cython", "--ArborX", "--Coreform", "--performance-tests"],
+        ["fourc", "cython", "arborx", "coreform", "performance"],
     ):
         if config.getoption(flag):
             active_markers.add(marker)
