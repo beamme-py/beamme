@@ -55,6 +55,9 @@ from beamme.four_c.four_c_types import BeamType as _BeamType
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
+from beamme.four_c.input_file_utils import (
+    contains_yaml_based_geometry as _contains_yaml_based_geometry,
+)
 from beamme.four_c.material import (
     get_material_to_i_global_mapping as _get_material_to_i_global_mapping,
 )
@@ -575,12 +578,7 @@ def dump_mesh_representation_to_input_file_vtu(
         The unstructured grid containing the vtu mesh.
     """
     # VTU output can not be combined with yaml output.
-    n_yaml_nodes = len(fourc_input.sections.get("NODE COORDS", []))
-    n_yaml_elements = sum(
-        len(fourc_input.sections.get(section, []))
-        for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
-    )
-    if n_yaml_nodes > 0 or n_yaml_elements > 0:
+    if _contains_yaml_based_geometry(fourc_input):
         raise ValueError(
             "Mesh output in `vtu` format is not possible if there are yaml nodes or "
             "elements in the input file."

@@ -29,6 +29,8 @@ from pathlib import Path as _Path
 from typing import Any as _Any
 from typing import Self as _Self
 
+import numpy as _np
+import pyvista as _pv
 from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
 from fourcipp.utils.not_set import NOT_SET as _NOT_SET
@@ -49,9 +51,19 @@ from beamme.four_c.input_file_dump_functions import (
 from beamme.four_c.input_file_dump_functions import (
     dump_mesh_to_input_file as _dump_mesh_to_input_file,
 )
+from beamme.four_c.input_file_mappings import (
+    INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
+)
+from beamme.four_c.input_file_utils import (
+    contains_yaml_based_geometry as _contains_yaml_based_geometry,
+)
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 from beamme.utils.environment import get_application_path as _get_application_path
 from beamme.utils.environment import get_git_data as _get_git_data
+from beamme.utils.visualization import (
+    add_base_vectors_to_grid as _add_base_vectors_to_grid,
+)
+from beamme.utils.visualization import display_pyvista as _display_pyvista
 
 if _cubitpy_is_available():
     import cubitpy as _cubitpy
@@ -409,3 +421,81 @@ class InputFile:
             True if the input file contains VTU mesh-based geometry, False otherwise.
         """
         return self._contains_mesh_based_geometry([".vtu"])
+
+    def get_vtu_representation(self) -> _pv.UnstructuredGrid:
+        """Return a vtu representation of this input file.
+
+        Returns:
+            A pyvista UnstructuredGrid object that represents this input file.
+        """
+        if _contains_yaml_based_geometry(self.fourc_input):
+            raise ValueError(
+                "Input file contains yaml-based geometry, which is not supported"
+                "for vtu representation."
+            )
+
+        # Get the pyvista grid for the mesh representation.
+        grid = self.mesh_representation.get_pyvista_grid(
+            cell_data_fields=["element_type_id", "beamme_id", "material_id"],
+            point_data_fields=["point_type", "rotation_vector"],
+            add_geometry_sets=True,
+        )
+
+        # Get the BeamMe element types
+        element_type_id_to_beamme_type = {}
+        for id, data in self.element_type_id_to_data.items():
+            element_type_id_to_beamme_type[id] = _INPUT_FILE_MAPPINGS[
+                "four_c_cell_to_element_type_and_n_nodes"
+            ][data.four_c_cell][0].value
+        lookup = _np.zeros(max(element_type_id_to_beamme_type) + 1, dtype=int)
+        for element_type, beamme_type in element_type_id_to_beamme_type.items():
+            lookup[element_type] = beamme_type
+        beamme_type = lookup[grid.cell_data["element_type_id"]]
+        grid.cell_data["beamme_type"] = beamme_type
+
+        # Get the element cross-section radius
+        material_id_to_radius_lookup = _np.full(
+            _np.max(grid.cell_data["material_id"]) + 1, -1.0, dtype=float
+        )
+        for material in self.sections["MATERIALS"]:
+            id = material["MAT"] - 1
+            if id >= len(material_id_to_radius_lookup):
+                # In this case, the material is not used in the mesh, so we can skip it.
+                continue
+            keys = set(material.keys())
+            keys.discard("MAT")
+            name = keys.pop()
+            if "Beam" in name:
+                data = material[name]
+                area = data.get("CROSSAREA", None)
+                if area is None:
+                    raise ValueError(
+                        f"Material {id + 1} is a beam material, but does not have a "
+                        "CROSSAREA entry."
+                    )
+                radius = _np.sqrt(area / _np.pi)
+                material_id_to_radius_lookup[id] = radius
+        cross_section_radius = material_id_to_radius_lookup[
+            grid.cell_data["material_id"]
+        ]
+        grid.cell_data["cross_section_radius"] = cross_section_radius
+
+        # Get the node value vector
+        node_value = _np.zeros(grid.n_points, dtype=float)
+        for cell_id in _np.flatnonzero(grid.celltypes == _pv.CellType.POLY_LINE):
+            ids = grid.get_cell(cell_id).point_ids
+            node_value[ids[0]] = 1.0
+            node_value[ids[-1]] = 1.0
+            node_value[ids[1:-1]] = 0.5
+        grid.point_data["node_value"] = node_value
+
+        _add_base_vectors_to_grid(grid)
+
+        # Remove not needed data fields.
+        del grid.cell_data["material_id"]
+
+        return grid
+
+    # Set the display method from the common base implementation
+    # in beamme.utils.visualization.
+    display_pyvista = _display_pyvista
