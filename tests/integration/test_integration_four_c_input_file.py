@@ -36,6 +36,7 @@ from beamme.four_c.element_beam import (
     get_four_c_reissner_beam,
 )
 from beamme.four_c.input_file import InputFile
+from beamme.four_c.model_importer import import_four_c_model
 from beamme.mesh_creation_functions.beam_arc import create_beam_mesh_arc_segment_2d
 from beamme.mesh_creation_functions.beam_line import create_beam_mesh_line
 
@@ -299,4 +300,39 @@ def test_integration_four_c_input_file_vtu_boundary_conditions_named_geometry_se
         get_corresponding_reference_file_path(),
         input_file,
         four_c_input_file_data_format="vtu",
+    )
+
+
+def test_integration_four_c_input_file_get_vtu_representation(
+    assert_results_close,
+    get_corresponding_reference_file_path,
+    get_default_test_beam_material,
+):
+    """Check that get_vtu_representation works for an input file."""
+    # Load solid elements
+    input_file_path = get_corresponding_reference_file_path(
+        reference_file_base_name="test_other_create_cubit_input_files_multiple_solid_bricks_exo"
+    )
+    input_file, mesh = import_four_c_model(
+        input_file_path=input_file_path, convert_input_to_mesh=False
+    )
+
+    # Add beam elements
+    material_1 = get_default_test_beam_material(material_type="reissner", radius=0.1)
+    material_2 = get_default_test_beam_material(material_type="reissner", radius=0.05)
+    for i in range(4):
+        beam_set = create_beam_mesh_line(
+            mesh,
+            Beam3rHerm2Line3,
+            material_1 if i % 2 == 0 else material_2,
+            [i + 3, 0, 0],
+            [i + 3, 0, 4],
+            n_el=2,
+        )
+        mesh.add(beam_set)
+
+    input_file.add(mesh)
+    grid_input_file = input_file.get_vtu_representation()
+    assert_results_close(
+        get_corresponding_reference_file_path(extension="vtu"), grid_input_file
     )
