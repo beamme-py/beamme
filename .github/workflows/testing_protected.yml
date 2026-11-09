@@ -28,15 +28,18 @@ env:
 jobs:
   beamme-testing-all-dependencies:
     # Run:
-    # - always for non-PR events
-    # - for pull_request_target only when PR comes from a fork
-    # - for pull_request only when PR comes from this repo AND branch name starts with trusted-ci/*
+    # - Always for non-PR events (scheduled run every day at 6AM)
+    # - For pull_request only when the PR comes from this repo AND the branch starts with trusted-ci/* (used to make changes to the protected workflow and test them, only allowed by members of BeamMe with write access)
+    # - For pull_request_target for regular PRs (includes PRs from dependabot and PRs from forks, note that the workflow file from main is used for the workflow rather than the pushed version => here changes to the protected workflow cannot be tested)
     if: |
-      github.event_name != 'pull_request' &&
-      github.event_name != 'pull_request_target' ||
+      (github.event_name != 'pull_request' &&
+      github.event_name != 'pull_request_target') ||
       (
         github.event_name == 'pull_request_target' &&
-        github.event.pull_request.head.repo.full_name != github.repository
+        (
+          github.event.pull_request.head.repo.full_name != github.repository ||
+          !startsWith(github.event.pull_request.head.ref, 'trusted-ci/')
+        )
       ) ||
       (
         github.event_name == 'pull_request' &&
