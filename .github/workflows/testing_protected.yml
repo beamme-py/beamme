@@ -59,7 +59,6 @@ jobs:
       - name: Checkout PR code
         uses: actions/checkout@v7
         with:
-          submodules: true
           # For PR runs, checkout PR code; otherwise fallback to default branch or ref
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
@@ -69,12 +68,10 @@ jobs:
         uses: ./.github/actions/setup_python_environment
         with:
           env_type: "conda"
-      - name: Build ArborX geometric search
-        uses: ./.github/actions/build_arborx_geometric_search
       - name: Install BeamMe
         uses: ./.github/actions/install_beamme
         with:
-          install-command: "-e .[dev]"
+          install-command: "-e .[dev] -Ccmake.define.ENABLE_CYTHON=ON -Ccmake.define.ENABLE_ARBORX=ON"
       - name: Setup cubit
         id: cubit
         uses: ./.github/actions/cubit_setup
@@ -90,7 +87,7 @@ jobs:
       - name: Run the test suite and upload results on failure
         uses: ./.github/actions/run_tests
         with:
-          additional-pytest-flags: "--4C --ArborX --Coreform --check-for-unused-reference-files --cov-fail-under=93"
+          additional-pytest-flags: "--4C --ArborX --Cython --Coreform --check-for-unused-reference-files --cov-fail-under=93"
           cubitpy_config_path: ${{ steps.cubitpy_config.outputs.cubitpy_config_path }}
       - name: Free cubit license
         if: ${{ always() }}
