@@ -1,0 +1,15 @@
+STRUCTURE GEOMETRY:
+  FILE: "test_integration_four_c_input_file_vtu_pure_solid_mesh.mesh.vtu"
+  SHOW_INFO: "detailed_summary"
+  ELEMENT_BLOCKS:
+    - ID: 0
+      SOLID:
+        HEX8:
+          MAT: 1
+          KINEM: "nonlinear"
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_StVenantKirchhoff:
+      DENS: 1.0
+      NUE: 0.3
+      YOUNG: 1.0

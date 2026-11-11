@@ -619,25 +619,30 @@ def dump_mesh_representation_to_input_file_vtu(
     )
 
     # Extract the triad information for each element where we need it.
-    rotation_vectors = mesh_representation.point_data["rotation_vector"]
-    element_rotation_vectors = {
-        n_nodes: _np.zeros((mesh_representation.n_cells, 3 * n_nodes))
-        for n_nodes in triad_n_nodes
-    }
-    beam_connectivity_mapping = _INPUT_FILE_MAPPINGS["beam_vtk_mapping_to_four_c"]
-    for i_element, connectivity in zip(
-        triad_info_indices,
-        mesh_representation.connectivity_iterator(element_indices=triad_info_indices),
-    ):
-        # The order of the element rotation vectors has to be consistent with the
-        # connectivity in 4C, not the one we write to vtu. Thus, we have to reorder
-        # the connectivity here.
-        n_nodes = len(connectivity)
-        element_rotation_vectors[n_nodes][i_element] = rotation_vectors[
-            connectivity[beam_connectivity_mapping[n_nodes]]
-        ].ravel()
-    for n_nodes, element_rotation_vector in element_rotation_vectors.items():
-        grid.cell_data[f"element_rotation_vector_{n_nodes}"] = element_rotation_vector
+    if len(triad_info_indices) > 0:
+        rotation_vectors = mesh_representation.point_data["rotation_vector"]
+        element_rotation_vectors = {
+            n_nodes: _np.zeros((mesh_representation.n_cells, 3 * n_nodes))
+            for n_nodes in triad_n_nodes
+        }
+        beam_connectivity_mapping = _INPUT_FILE_MAPPINGS["beam_vtk_mapping_to_four_c"]
+        for i_element, connectivity in zip(
+            triad_info_indices,
+            mesh_representation.connectivity_iterator(
+                element_indices=triad_info_indices
+            ),
+        ):
+            # The order of the element rotation vectors has to be consistent with the
+            # connectivity in 4C, not the one we write to vtu. Thus, we have to reorder
+            # the connectivity here.
+            n_nodes = len(connectivity)
+            element_rotation_vectors[n_nodes][i_element] = rotation_vectors[
+                connectivity[beam_connectivity_mapping[n_nodes]]
+            ].ravel()
+        for n_nodes, element_rotation_vector in element_rotation_vectors.items():
+            grid.cell_data[f"element_rotation_vector_{n_nodes}"] = (
+                element_rotation_vector
+            )
 
     # Get the block IDs for each cell (elements with the same material and element data are in the same block).
     element_type_and_material_to_block_id: dict[tuple[int, int], int] = {}

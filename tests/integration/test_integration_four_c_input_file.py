@@ -336,3 +336,21 @@ def test_integration_four_c_input_file_get_vtu_representation(
     assert_results_close(
         get_corresponding_reference_file_path(extension="vtu"), grid_input_file
     )
+
+
+def test_integration_four_c_input_file_vtu_pure_solid_mesh(
+    assert_results_close, get_corresponding_reference_file_path
+):
+    """Check that we can handle pure solid meshes with vtu mesh format."""
+    input_file_path = get_corresponding_reference_file_path(
+        reference_file_base_name="test_other_create_cubit_input_files_single_solid_element_brick"
+    )
+    input_file, mesh = import_four_c_model(
+        input_file_path=input_file_path, convert_input_to_mesh=True
+    )
+    input_file.add(mesh)
+    assert_results_close(
+        get_corresponding_reference_file_path(),
+        input_file,
+        four_c_input_file_data_format="vtu",
+    )
