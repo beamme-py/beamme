@@ -22,6 +22,7 @@
 """This script is used to test 4C input file related functionality."""
 
 import numpy as np
+import pytest
 
 from beamme.core.boundary_condition import BoundaryCondition
 from beamme.core.conf import bme
@@ -349,6 +350,26 @@ def test_integration_four_c_input_file_vtu_pure_solid_mesh(
         input_file_path=input_file_path, convert_input_to_mesh=True
     )
     input_file.add(mesh)
+    assert_results_close(
+        get_corresponding_reference_file_path(),
+        input_file,
+        four_c_input_file_data_format="vtu",
+    )
+
+
+@pytest.mark.parametrize("full_import", [False, True])
+def test_integration_four_c_input_file_boundary_condition_names_from_exodus(
+    full_import, assert_results_close, get_corresponding_reference_file_path
+):
+    """Check that boundary condition names are correctly extracted from Exodus files."""
+    input_file_path = get_corresponding_reference_file_path(
+        reference_file_base_name="test_other_create_cubit_input_files_user_defined_node_sets_and_block_ids"
+    )
+    input_file, mesh = import_four_c_model(
+        input_file_path=input_file_path, convert_input_to_mesh=full_import
+    )
+    if full_import:
+        input_file.add(mesh)
     assert_results_close(
         get_corresponding_reference_file_path(),
         input_file,
