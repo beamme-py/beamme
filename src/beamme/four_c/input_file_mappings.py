@@ -108,7 +108,7 @@ INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_entry_name"] = {
     _bme.geo.surface: "DSURFACE",
     _bme.geo.volume: "DVOL",
 }
-INPUT_FILE_MAPPINGS["boundary_conditions"] = {
+INPUT_FILE_MAPPINGS["bc_type_and_geometry_type_to_bc_section"] = {
     (_bme.bc.dirichlet, _bme.geo.point): "DESIGN POINT DIRICH CONDITIONS",
     (_bme.bc.dirichlet, _bme.geo.line): "DESIGN LINE DIRICH CONDITIONS",
     (_bme.bc.dirichlet, _bme.geo.surface): "DESIGN SURF DIRICH CONDITIONS",
@@ -167,6 +167,11 @@ INPUT_FILE_MAPPINGS["boundary_conditions"] = {
         _bme.geo.surface,
     ): "DESIGN SURF MORTAR CONTACT CONDITIONS 3D",
 }
+INPUT_FILE_MAPPINGS["bc_section_to_bc_type_and_geometry_type"] = (
+    _create_inverse_mapping(
+        INPUT_FILE_MAPPINGS["bc_type_and_geometry_type_to_bc_section"]
+    )
+)
 INPUT_FILE_MAPPINGS["geometry_sets_geometry_to_condition_name"] = {
     _bme.geo.point: "DNODE-NODE TOPOLOGY",
     _bme.geo.line: "DLINE-NODE TOPOLOGY",

@@ -279,7 +279,7 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
     # Adapt the FourCIPP type converters such that the correct indices will be dumped.
     input_file.fourc_input.type_converter.register_type(
         _GeometrySetBase,
-        lambda _, obj: geometry_sets_to_i_global[obj] + 1 + start_index_geometry_set,
+        lambda _, obj: geometry_sets_to_i_global[obj] + start_index_geometry_set,
     )
     input_file.fourc_input.type_converter.register_type(
         _Function, lambda _, obj: function_to_i_global[obj] + 1
@@ -346,9 +346,9 @@ def dump_mesh_to_input_file(input_file, mesh: _Mesh) -> None:
             if isinstance(bc_key, str):
                 section = bc_key
             else:
-                section = _INPUT_FILE_MAPPINGS["boundary_conditions"][
-                    (bc_key, geometry_key)
-                ]
+                section = _INPUT_FILE_MAPPINGS[
+                    "bc_type_and_geometry_type_to_bc_section"
+                ][(bc_key, geometry_key)]
 
             for boundary_condition in bc_list:
                 if isinstance(boundary_condition, _BoundaryCondition):

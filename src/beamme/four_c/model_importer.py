@@ -46,6 +46,9 @@ from beamme.core.mesh_representation import (
     string_to_geometry_set_info as _string_to_geometry_set_info,
 )
 from beamme.core.node import Node as _Node
+from beamme.four_c.boundary_condition_data import (
+    FourCBoundaryConditionData as _FourCBoundaryConditionData,
+)
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
 from beamme.four_c.element_data import (
     four_c_element_data_from_exo_dict as _four_c_element_data_from_exo_dict,
@@ -59,9 +62,6 @@ from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
 )
 from beamme.four_c.material import MaterialSolid as _MaterialSolid
-from beamme.utils.data_structures import (
-    create_inverse_mapping as _create_inverse_mapping,
-)
 from beamme.utils.environment import cubitpy_is_available as _cubitpy_is_available
 
 if _cubitpy_is_available():
@@ -156,41 +156,59 @@ def import_four_c_model(
     base_path = input_file_path.parent
 
     if input_file.contains_mesh_based_geometry_exodus():
-        (
-            mesh_representation,
-            element_type_id_to_data,
-            node_set_id_mesh_representation_to_input_file,
-        ) = _extract_mesh_representation_from_exo(input_file, base_path)
+        (mesh_representation, element_type_id_to_data, boundary_conditions) = (
+            _extract_mesh_representation_from_exo(input_file, base_path)
+        )
 
     elif convert_input_to_mesh:
-        (
-            mesh_representation,
-            element_type_id_to_data,
-            node_set_id_mesh_representation_to_input_file,
-        ) = _extract_mesh_representation(input_file)
+        (mesh_representation, element_type_id_to_data, boundary_conditions) = (
+            _extract_mesh_representation(input_file)
+        )
 
     else:
         mesh_representation = None
         element_type_id_to_data = None
+        boundary_conditions = None
 
-    if convert_input_to_mesh:
-        return _create_mesh_from_mesh_representation(
-            input_file,
-            mesh_representation,
-            element_type_id_to_data,
-            node_set_id_mesh_representation_to_input_file,
-        )
-    else:
-        if mesh_representation is not None:
+    if (
+        mesh_representation is not None
+        and element_type_id_to_data is not None
+        and boundary_conditions is not None
+    ):
+        # All the mesh data was extracted. Now we can either convert it to a BeamMe
+        # mesh or keep it in the input file.
+        if convert_input_to_mesh:
+            return _create_mesh_from_mesh_representation(
+                input_file,
+                mesh_representation,
+                element_type_id_to_data,
+                boundary_conditions,
+            )
+        else:
             input_file.mesh_representation = mesh_representation
-        if element_type_id_to_data is not None:
             input_file.element_type_id_to_data = element_type_id_to_data
-        return input_file, _Mesh()
+            input_file.boundary_conditions = boundary_conditions
+    elif (
+        mesh_representation is not None
+        or element_type_id_to_data is not None
+        or boundary_conditions is not None
+    ):
+        raise ValueError(
+            "Either none or all of the following must be provided: "
+            "mesh_representation, element_type_id_to_data or "
+            "boundary_conditions."
+        )
+
+    return input_file, _Mesh()
 
 
 def _extract_mesh_representation(
     input_file: _InputFile,
-) -> tuple[_MeshRepresentation, dict[int, _FourCElementData], dict[int, int]]:
+) -> tuple[
+    _MeshRepresentation,
+    dict[int, _FourCElementData],
+    dict[str, list[_FourCBoundaryConditionData]],
+]:
     """Extract the mesh representation from mesh data directly contained in the input
     file.
 
@@ -204,8 +222,7 @@ def _extract_mesh_representation(
         - `mesh_representation`: Contains the mesh data extracted from the input file.
         - `element_type_id_to_data`: A mapping between the element type ID and the
             element data.
-        - `node_set_id_mesh_representation_to_input_file`: A mapping that can be used
-            to map the IDs in the mesh representation to the IDs in the input file.
+        - `boundary_conditions`: The boundary conditions dictionary for the input file.
     """
     # extract nodes
     nodes = input_file.pop("NODE COORDS", [])
@@ -267,7 +284,7 @@ def _extract_mesh_representation(
 
     # extract geometry sets
     node_sets: list[_GeometrySetInfo] = []
-    node_set_id_mesh_representation_to_input_file: dict[int, int] = {}
+    node_set_id_mapping: dict[tuple[_Geometry, int], int] = {}
     for section_name in input_file.sections:
         if not section_name.endswith("TOPOLOGY"):
             continue
@@ -303,10 +320,12 @@ def _extract_mesh_representation(
                 )
             )
 
-            node_set_id_mesh_representation_to_input_file[node_set_id] = (
-                input_file_node_set_id
-            )
+            node_set_id_mapping[(geometry_type, input_file_node_set_id)] = node_set_id
 
+    # Extract boundary conditions
+    boundary_conditions = _extract_boundary_conditions_from_input_file(
+        input_file, node_set_id_mapping
+    )
     # Create the mesh representation and add the extracted data to it.
     mesh_representation = _MeshRepresentation(
         cell_connectivity=cell_connectivity,
@@ -326,7 +345,7 @@ def _extract_mesh_representation(
     return (
         mesh_representation,
         element_type_tracker.unique_id_to_data,
-        node_set_id_mesh_representation_to_input_file,
+        boundary_conditions,
     )
 
 
@@ -370,7 +389,11 @@ def _get_exodus_path_from_input_file(input_file: _InputFile, base_path: _Path) -
 
 def _extract_mesh_representation_from_exo(
     input_file: _InputFile, base_path: _Path
-) -> tuple[_MeshRepresentation, dict[int, _FourCElementData], dict[int, int]]:
+) -> tuple[
+    _MeshRepresentation,
+    dict[int, _FourCElementData],
+    dict[str, list[_FourCBoundaryConditionData]],
+]:
     """Extract the mesh representation from mesh data in exodus format.
 
     This will do an inplace removal of the extracted sections in the provided input file.
@@ -382,8 +405,7 @@ def _extract_mesh_representation_from_exo(
         A tuple (mesh_representation, element_type_id_to_data, node_set_id_mesh_representation_to_input_file).
         - `mesh_representation`: Contains the mesh data extracted from the input file.
         - `element_type_id_to_data`: A mapping between the element type ID and the element data.
-        - `node_set_id_mesh_representation_to_input_file`: A mapping that can be used to map the
-           geometry set IDs in the mesh representation to the ones in the input file.
+        - `boundary_conditions`: The boundary conditions dictionary for the input file.
     """
     # Load the exodus file.
     with _netCDF4.Dataset(
@@ -469,7 +491,7 @@ def _extract_mesh_representation_from_exo(
             _cupy.geometry.surface: _bme.geo.surface,
             _cupy.geometry.volume: _bme.geo.volume,
         }
-        node_set_id_mesh_representation_to_input_file = {}
+        node_set_id_mapping: dict[tuple[_Geometry, int], int] = {}
         geometry_sets: list[_GeometrySetInfo] = []
         _, exo_node_set_id_to_info = _get_exo_info(exo, "nodeset")
         for exo_id in sorted(exo_node_set_id_to_info.keys()):
@@ -479,34 +501,23 @@ def _extract_mesh_representation_from_exo(
             node_set_flag = _np.zeros(n_points, dtype=int)
             node_set_flag[exo.variables[f"node_ns{exo_id + 1}"][:] - 1] = 1
 
+            geometry_type = cubitpy_geometry_type_to_beamme[geometry_type_cubitpy]
+
             mesh_representation_id = len(geometry_sets)
-            node_set_id_mesh_representation_to_input_file[mesh_representation_id] = (
-                cubit_id
-            )
+            node_set_id_mapping[geometry_type, cubit_id] = mesh_representation_id
             geometry_sets.append(
                 _GeometrySetInfo(
-                    geometry_type=cubitpy_geometry_type_to_beamme[
-                        geometry_type_cubitpy
-                    ],
+                    geometry_type=geometry_type,
                     i_global=mesh_representation_id,
                     point_flag_vector=node_set_flag,
                     name=name,
                 )
             )
 
-    # Remove the entries in the boundary condition definitions in the input file that
-    # are exodus specific. Also, set the geometry set IDs in the boundary conditions to
-    # the ones in the mesh representation.
-    node_set_id_input_file_to_mesh_representation = _create_inverse_mapping(
-        node_set_id_mesh_representation_to_input_file
+    # Convert the boundary conditions
+    boundary_conditions = _extract_boundary_conditions_from_input_file(
+        input_file, node_set_id_mapping
     )
-    for section_name in input_file.sections:
-        if section_name in _INPUT_FILE_MAPPINGS["boundary_conditions"].values():
-            items = input_file.pop(section_name)
-            for bc in items:
-                bc.pop("ENTITY_TYPE")
-                bc["E"] = node_set_id_input_file_to_mesh_representation[bc["E"]] + 1
-            input_file.add({section_name: items})
 
     # Create the mesh representation
     mesh_representation = _MeshRepresentation(
@@ -524,25 +535,60 @@ def _extract_mesh_representation_from_exo(
     return (
         mesh_representation,
         element_type_tracker.unique_id_to_data,
-        {i: i + 1 for i in range(len(node_set_id_mesh_representation_to_input_file))},
+        boundary_conditions,
     )
 
 
+def _extract_boundary_conditions_from_input_file(
+    input_file: _InputFile,
+    node_set_id_mapping: dict[tuple[_Geometry, int], int],
+) -> dict[str, list[_FourCBoundaryConditionData]]:
+    """Extract the boundary conditions from the input file.
+
+    Args:
+        input_file: The input file containing the boundary condition sections. This
+            will be modified in place to remove the boundary condition sections.
+        node_set_id_mapping: A mapping of the geometry type and input file IDs to
+            mesh representation IDs
+    Returns:
+        The boundary conditions dictionary for the input file.
+    """
+    boundary_conditions: dict[str, list[_FourCBoundaryConditionData]] = _defaultdict(
+        list
+    )
+    boundary_condition_name_mapping = _INPUT_FILE_MAPPINGS[
+        "bc_section_to_bc_type_and_geometry_type"
+    ]
+    for section_name in input_file.sections:
+        if section_name in boundary_condition_name_mapping:
+            (_, geometry_type) = boundary_condition_name_mapping[section_name]
+            items = input_file.pop(section_name)
+            for bc in items:
+                bc.pop("ENTITY_TYPE", None)
+                input_file_geometry_set_id = bc.pop("E")
+                boundary_conditions[section_name].append(
+                    _FourCBoundaryConditionData(
+                        data=bc,
+                        geometry_set_id=node_set_id_mapping[
+                            geometry_type, input_file_geometry_set_id
+                        ],
+                    )
+                )
+    return boundary_conditions
+
+
 def _create_mesh_from_mesh_representation(
-    input_file,
-    mesh_representation,
-    element_type_id_to_data,
-    node_set_id_mesh_representation_to_input_file,
+    input_file: _InputFile,
+    mesh_representation: _MeshRepresentation,
+    element_type_id_to_data: dict[int, _FourCElementData],
+    boundary_conditions: dict[str, list[_FourCBoundaryConditionData]],
 ) -> tuple[_InputFile, _Mesh]:
     """Extract a BeamMe mesh from a mesh representation.
 
     Args:
         input_file: The input file containing general data.
         mesh_representation: The mesh representation to convert.
-        node_set_id_mesh_representation_to_input_file: A mapping of the mesh
-            representation node set IDs to input file IDs, which can be used to link
-            the geometry sets in the input file to the node sets in the mesh
-            representation.
+        boundary_conditions: The boundary conditions dictionary from the input file.
 
     Returns:
         A tuple (input_file, mesh). The input_file is modified in place to remove
@@ -609,9 +655,7 @@ def _create_mesh_from_mesh_representation(
         mesh.elements.append(element)
 
     # extract geometry sets
-    geometry_sets_in_sections: dict[_Geometry, dict[int, _GeometrySetNodes]] = (
-        _defaultdict(dict)
-    )
+    geometry_set_id_to_geometry_set: dict[int, _GeometrySetNodes] = {}
     for name in mesh_representation.point_data.keys():
         info = _string_to_geometry_set_info(name)
         if info is not None:
@@ -622,8 +666,7 @@ def _create_mesh_from_mesh_representation(
                 nodes=[mesh.nodes[i] for i in node_indices],
                 name=info.name,
             )
-            input_file_id = node_set_id_mesh_representation_to_input_file[info.i_global]
-            geometry_sets_in_sections[geometry_type][input_file_id] = geometry_set
+            geometry_set_id_to_geometry_set[info.i_global] = geometry_set
             mesh.add(geometry_set)
 
     # extract boundary conditions
@@ -635,12 +678,24 @@ def _create_mesh_from_mesh_representation(
         _bme.bc.beam_to_solid_surface_contact,
         _bme.bc.beam_to_solid_volume_meshtying,
     )
-
-    for (bc_key, geometry_type), section_name in _INPUT_FILE_MAPPINGS[
-        "boundary_conditions"
-    ].items():
-        for bc_data in input_file.pop(section_name, []):
-            geometry_set = geometry_sets_in_sections[geometry_type][bc_data.pop("E")]
+    boundary_condition_section_to_key_and_geometry = _INPUT_FILE_MAPPINGS[
+        "bc_section_to_bc_type_and_geometry_type"
+    ]
+    for section_name, section_conditions in boundary_conditions.items():
+        bc_key, geometry_type = boundary_condition_section_to_key_and_geometry[
+            section_name
+        ]
+        for boundary_condition in section_conditions:
+            bc_data = boundary_condition.data
+            geometry_set = geometry_set_id_to_geometry_set[
+                boundary_condition.geometry_set_id
+            ]
+            if geometry_type is not geometry_set.geometry_type:
+                raise ValueError(
+                    f"Geometry type for boundary condition section {geometry_type} does"
+                    " not match the geometry type of the corresponding geometry set "
+                    f"{geometry_set.geometry_type}."
+                )
 
             bc_obj: _BoundaryConditionBase
 
