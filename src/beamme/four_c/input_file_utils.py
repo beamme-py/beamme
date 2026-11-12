@@ -39,3 +39,22 @@ def contains_yaml_based_geometry(four_cipp_input: _FourCInput) -> bool:
         for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
     )
     return n_yaml_nodes > 0 or n_yaml_elements > 0
+
+
+def get_start_index_functions(four_cipp_input: _FourCInput) -> int:
+    """Get the start index for functions in the input file.
+
+    Args:
+        four_cipp_input: The input file to check.
+
+    Returns:
+        The start index for functions in the input file.
+    """
+    return max(
+        (
+            int(section.split("FUNCT")[-1])
+            for section in four_cipp_input.sections
+            if section.startswith("FUNCT")
+        ),
+        default=0,
+    )
