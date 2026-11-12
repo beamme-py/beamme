@@ -173,7 +173,6 @@ def test_integration_four_c_element_beam_euler_bernoulli(
     # Create the mesh and add function and material.
     mesh = Mesh()
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
-    mesh.add(fun)
     mat = MaterialEulerBernoulli(radius=1.0, youngs_modulus=1.0, nu=0.3, density=1.0)
 
     # Create the beam.
