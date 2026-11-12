@@ -375,10 +375,9 @@ def test_integration_four_c_simulation_beam_and_solid_tube(
     sin = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "sin(t*2*pi)"}])
     cos = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "cos(t*2*pi)"}])
     material = MaterialReissner(youngs_modulus=1e9, radius=0.25, shear_correction=0.75)
-    mesh.add(sin, cos, material)
+    mesh.add(sin, cos)
 
     # Add a straight beam.
-    mesh.add(material)
     cantilever_set = create_beam_mesh_line(
         mesh, Beam3rHerm2Line3, material, [2, 0, -5], [2, 0, 5], n_el=3
     )

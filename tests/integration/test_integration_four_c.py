@@ -149,7 +149,6 @@ def test_integration_four_c_fluid_element_section(
 
     beam_mesh = Mesh()
     material = get_default_test_beam_material(material_type="reissner")
-    beam_mesh.add(material)
 
     create_beam_mesh_line(
         beam_mesh,
@@ -481,7 +480,6 @@ def test_integration_four_c_check_multiple_node_penalty_coupling(
     # Create mesh object
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
-    mesh.add(mat)
 
     # Add three beams that have one common point
     create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 0, 0])

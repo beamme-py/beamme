@@ -279,7 +279,6 @@ def test_integration_mesh_creation_functions_beam_generic_node_positions_of_elem
 
     # Create and add material to mesh.
     material = get_default_test_beam_material(material_type="reissner")
-    mesh.add(material)
 
     # Create a beam line with specified node_positions_of_elements.
     create_beam_mesh_line(

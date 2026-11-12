@@ -43,7 +43,6 @@ def test_beamme_mesh_creation_functions_beam_node_continuation_accumulated_arc(
     """
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="reissner")
-    mesh.add(mat)
 
     n_segments = 100
 

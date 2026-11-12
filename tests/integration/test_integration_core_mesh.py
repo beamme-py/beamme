@@ -52,7 +52,6 @@ def create_test_mesh(get_default_test_beam_material):
     # Add material to mesh.
     mesh = Mesh()
     material = get_default_test_beam_material(material_type="reissner")
-    mesh.add(material)
 
     # Add three test nodes and add them to a beam element
     for _j in range(3):
@@ -389,7 +388,7 @@ def test_integration_core_mesh_deep_copy(
 
     def create_mesh(mesh):
         """Add material and function to the mesh and create a beam."""
-        mesh.add(fun, mat)
+        mesh.add(fun)
         set1 = create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 0, 0])
         set2 = create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [1, 0, 0], [1, 1, 0])
         mesh.add(
