@@ -46,7 +46,6 @@ def test_beamme_mesh_creation_functions_beam_generic_start_end_node_error(
     # Create mesh object.
     mesh = Mesh()
     mat = get_default_test_beam_material(material_type="base")
-    mesh.add(mat)
 
     # Try to create a line with a starting node that is not in the mesh.
     node = NodeCosserat([0, 0, 0], Rotation())
