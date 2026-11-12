@@ -38,7 +38,7 @@ class FourCBoundaryConditionData:
     def dump_to_input_file_yaml(self) -> dict:
         """Dump the boundary condition data to a dictionary that can be written to a 4C
         input file with the mesh in yaml format."""
-        return {"E": self.geometry_set_id, **self.data}
+        return {"E": self.geometry_set_id + 1, **self.data}
 
     def dump_to_input_file_vtu(
         self, geometry_sets_in_mr: dict[int, _GeometrySetInfo]
@@ -46,7 +46,7 @@ class FourCBoundaryConditionData:
         """Dump the boundary condition data to a dictionary that can be written to a 4C
         input file with the mesh in vtu format."""
         # For geometry sets in vtu format, 4C starts counting from 0. Also, the entries in geometry_sets_in_mr are indexed from 0.
-        geometry_set_id = self.geometry_set_id - 1
+        geometry_set_id = self.geometry_set_id
         geometry_set_info = geometry_sets_in_mr[geometry_set_id]
 
         boundary_condition_geometry_info: dict[str, _Any]
