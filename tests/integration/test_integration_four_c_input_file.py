@@ -27,6 +27,7 @@ import pytest
 from beamme.core.boundary_condition import BoundaryCondition
 from beamme.core.conf import bme
 from beamme.core.element import Element
+from beamme.core.function import Function
 from beamme.core.geometry_set import GeometryName
 from beamme.core.material import Material
 from beamme.core.mesh import Mesh
@@ -375,3 +376,40 @@ def test_integration_four_c_input_file_boundary_condition_names_from_exodus(
         input_file,
         four_c_input_file_data_format="vtu",
     )
+
+
+def test_integration_four_c_input_file_dump_functions(
+    get_default_test_beam_material,
+    assert_results_close,
+    get_corresponding_reference_file_path,
+):
+    """Check that functions can be dumped in a user-controllable order."""
+    mesh = Mesh()
+    material = get_default_test_beam_material(
+        material_type="reissner", interaction_radius=3.0
+    )
+    beam_set = create_beam_mesh_line(
+        mesh, Beam3rHerm2Line3, material, [0, 0, 0], [1, 0, 0]
+    )
+
+    functions = [Function([{"SYMBOLIC_FUNCTION_OF_TIME": str(i)}]) for i in range(5)]
+
+    # Explicitly add some functions, so they will appear first in the input file.
+    mesh.add(functions[3])
+    mesh.add(functions[2])
+
+    # Add boundary conditions that use the functions.
+    mesh.add(
+        BoundaryCondition(
+            beam_set["start"],
+            {
+                "NUMDOF": 9,
+                "ONOFF": [1] * 9,
+                "VAL": [0] * 9,
+                "FUNCT": functions + [None] * 4,
+            },
+            bc_type=bme.bc.dirichlet,
+        )
+    )
+
+    assert_results_close(get_corresponding_reference_file_path(), mesh)
