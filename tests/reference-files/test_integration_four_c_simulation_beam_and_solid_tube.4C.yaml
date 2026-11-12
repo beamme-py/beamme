@@ -90,7 +90,7 @@ DESIGN POINT DIRICH CONDITIONS:
     ONOFF: [1, 1, 1, 1, 1, 1, 0, 0, 0]
     VAL: [0, 0, 0, 0, 0, 0, 0, 0, 0]
   - E: 4
-    FUNCT: [4, 3, 0, 0, 0, 0, 0, 0, 0]
+    FUNCT: [3, 4, 0, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 1, 1, 1, 0, 0, 0]
     VAL: [3.0, 3.0, 0, 0, 0, 0, 0, 0, 0]
@@ -113,10 +113,10 @@ FUNCT2:
     SYMBOLIC_FUNCTION_OF_SPACE_TIME: "sin(2*pi*t)"
 FUNCT3:
   - COMPONENT: 0
-    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "sin(t*2*pi)"
+    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "cos(t*2*pi)"
 FUNCT4:
   - COMPONENT: 0
-    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "cos(t*2*pi)"
+    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "sin(t*2*pi)"
 STRUCTURE ELEMENTS:
   - "1 SOLID HEX8 1 2 3 4 5 6 7 8 MAT 1 KINEM nonlinear"
   - "2 SOLID HEX8 4 9 10 1 8 11 12 5 MAT 1 KINEM nonlinear"
