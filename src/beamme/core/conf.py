@@ -120,8 +120,9 @@ class BeamMe(object):
     def set_default_values(self):
         """Set the configuration to the default values."""
         # Set the epsilons for comparison of different types of values.
-        self.eps_quaternion = 1e-10
+        self.eps_input_file = 1e-10
         self.eps_knot_vector = 1e-10
+        self.eps_quaternion = 1e-10
         self.eps_parameter_space = 1e-10
         self.eps_pos = 1e-10
 
