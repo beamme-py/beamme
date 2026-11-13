@@ -47,7 +47,6 @@ def test_integration_four_c_beam_potential_helix(
 
     # define function for line charge density
     fun = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
-    mesh.add(fun)
 
     # define the beam potential
     beampotential = BeamPotential(

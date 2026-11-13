@@ -35,6 +35,7 @@ from fourcipp.fourc_input import FourCInput as _FourCInput
 from fourcipp.fourc_input import sort_by_section_names as _sort_by_section_names
 from fourcipp.utils.not_set import NOT_SET as _NOT_SET
 
+from beamme.core.boundary_condition import BoundaryCondition as _BoundaryCondition
 from beamme.core.conf import INPUT_FILE_HEADER as _INPUT_FILE_HEADER
 from beamme.core.mesh import Mesh as _Mesh
 from beamme.core.mesh_representation import MeshRepresentation as _MeshRepresentation
@@ -43,6 +44,9 @@ from beamme.four_c.boundary_condition_data import (
 )
 from beamme.four_c.element_data import FourCElementData as _FourCElementData
 from beamme.four_c.input_file_dump_functions import (
+    dump_boundary_condition_to_input_file as _dump_boundary_condition_to_input_file,
+)
+from beamme.four_c.input_file_dump_functions import (
     dump_mesh_representation_to_input_file_vtu as _dump_mesh_representation_to_input_file_vtu,
 )
 from beamme.four_c.input_file_dump_functions import (
@@ -50,6 +54,9 @@ from beamme.four_c.input_file_dump_functions import (
 )
 from beamme.four_c.input_file_dump_functions import (
     dump_mesh_to_input_file as _dump_mesh_to_input_file,
+)
+from beamme.four_c.input_file_geometry_set import (
+    GeometrySetInputFile as _GeometrySetInputFile,
 )
 from beamme.four_c.input_file_mappings import (
     INPUT_FILE_MAPPINGS as _INPUT_FILE_MAPPINGS,
@@ -173,6 +180,9 @@ class InputFile:
         """
         if isinstance(object_to_add, _Mesh):
             _dump_mesh_to_input_file(self, mesh=object_to_add, **kwargs)
+
+        elif isinstance(object_to_add, _BoundaryCondition):
+            _dump_boundary_condition_to_input_file(self, object_to_add)
 
         else:
             self.fourc_input.combine_sections(object_to_add)
@@ -499,3 +509,24 @@ class InputFile:
     # Set the display method from the common base implementation
     # in beamme.utils.visualization.
     display_pyvista = _display_pyvista
+
+    def get_named_geometry_sets(self) -> dict[str, _GeometrySetInputFile]:
+        """Return a dictionary with the named geometry sets in this input file.
+
+        Returns:
+            A dictionary that maps the name of a geometry set to the geometry set
+            object. Only named geometry sets are returned. This function throws an
+            error if there are multiple geometry sets with the same name.
+        """
+        geometry_sets: dict[str, _GeometrySetInputFile] = {}
+        for geometry_set_info in self.mesh_representation.get_geometry_set_infos():
+            if geometry_set_info.name is not None:
+                if geometry_set_info.name in geometry_sets:
+                    raise ValueError(
+                        f"Multiple geometry sets with the name "
+                        f"{geometry_set_info.name} found."
+                    )
+                geometry_sets[geometry_set_info.name] = _GeometrySetInputFile(
+                    self.mesh_representation, geometry_set_info
+                )
+        return geometry_sets
