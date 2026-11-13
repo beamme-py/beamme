@@ -288,7 +288,6 @@ def test_integration_four_c_nurbs_import(
     input_file["IO"]["VERBOSITY"] = "Standard"
 
     fun = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}])
-    mesh.add(fun)
 
     # Create the beam material.
     material = get_default_test_beam_material(material_type="reissner")

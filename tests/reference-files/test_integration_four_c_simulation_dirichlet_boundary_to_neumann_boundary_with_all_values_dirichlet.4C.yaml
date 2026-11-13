@@ -49,69 +49,66 @@ DESIGN POINT DIRICH CONDITIONS:
     ONOFF: [1, 1, 1, 1, 1, 1, 0, 0, 0]
     VAL: [0, 0, 0, 0, 0, 0, 0, 0, 0]
   - E: 2
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, 0.14694631307311828, 0, 0, 0, 0, 0, 0]
   - E: 3
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, 0.23776412907378838, 0, 0, 0, 0, 0, 0]
   - E: 4
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, 0.2377641290737884, 0, 0, 0, 0, 0, 0]
   - E: 5
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, 0.1469463130731183, 0, 0, 0, 0, 0, 0]
   - E: 6
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, 3.061616997868383e-17, 0, 0, 0, 0, 0, 0]
   - E: 7
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, -0.14694631307311826, 0, 0, 0, 0, 0, 0]
   - E: 8
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, -0.23776412907378838, 0, 0, 0, 0, 0, 0]
   - E: 9
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, -0.2377641290737884, 0, 0, 0, 0, 0, 0]
   - E: 10
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, -0.14694631307311834, 0, 0, 0, 0, 0, 0]
   - E: 11
-    FUNCT: [0, 0, 2, 0, 0, 0, 0, 0, 0]
+    FUNCT: [0, 0, 1, 0, 0, 0, 0, 0, 0]
     NUMDOF: 9
     ONOFF: [1, 1, 1, 0, 0, 0, 0, 0, 0]
     TAG: "monitor_reaction"
     VAL: [0, 0, -6.123233995736766e-17, 0, 0, 0, 0, 0, 0]
 FUNCT1:
-  - COMPONENT: 0
-    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "t"
-FUNCT2:
   - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "a"
   - NAME: "a"
     NUMPOINTS: 4
