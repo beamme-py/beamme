@@ -492,7 +492,10 @@ def _get_function_converter(
             if section.startswith("FUNCT")
         ]:
             if _compare_nested_dicts_or_lists(
-                fourcipp_input_file.sections[function_section], function.data
+                fourcipp_input_file.sections[function_section],
+                function.data,
+                atol=_bme.eps_input_file,
+                rtol=_bme.eps_input_file,
             ):
                 function_id = int(function_section.split("FUNCT")[-1]) - 1
                 function_to_i_global[function] = function_id

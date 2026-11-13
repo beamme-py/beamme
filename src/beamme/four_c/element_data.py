@@ -28,6 +28,7 @@ from typing import Any as _Any
 import numpy as _np
 from numpy.typing import NDArray as _NDArray
 
+from beamme.core.conf import bme as _bme
 from beamme.utils.data_structures import (
     compare_nested_dicts_or_lists as _compare_nested_dicts_or_lists,
 )
@@ -97,11 +98,12 @@ class FourCElementData:
             return False
         if self.four_c_type != other.four_c_type:
             return False
-        if not _compare_nested_dicts_or_lists(
-            self.element_technology, other.element_technology
-        ):
-            return False
-        return True
+        return _compare_nested_dicts_or_lists(
+            self.element_technology,
+            other.element_technology,
+            atol=_bme.eps_input_file,
+            rtol=_bme.eps_input_file,
+        )
 
 
 def four_c_element_data_from_yaml_dict(
