@@ -182,16 +182,6 @@ def create_cantilever_model(n_steps, time_step=0.5):
     input_file["IO"]["STRUCT_DISP"] = True
 
     mesh = Mesh()
-    ft = Function(
-        [
-            {
-                "COMPONENT": 0,
-                "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t",
-            },
-        ]
-    )
-    mesh.add(ft)
-
     mat = MaterialReissner(youngs_modulus=100.0, radius=0.1)
     beam_set = create_beam_mesh_line(
         mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [2, 0, 0], n_el=10
@@ -290,7 +280,6 @@ def test_integration_four_c_simulation_honeycomb_sphere(
             },
         ]
     )
-    mesh_honeycomb.add(ft)
 
     # Change the sets to lines, only for purpose of matching the test file
     honeycomb_set["bottom"].geo_type = bme.geo.line
@@ -375,7 +364,6 @@ def test_integration_four_c_simulation_beam_and_solid_tube(
     sin = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "sin(t*2*pi)"}])
     cos = Function([{"COMPONENT": 0, "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "cos(t*2*pi)"}])
     material = MaterialReissner(youngs_modulus=1e9, radius=0.25, shear_correction=0.75)
-    mesh.add(sin, cos)
 
     # Add a straight beam.
     cantilever_set = create_beam_mesh_line(
@@ -523,12 +511,7 @@ def test_integration_four_c_simulation_honeycomb_variants(
     # Create four meshes with different types of honeycomb structure.
     mesh = Mesh()
     material = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
-    ft = []
-    ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
-    ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
-    ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
-    ft.append(Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}]))
-    mesh.add(ft)
+    ft = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}])
 
     counter = 0
     for vertical in [False, True]:
@@ -565,9 +548,9 @@ def test_integration_four_c_simulation_honeycomb_variants(
                         "ONOFF": [1, 1, 1, 0, 0, 0, 0, 0, 0],
                         "VAL": [0.0001, 0.0001, 0.0001, 0, 0, 0, 0, 0, 0],
                         "FUNCT": [
-                            ft[counter],
-                            ft[counter],
-                            ft[counter],
+                            ft,
+                            ft,
+                            ft,
                             0,
                             0,
                             0,
@@ -634,7 +617,6 @@ def test_integration_four_c_simulation_rotated_beam_axis(
 
     # Define linear function over time.
     ft = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}])
-    mesh.add(ft)
 
     # Set beam material.
     mat = MaterialReissner(youngs_modulus=2.07e2, radius=0.1, shear_correction=1.1)
@@ -760,6 +742,15 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
     # Create and run the initial simulation.
     initial_input_file, initial_mesh, mesh_beam_set = create_cantilever_model(n_steps=2)
 
+    ft = Function(
+        [
+            {
+                "COMPONENT": 0,
+                "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t",
+            },
+        ]
+    )
+
     initial_mesh.add(
         BoundaryCondition(
             mesh_beam_set["start"],
@@ -779,7 +770,7 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
                 "NUMDOF": 9,
                 "ONOFF": [1, 1, 1, 0, 0, 0, 0, 0, 0],
                 "VAL": [-0.2, 1.5, 1.0, 0, 0, 0, 0, 0, 0],
-                "FUNCT": [1, 1, 1, 0, 0, 0, 0, 0, 0],
+                "FUNCT": [ft, ft, ft, 0, 0, 0, 0, 0, 0],
                 "TAG": "monitor_reaction",
             },
             bc_type=bme.bc.dirichlet,
@@ -841,7 +832,6 @@ def test_integration_four_c_simulation_dbc_monitor_to_input(
             },
         ]
     )
-    restart_mesh.add(function_nbc)
 
     if all_values:
         dbc_monitor_to_mesh_all_values(
@@ -902,22 +892,20 @@ def test_integration_four_c_simulation_dirichlet_boundary_to_neumann_boundary_wi
     initial_simulation, mesh, beam_set = create_cantilever_model(n_steps, dt)
 
     # Add simple linear interpolation function.
-    mesh.add(
-        Function(
-            [
-                {
-                    "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "a",
-                },
-                {
-                    "VARIABLE": 0,
-                    "NAME": "a",
-                    "TYPE": "linearinterpolation",
-                    "NUMPOINTS": 4,
-                    "TIMES": [0, dt * n_steps, 2 * dt * n_steps, 9999999999.0],
-                    "VALUES": [0.0, 1.0, 0.0, 0.0],
-                },
-            ]
-        )
+    fun = Function(
+        [
+            {
+                "SYMBOLIC_FUNCTION_OF_SPACE_TIME": "a",
+            },
+            {
+                "VARIABLE": 0,
+                "NAME": "a",
+                "TYPE": "linearinterpolation",
+                "NUMPOINTS": 4,
+                "TIMES": [0, dt * n_steps, 2 * dt * n_steps, 9999999999.0],
+                "VALUES": [0.0, 1.0, 0.0, 0.0],
+            },
+        ]
     )
 
     # Apply displacements to all nodes.
@@ -957,7 +945,7 @@ def test_integration_four_c_simulation_dirichlet_boundary_to_neumann_boundary_wi
                                 0,
                                 0,
                             ],
-                            "FUNCT": [0, 0, 2, 0, 0, 0, 0, 0, 0],
+                            "FUNCT": [0, 0, fun, 0, 0, 0, 0, 0, 0],
                             "TAG": "monitor_reaction",
                         },
                         bc_type=bme.bc.dirichlet,
@@ -1076,7 +1064,6 @@ def test_integration_four_c_simulation_cantilever_convergence(
             ]
         )
         mesh.add(
-            fun,
             BoundaryCondition(
                 beam_set["end"],
                 {
@@ -1179,8 +1166,6 @@ def test_integration_four_c_simulation_beam_to_beam_contact_example(
 
     # Create a linear interpolation function with the displacement.
     fun = create_linear_interpolation_function(t, disp_values)
-
-    mesh.add(fun)
 
     # Apply Dirichlet conditions at starting and end node to displace the beam endings.
     for set_name in ["start", "end"]:
@@ -1306,7 +1291,6 @@ def test_integration_four_c_simulation_locsys(
             )
             for i_dir in range(3)
         ]
-        mesh.add(rotation_vector_component_functions)
 
         # Get the "displacements" for the end node for each time step, also in the locsys coordinate system.
         displacements = np.array(
@@ -1324,7 +1308,6 @@ def test_integration_four_c_simulation_locsys(
             )
             for i_dir in range(3)
         ]
-        mesh.add(displacements_locsys_functions)
 
         # Set the boundary condition and locsys on the outer end.
         mesh.add(
@@ -1350,7 +1333,6 @@ def test_integration_four_c_simulation_locsys(
 
     # Apply the boundary condition to the last node at the origin. This DBC is applied starting from time t=1
     f_dbc = create_linear_interpolation_function([0, 1, 2], [0, 0, 1])
-    mesh.add(f_dbc)
     mesh.add(LocSysCondition(beam_set["start"], rotation=rotations[-1]))
     mesh.add(
         BoundaryCondition(
@@ -1456,7 +1438,6 @@ def test_integration_four_c_simulation_beam_types(
 
     mesh = Mesh()
     fun = Function([{"SYMBOLIC_FUNCTION_OF_TIME": "t"}])
-    mesh.add(fun)
 
     for i_beam, (beam_type, mat, n_dof) in enumerate(beam_type_and_material_list):
         # For all other beams, we create an arc segment with a general spatial rotation.

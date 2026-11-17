@@ -388,12 +388,11 @@ def test_integration_core_mesh_deep_copy(
 
     def create_mesh(mesh):
         """Add material and function to the mesh and create a beam."""
-        mesh.add(fun)
         set1 = create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [0, 0, 0], [1, 0, 0])
         set2 = create_beam_mesh_line(mesh, Beam3rHerm2Line3, mat, [1, 0, 0], [1, 1, 0])
         mesh.add(
             BoundaryCondition(
-                set1["line"], get_bc_data(identifier=1), bc_type=bme.bc.dirichlet
+                set1["line"], get_bc_data(identifier=fun), bc_type=bme.bc.dirichlet
             )
         )
         mesh.add(

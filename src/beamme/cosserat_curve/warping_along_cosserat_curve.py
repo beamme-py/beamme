@@ -285,8 +285,6 @@ def create_transform_boundary_conditions(
             )
             for i_dir in range(3)
         ]
-        for fun in fun_pos:
-            mesh.add(fun)
         n_additional_dof = n_dof_per_node - 3
         mesh.add(
             _BoundaryCondition(

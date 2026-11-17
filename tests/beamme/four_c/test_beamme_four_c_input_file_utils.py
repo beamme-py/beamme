@@ -23,7 +23,10 @@
 
 from fourcipp.fourc_input import FourCInput
 
-from beamme.four_c.input_file_utils import contains_yaml_based_geometry
+from beamme.four_c.input_file_utils import (
+    contains_yaml_based_geometry,
+    get_start_index_functions,
+)
 
 
 def test_beamme_four_c_input_file_utils_contains_yaml_based_geometry():
@@ -69,3 +72,18 @@ def test_beamme_four_c_input_file_utils_contains_yaml_based_geometry():
     input_file["NODE COORDS"] = nodes
     input_file["STRUCTURE ELEMENTS"] = elements
     assert contains_yaml_based_geometry(input_file)
+
+
+def test_beamme_four_c_input_file_utils_get_start_index_functions():
+    """Test the get_start_index_functions function."""
+    input_file = FourCInput()
+    assert get_start_index_functions(input_file) == 0
+
+    input_file["FUNCT1"] = {}
+    assert get_start_index_functions(input_file) == 1
+
+    input_file["FUNCT2"] = {}
+    assert get_start_index_functions(input_file) == 2
+
+    input_file["FUNCT17"] = {}
+    assert get_start_index_functions(input_file) == 17
