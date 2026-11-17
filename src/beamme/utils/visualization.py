@@ -101,7 +101,7 @@ def show_plotter(plotter: _pv.Plotter, *, nbsphinx_export_3d_view: bool = True) 
 
         if nbsphinx_export_3d_view:
             # Export a html representation of the plotter
-            plotter.export_html(static_doc_path / f"{plotter_uid}.html")
+            plotter.trame.export_html(static_doc_path / f"{plotter_uid}.html")
 
             interactive_frame = _IFrame(
                 src=f"../_static/pyvista/{plotter_uid}.html",
