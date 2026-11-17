@@ -39,3 +39,37 @@ def contains_yaml_based_geometry(four_cipp_input: _FourCInput) -> bool:
         for section in ("FLUID ELEMENTS", "STRUCTURE ELEMENTS")
     )
     return n_yaml_nodes > 0 or n_yaml_elements > 0
+
+
+def get_start_index_functions(four_cipp_input: _FourCInput) -> int:
+    """Get the start index for functions in the input file.
+
+    Args:
+        four_cipp_input: The input file to check.
+
+    Returns:
+        The start index for functions in the input file.
+    """
+    return max(
+        (
+            int(section.split("FUNCT")[-1])
+            for section in four_cipp_input.sections
+            if section.startswith("FUNCT")
+        ),
+        default=0,
+    )
+
+
+def four_cipp_unregister_type(four_cipp_input: _FourCInput, custom_type: type):
+    """Unregister a custom type converter function from the FourCInput object.
+
+    Args:
+        four_cipp_input: The FourCInput object to unregister the type from.
+        custom_type: The custom type to unregister. If this type is not registered,
+            an error will be raised.
+    """
+    if custom_type not in four_cipp_input.type_converter._custom_converters:
+        raise ValueError(
+            f"Custom type {custom_type} is not registered in the FourCInput object."
+        )
+    four_cipp_input.type_converter._custom_converters.pop(custom_type, None)

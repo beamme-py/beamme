@@ -164,10 +164,6 @@ def add_point_neuman_condition_to_mesh(
 
     function_array = _ensure_length_of_function_array(function_array, 3)
 
-    # Add the function to the mesh, if they are not previously added.
-    for function in function_array:
-        mesh.add(function)
-
     # Create GeometrySet with nodes.
     mesh_nodes = [mesh.nodes[i_node] for i_node in nodes]
     geo = _GeometrySet(mesh_nodes)
@@ -301,9 +297,6 @@ def dbc_monitor_to_mesh_all_values(
             fun = _create_linear_interpolation_function(
                 time, force[:, dim], function_type="SYMBOLIC_FUNCTION_OF_TIME"
             )
-
-            # add the function to the mesh
-            mesh.add(fun)
 
             # store function
             functions.append(fun)

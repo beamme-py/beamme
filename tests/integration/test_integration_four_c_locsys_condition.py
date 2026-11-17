@@ -50,7 +50,6 @@ def test_integration_four_c_locsys_condition_locsys(
     mesh = Mesh()
 
     fun = Function([{"SYMBOLIC_FUNCTION_OF_SPACE_TIME": "t"}])
-    mesh.add(fun)
 
     # Create the beam.
     beam_set = create_beam_mesh_line(
@@ -93,9 +92,7 @@ def test_integration_four_c_locsys_condition_locsys(
     mesh.add(LocSysCondition(beam_set["end"], rotation=locsys_rotation))
 
     # Add line Function with function array
-
     fun_2 = Function([{"SYMBOLIC_FUNCTION_OF_SPACE_TIME": "2.0*t"}])
-    mesh.add(fun_2)
 
     # Check if the LocSys condition is added correctly for a line with additional options.
     mesh.add(

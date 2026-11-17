@@ -21,9 +21,15 @@
 # THE SOFTWARE.
 """Unit tests the 4C input file utils."""
 
+from dataclasses import dataclass
+
+import pytest
 from fourcipp.fourc_input import FourCInput
 
-from beamme.four_c.input_file_utils import contains_yaml_based_geometry
+from beamme.four_c.input_file_utils import (
+    contains_yaml_based_geometry,
+    four_cipp_unregister_type,
+)
 
 
 def test_beamme_four_c_input_file_utils_contains_yaml_based_geometry():
@@ -69,3 +75,27 @@ def test_beamme_four_c_input_file_utils_contains_yaml_based_geometry():
     input_file["NODE COORDS"] = nodes
     input_file["STRUCTURE ELEMENTS"] = elements
     assert contains_yaml_based_geometry(input_file)
+
+
+def test_beamme_four_c_input_file_utils_four_cipp_unregister_type():
+    """Test the four_cipp_unregister_type function."""
+
+    @dataclass
+    class Dummy:
+        """Data class to be converted."""
+
+        data: int
+
+    dummy_data = Dummy(data=42)
+
+    input_file = FourCInput()
+
+    input_file.type_converter.register_type(Dummy, lambda _, obj: obj.data)
+    assert input_file.type_converter(dummy_data) == 42
+
+    four_cipp_unregister_type(input_file, Dummy)
+
+    with pytest.raises(
+        ValueError, match=r"Custom type .* is not registered in the FourCInput object\."
+    ):
+        four_cipp_unregister_type(input_file, Dummy)
